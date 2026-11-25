@@ -1343,10 +1343,10 @@ tbody td{padding:9px 12px;vertical-align:middle}
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- FIREBASE -->
+<!-- FIREBASE + APP (todo en un solo módulo) -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDSyoOgMBH_pLWjOFADaJdPztIEcC2D5bA",
@@ -1361,49 +1361,1134 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ── STATE ──
-window.DB = {
+let DB = {
   productos: [], movimientos: [], gasoil: [],
   pulverizaciones: [], fertilizaciones: [], labores: [],
   siembra: [], cosecha: [], lotes: []
 };
-window.db = db;
-window.colRef = (name) => collection(db, name);
-window.docRef = (col, id) => doc(db, col, id);
-window.addDoc2 = addDoc;
-window.updateDoc2 = updateDoc;
-window.deleteDoc2 = deleteDoc;
-window.serverTS = serverTimestamp;
-window.writeBatch2 = writeBatch;
 
 // ── SYNC INDICATOR ──
-let syncDot = document.getElementById('sync-dot');
-let syncTxt = document.getElementById('sync-txt');
+const syncDot = document.getElementById('sync-dot');
+const syncTxt = document.getElementById('sync-txt');
 
-function setupListener(colName, stateKey, renderFn) {
-  onSnapshot(query(collection(db, colName), orderBy('_ts', 'desc')), snap => {
-    DB[stateKey] = snap.docs.map(d => ({id: d.id, ...d.data()}));
-    renderFn();
-    syncDot.classList.add('live');
-    syncTxt.textContent = 'En línea';
-  }, err => {
-    syncDot.classList.remove('live');
-    syncDot.style.background = '#ef9a9a';
-    syncTxt.textContent = 'Sin conexión';
+function dot(state) {
+  if (state === 'online') { syncDot.classList.add('live'); syncDot.style.background=''; syncTxt.textContent = 'En línea'; }
+  else { syncDot.classList.remove('live'); syncDot.style.background = '#ef9a9a'; syncTxt.textContent = 'Sin conexión'; }
+}
+
+// ── HELPERS ──
+function fmt(n){ if(!n && n!==0) return '-'; return Number(n).toLocaleString('es-AR'); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function toast(msg, type='success'){
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('show'); }
+function confirm2(msg, fn){
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-modal').classList.add('show');
+  document.getElementById('confirm-ok').onclick = () => { fn(); closeConfirm(); };
+}
+function cultivoBadge(c){
+  if(!c) return '';
+  const m = {'TRIGO':'trigo','MAIZ':'maiz','SOJA':'soja','GIRASOL':'girasol','PASTURA':'pastura'};
+  return '<span class="badge badge-'+(m[c]||'otro')+'">'+c+'</span>';
+}
+function tipoPulvBadge(t){
+  if(!t) return '';
+  const m = {'barbecho':'barbecho','pre-emerg':'pre','post-emerg':'post','otro':'otro'};
+  const labels = {'barbecho':'Barbecho','pre-emerg':'Pre-emerg.','post-emerg':'Post-emerg.','otro':'Otro'};
+  return '<span class="badge badge-'+(m[t]||'otro')+'">'+(labels[t]||t)+'</span>';
+}
+function categBadge(c){
+  const m = {'HERBICIDA':'herb','FERTILIZANTE':'fert','COADYUVANTE':'coad'};
+  return '<span class="badge badge-'+(m[c]||'otro')+'">'+c+'</span>';
+}
+
+// ── NAVIGATION ──
+window.showTab = function(tab){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+};
+
+window.showStockSub = function(sub){
+  ['prod','mov','res'].forEach(s => {
+    document.getElementById('stock-'+s).style.display = s===sub ? '' : 'none';
+    document.getElementById('sub-stock-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
+  });
+  if(sub==='res') renderResumen();
+};
+
+window.showGasoilSub = function(sub){
+  ['panel','reg'].forEach(s => {
+    document.getElementById('gasoil-'+s).style.display = s===sub ? '' : 'none';
+    document.getElementById('sub-gasoil-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
+  });
+};
+
+// ── LOTES ──
+function getLotesNames(){ return DB.lotes.map(l=>l.nombre).sort(); }
+
+function populateLoteSelect(selId, addBlank=true){
+  const sel = document.getElementById(selId);
+  if(!sel) return;
+  const val = sel.value;
+  sel.innerHTML = (addBlank ? '<option value="">— Lote —</option>' : '') + getLotesNames().map(n=>'<option value="'+n+'">'+n+'</option>').join('');
+  if(val) sel.value = val;
+}
+
+function populateLoteSelects(){
+  ['pulv-lote','fert-lote','labor-lote','siem-lote','cos-lote'].forEach(id => populateLoteSelect(id));
+  ['filter-lote-pulv','filter-lote-fert','filter-lote-labor','filter-lote-cosecha'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const val = sel.value;
+    sel.innerHTML = '<option value="">Todos los lotes</option>' + getLotesNames().map(n=>'<option value="'+n+'">'+n+'</option>').join('');
+    if(val) sel.value = val;
   });
 }
 
-// Exponer setupListener para que el segundo script lo llame cuando las render functions estén definidas
-window.setupAllListeners = function() {
-  setupListener('stock_productos', 'productos', () => { renderProductos(); renderResumen(); populateMovProductos(); });
-  setupListener('stock_movimientos', 'movimientos', renderMovimientos);
-  setupListener('gasoil_registros', 'gasoil', () => { renderGasoil(); renderGasoilBalances(); populateCuentas(); });
-  setupListener('pulverizaciones', 'pulverizaciones', renderPulv);
-  setupListener('fertilizaciones', 'fertilizaciones', renderFert);
-  setupListener('labores', 'labores', renderLabores);
-  setupListener('siembra', 'siembra', renderSiembra);
-  setupListener('cosecha', 'cosecha', () => { renderCosecha(); renderCosechaResumen(); });
-  setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); });
+function renderLotes(){
+  const grid = document.getElementById('lotes-grid');
+  const tbody = document.getElementById('tbody-lotes');
+  if(!grid || !tbody) return;
+  const lotes = DB.lotes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  grid.innerHTML = lotes.map(l =>
+    '<div class="lote-chip">' + l.nombre + ' ' + (l.ha ? '<small style="opacity:.6">'+l.ha+'ha</small>' : '') +
+    ' <button onclick="editLote(\''+l.id+'\')" title="Editar">✏️</button>' +
+    ' <button onclick="deleteLote(\''+l.id+'\',\''+l.nombre+'\')" title="Eliminar">×</button>' +
+    '</div>'
+  ).join('') || '<span style="color:var(--muted);font-size:12px">Sin lotes configurados</span>';
+  tbody.innerHTML = lotes.map(l =>
+    '<tr>' +
+    '<td style="font-weight:700">'+l.nombre+'</td>' +
+    '<td>'+(l.ha||'-')+' ha</td>' +
+    '<td>'+(l.cultivo||'-')+'</td>' +
+    '<td>'+(l.antecesor||'-')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(l.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editLote(\''+l.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteLote(\''+l.id+'\',\''+l.nombre+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="6">Sin lotes</td></tr>';
+}
+
+window.openModalLote = function(){
+  document.getElementById('lote-id').value='';
+  document.getElementById('lote-nombre').value='';
+  document.getElementById('lote-ha').value='';
+  document.getElementById('lote-cultivo').value='';
+  document.getElementById('lote-antecesor').value='';
+  document.getElementById('lote-obs').value='';
+  document.getElementById('modal-lote-title').textContent='Nuevo lote';
+  openModal('modal-lote');
 };
+
+window.editLote = function(id){
+  const l = DB.lotes.find(x=>x.id===id); if(!l) return;
+  document.getElementById('lote-id').value=l.id;
+  document.getElementById('lote-nombre').value=l.nombre||'';
+  document.getElementById('lote-ha').value=l.ha||'';
+  document.getElementById('lote-cultivo').value=l.cultivo||'';
+  document.getElementById('lote-antecesor').value=l.antecesor||'';
+  document.getElementById('lote-obs').value=l.obs||'';
+  document.getElementById('modal-lote-title').textContent='Editar lote';
+  openModal('modal-lote');
+};
+
+window.guardarLote = async function(){
+  const id = document.getElementById('lote-id').value;
+  const data = {
+    nombre: document.getElementById('lote-nombre').value.trim(),
+    ha: parseFloat(document.getElementById('lote-ha').value)||0,
+    cultivo: document.getElementById('lote-cultivo').value.trim(),
+    antecesor: document.getElementById('lote-antecesor').value.trim(),
+    obs: document.getElementById('lote-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.nombre){ toast('Ingresá el nombre del lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'lotes',id), data);
+    else await addDoc(collection(db,'lotes'), data);
+    toast('Lote guardado ✓');
+    closeModal('modal-lote');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+window.deleteLote = function(id, nombre){
+  confirm2('¿Eliminar el lote "'+nombre+'"? Esta acción no afecta los registros existentes.', async () => {
+    try { await deleteDoc(doc(db,'lotes',id)); toast('Lote eliminado'); }
+    catch(e){ toast('Error: '+e.message,'error'); }
+  });
+};
+
+// ── STOCK PRODUCTOS ──
+let sortState = {};
+
+function renderProductos(){
+  const search = document.getElementById('search-prod')?.value?.toLowerCase()||'';
+  const cat = document.getElementById('filter-categoria')?.value||'';
+  let prods = DB.productos.filter(p => {
+    const ok = (!search || p.nombre?.toLowerCase().includes(search) || p.marca?.toLowerCase().includes(search));
+    const okCat = (!cat || p.categoria===cat);
+    return ok && okCat;
+  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const grid = document.getElementById('productos-grid');
+  if(!grid) return;
+  grid.innerHTML = prods.map(p => {
+    const low = p.stock <= (p.minimo||0);
+    return '<div class="prod-card" onclick="editProducto(\''+p.id+'\')">' +
+      '<div class="prod-card-top">' +
+        '<div>' +
+          '<div class="prod-nombre">'+p.nombre+'</div>' +
+          '<div class="prod-marca">'+(p.marca||'')+'</div>' +
+        '</div>' +
+        categBadge(p.categoria) +
+      '</div>' +
+      '<div>' +
+        '<div class="prod-stock '+(low?'low':'')+'">'+fmt(p.stock)+'</div>' +
+        '<div class="prod-unidad">'+p.unidad+' '+(low?'⚠️ stock bajo':'')+'</div>' +
+      '</div>' +
+      '<div class="prod-actions">' +
+        '<button class="btn btn-green btn-sm" onclick="event.stopPropagation();openMovProd(\''+p.id+'\')">↕</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editProducto(\''+p.id+'\')">✏️</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteProducto(\''+p.id+'\',\''+p.nombre+'\')">🗑</button>' +
+      '</div>' +
+    '</div>';
+  }).join('') || '<p style="color:var(--muted);padding:20px;font-style:italic">Sin productos</p>';
+}
+
+window.openModalProducto = function(){
+  document.getElementById('prod-id').value='';
+  ['prod-nombre','prod-marca','prod-obs'].forEach(id=>document.getElementById(id).value='');
+  ['prod-stock','prod-minimo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prod-categoria').value='HERBICIDA';
+  document.getElementById('prod-unidad').value='lts';
+  document.getElementById('modal-producto-title').textContent='Nuevo producto';
+  openModal('modal-producto');
+};
+
+window.editProducto = function(id){
+  const p = DB.productos.find(x=>x.id===id); if(!p) return;
+  document.getElementById('prod-id').value=p.id;
+  document.getElementById('prod-nombre').value=p.nombre||'';
+  document.getElementById('prod-marca').value=p.marca||'';
+  document.getElementById('prod-categoria').value=p.categoria||'HERBICIDA';
+  document.getElementById('prod-unidad').value=p.unidad||'lts';
+  document.getElementById('prod-stock').value=p.stock||'';
+  document.getElementById('prod-minimo').value=p.minimo||'';
+  document.getElementById('prod-obs').value=p.obs||'';
+  document.getElementById('modal-producto-title').textContent='Editar producto';
+  openModal('modal-producto');
+};
+
+window.guardarProducto = async function(){
+  const id = document.getElementById('prod-id').value;
+  const data = {
+    nombre: document.getElementById('prod-nombre').value.trim(),
+    marca: document.getElementById('prod-marca').value.trim(),
+    categoria: document.getElementById('prod-categoria').value,
+    unidad: document.getElementById('prod-unidad').value,
+    stock: parseFloat(document.getElementById('prod-stock').value)||0,
+    minimo: parseFloat(document.getElementById('prod-minimo').value)||0,
+    obs: document.getElementById('prod-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.nombre){ toast('Ingresá el nombre','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'stock_productos',id), data);
+    else await addDoc(collection(db,'stock_productos'), data);
+    toast('Producto guardado ✓');
+    closeModal('modal-producto');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+window.deleteProducto = function(id, nombre){
+  confirm2('¿Eliminar "'+nombre+'"?', async () => {
+    try { await deleteDoc(doc(db,'stock_productos',id)); toast('Eliminado'); }
+    catch(e){ toast('Error: '+e.message,'error'); }
+  });
+};
+
+// ── MOVIMIENTOS ──
+function populateMovProductos(){
+  const sel = document.getElementById('mov-producto');
+  if(!sel) return;
+  const val = sel.value;
+  sel.innerHTML = DB.productos.map(p=>'<option value="'+p.id+'" data-nombre="'+p.nombre+'">'+p.nombre+' ('+p.unidad+')</option>').join('');
+  if(val) sel.value = val;
+}
+
+window.openMovProd = function(prodId){
+  window.openModalMovimiento();
+  setTimeout(()=>{ document.getElementById('mov-producto').value=prodId; }, 100);
+};
+
+window.openModalMovimiento = function(){
+  document.getElementById('mov-id').value='';
+  document.getElementById('mov-fecha').value=today();
+  document.getElementById('mov-tipo').value='salida';
+  document.getElementById('mov-cantidad').value='';
+  document.getElementById('mov-lote').value='';
+  document.getElementById('mov-obs').value='';
+  populateMovProductos();
+  openModal('modal-movimiento');
+};
+
+window.editMovimiento = function(id){
+  const m = DB.movimientos.find(x=>x.id===id); if(!m) return;
+  document.getElementById('mov-id').value=m.id;
+  document.getElementById('mov-fecha').value=m.fecha||'';
+  document.getElementById('mov-tipo').value=m.tipo||'salida';
+  document.getElementById('mov-cantidad').value=m.cantidad||'';
+  document.getElementById('mov-lote').value=m.lote||'';
+  document.getElementById('mov-obs').value=m.obs||'';
+  populateMovProductos();
+  setTimeout(()=>document.getElementById('mov-producto').value=m.producto||'', 50);
+  openModal('modal-movimiento');
+};
+
+window.guardarMovimiento = async function(){
+  const id = document.getElementById('mov-id').value;
+  const prodId = document.getElementById('mov-producto').value;
+  const cant = parseFloat(document.getElementById('mov-cantidad').value)||0;
+  const tipo = document.getElementById('mov-tipo').value;
+  if(!prodId||!cant){ toast('Completá todos los campos','error'); return; }
+  const prod = DB.productos.find(x=>x.id===prodId);
+  const data = {
+    fecha: document.getElementById('mov-fecha').value,
+    producto: prodId,
+    productoNombre: prod?.nombre||'',
+    unidad: prod?.unidad||'',
+    tipo, cantidad: cant,
+    lote: document.getElementById('mov-lote').value.trim(),
+    obs: document.getElementById('mov-obs').value.trim(),
+    _ts: new Date()
+  };
+  try {
+    if(id) await updateDoc(doc(db,'stock_movimientos',id), data);
+    else {
+      await addDoc(collection(db,'stock_movimientos'), data);
+      if(prod){
+        const delta = tipo==='entrada' ? cant : -cant;
+        await updateDoc(doc(db,'stock_productos',prodId), {stock: (prod.stock||0)+delta, _ts: new Date()});
+      }
+    }
+    toast('Movimiento guardado ✓');
+    closeModal('modal-movimiento');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderMovimientos(){
+  const search = document.getElementById('search-mov')?.value?.toLowerCase()||'';
+  const tipo = document.getElementById('filter-tipo-mov')?.value||'';
+  const tbody = document.getElementById('tbody-movimientos');
+  if(!tbody) return;
+  let rows = DB.movimientos.filter(m =>
+    (!search || m.productoNombre?.toLowerCase().includes(search) || m.lote?.toLowerCase().includes(search)) &&
+    (!tipo || m.tipo===tipo)
+  );
+  tbody.innerHTML = rows.map(m =>
+    '<tr>' +
+    '<td>'+(m.fecha||'')+'</td>' +
+    '<td style="font-weight:600">'+(m.productoNombre||'')+'</td>' +
+    '<td><span class="badge badge-'+(m.tipo==='entrada'?'entrada':'salida')+'">'+m.tipo+'</span></td>' +
+    '<td style="font-family:monospace">'+fmt(m.cantidad)+'</td>' +
+    '<td>'+(m.unidad||'')+'</td>' +
+    '<td>'+(m.lote||'')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(m.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editMovimiento(\''+m.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteMovimiento(\''+m.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="8">Sin movimientos</td></tr>';
+}
+
+window.deleteMovimiento = function(id){
+  confirm2('¿Eliminar este movimiento?', async ()=>{
+    try { await deleteDoc(doc(db,'stock_movimientos',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+function renderResumen(){
+  const tbody = document.getElementById('tbody-resumen');
+  const stats = document.getElementById('stats-stock');
+  if(!tbody||!stats) return;
+  const prods = DB.productos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const low = prods.filter(p=>p.stock<=(p.minimo||0)).length;
+  stats.innerHTML =
+    '<div class="stat-card brown"><div class="stat-num">'+prods.length+'</div><div class="stat-lbl">Productos</div></div>' +
+    '<div class="stat-card '+(low>0?'red':'green')+'"><div class="stat-num">'+low+'</div><div class="stat-lbl">Stock bajo</div></div>' +
+    '<div class="stat-card amber"><div class="stat-num">'+prods.filter(p=>p.categoria==='HERBICIDA').length+'</div><div class="stat-lbl">Herbicidas</div></div>' +
+    '<div class="stat-card blue"><div class="stat-num">'+prods.filter(p=>p.categoria==='COADYUVANTE').length+'</div><div class="stat-lbl">Coadyuvantes</div></div>';
+  tbody.innerHTML = prods.map(p=>{
+    const low2=p.stock<=(p.minimo||0);
+    return '<tr>' +
+      '<td style="font-weight:600">'+p.nombre+'</td>' +
+      '<td style="color:var(--muted)">'+(p.marca||'')+'</td>' +
+      '<td>'+categBadge(p.categoria)+'</td>' +
+      '<td style="font-family:monospace;font-weight:700;color:'+(low2?'var(--red)':'var(--text)')+'">'+fmt(p.stock)+'</td>' +
+      '<td>'+p.unidad+'</td>' +
+      '<td>'+(low2?'<span class="badge badge-warn">⚠️ Bajo</span>':'<span class="badge badge-entrada">OK</span>')+'</td>' +
+    '</tr>';
+  }).join('') || '<tr class="empty-row"><td colspan="6">Sin productos</td></tr>';
+}
+
+window.exportarResumen = function(){
+  const rows = [['Producto','Marca','Categoría','Stock','Unidad']];
+  DB.productos.forEach(p => rows.push([p.nombre,p.marca||'',p.categoria,p.stock,p.unidad]));
+  const csv = rows.map(r=>r.map(c=>'"'+c+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download = 'stock_la_angelica.csv';
+  a.click();
+};
+
+// ── GASOIL ──
+function populateCuentas(){
+  const sel = document.getElementById('filter-cuenta');
+  if(!sel) return;
+  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
+  const val = sel.value;
+  sel.innerHTML = '<option value="">Todas las cuentas</option>' + cuentas.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  if(val) sel.value=val;
+}
+
+window.openModalGasoil = function(){
+  document.getElementById('gas-id').value='';
+  document.getElementById('gas-fecha').value=today();
+  document.getElementById('gas-tipo').value='egreso';
+  document.getElementById('gas-litros').value='';
+  document.getElementById('gas-concepto').value='';
+  document.getElementById('gas-obs').value='';
+  document.getElementById('modal-gasoil-title').textContent='Nuevo registro de gasoil';
+  openModal('modal-gasoil');
+};
+
+window.editGasoil = function(id){
+  const g = DB.gasoil.find(x=>x.id===id); if(!g) return;
+  document.getElementById('gas-id').value=g.id;
+  document.getElementById('gas-fecha').value=g.fecha||'';
+  document.getElementById('gas-cuenta').value=g.cuenta||'Cuenta 1';
+  document.getElementById('gas-tipo').value=g.tipo||'egreso';
+  document.getElementById('gas-litros').value=g.litros||'';
+  document.getElementById('gas-concepto').value=g.concepto||'';
+  document.getElementById('gas-obs').value=g.obs||'';
+  document.getElementById('modal-gasoil-title').textContent='Editar registro';
+  openModal('modal-gasoil');
+};
+
+window.guardarGasoil = async function(){
+  const id = document.getElementById('gas-id').value;
+  const data = {
+    fecha: document.getElementById('gas-fecha').value,
+    cuenta: document.getElementById('gas-cuenta').value,
+    tipo: document.getElementById('gas-tipo').value,
+    litros: parseFloat(document.getElementById('gas-litros').value)||0,
+    concepto: document.getElementById('gas-concepto').value.trim(),
+    obs: document.getElementById('gas-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.litros){ toast('Ingresá los litros','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'gasoil_registros',id), data);
+    else await addDoc(collection(db,'gasoil_registros'), data);
+    toast('Guardado ✓');
+    closeModal('modal-gasoil');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderGasoilBalances(){
+  const div = document.getElementById('gasoil-balances');
+  if(!div) return;
+  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
+  if(!cuentas.length){ div.innerHTML='<p style="color:var(--muted);padding:20px">Sin registros de gasoil aún.</p>'; return; }
+  div.innerHTML = cuentas.map(c=>{
+    const regs = DB.gasoil.filter(g=>g.cuenta===c);
+    const ing = regs.filter(g=>g.tipo==='ingreso').reduce((a,g)=>a+(g.litros||0),0);
+    const eg = regs.filter(g=>g.tipo==='egreso').reduce((a,g)=>a+(g.litros||0),0);
+    const bal = ing-eg;
+    return '<div class="balance-card" style="margin-bottom:10px">' +
+      '<div><div class="balance-label">'+c+'</div><div class="balance-num '+(bal<0?'neg':'')+'">'+fmt(bal)+' L</div></div>' +
+      '<div class="balance-sep"></div>' +
+      '<div><div class="balance-label">Ingresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">'+fmt(ing)+' L</div></div>' +
+      '<div class="balance-sep"></div>' +
+      '<div><div class="balance-label">Egresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">'+fmt(eg)+' L</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderGasoil(){
+  const search = document.getElementById('search-gasoil')?.value?.toLowerCase()||'';
+  const cuenta = document.getElementById('filter-cuenta')?.value||'';
+  const tbody = document.getElementById('tbody-gasoil');
+  if(!tbody) return;
+  let rows = DB.gasoil.filter(g =>
+    (!search || g.concepto?.toLowerCase().includes(search) || g.cuenta?.toLowerCase().includes(search)) &&
+    (!cuenta || g.cuenta===cuenta)
+  );
+  tbody.innerHTML = rows.map(g =>
+    '<tr>' +
+    '<td>'+(g.fecha||'')+'</td>' +
+    '<td style="font-weight:600">'+(g.cuenta||'')+'</td>' +
+    '<td><span class="badge badge-'+(g.tipo==='ingreso'?'entrada':'salida')+'">'+g.tipo+'</span></td>' +
+    '<td style="font-family:monospace;font-weight:700">'+fmt(g.litros)+' L</td>' +
+    '<td>'+(g.concepto||'')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(g.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editGasoil(\''+g.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteGasoil(\''+g.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="7">Sin registros</td></tr>';
+}
+
+window.deleteGasoil = function(id){
+  confirm2('¿Eliminar este registro?', async ()=>{
+    try { await deleteDoc(doc(db,'gasoil_registros',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── PULVERIZACIONES ──
+let pulvProductoCount = 0;
+
+window.addPulvProducto = function(nombre, dosis, total){
+  nombre = nombre||''; dosis = dosis||''; total = total||'';
+  pulvProductoCount++;
+  const list = document.getElementById('pulv-productos-list');
+  const div = document.createElement('div');
+  div.id = 'pulv-prod-'+pulvProductoCount;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:7px;margin-bottom:7px;align-items:center';
+  div.innerHTML =
+    '<input type="text" placeholder="Producto" value="'+nombre+'" class="pulv-prod-nombre" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">' +
+    '<input type="number" placeholder="Dosis/ha" value="'+dosis+'" class="pulv-prod-dosis" step="0.001" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">' +
+    '<input type="number" placeholder="Total" value="'+total+'" class="pulv-prod-total" step="0.01" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">' +
+    '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>';
+  list.appendChild(div);
+};
+
+window.openModalPulv = function(){
+  document.getElementById('pulv-id').value='';
+  document.getElementById('pulv-fecha').value=today();
+  document.getElementById('pulv-tipo').value='barbecho';
+  document.getElementById('pulv-cultivo').value='MAIZ';
+  document.getElementById('pulv-equipo').value='';
+  document.getElementById('pulv-operario').value='';
+  document.getElementById('pulv-costo').value='';
+  document.getElementById('pulv-obs').value='';
+  document.getElementById('pulv-productos-list').innerHTML='';
+  pulvProductoCount=0;
+  populateLoteSelect('pulv-lote');
+  window.addPulvProducto();
+  document.getElementById('modal-pulv-title').textContent='Nueva pulverización';
+  openModal('modal-pulv');
+};
+
+window.editPulv = function(id){
+  const p = DB.pulverizaciones.find(x=>x.id===id); if(!p) return;
+  document.getElementById('pulv-id').value=p.id;
+  document.getElementById('pulv-fecha').value=p.fecha||today();
+  document.getElementById('pulv-tipo').value=p.tipo||'barbecho';
+  document.getElementById('pulv-cultivo').value=p.cultivo||'MAIZ';
+  document.getElementById('pulv-equipo').value=p.equipo||'';
+  document.getElementById('pulv-operario').value=p.operario||'';
+  document.getElementById('pulv-costo').value=p.costo||'';
+  document.getElementById('pulv-obs').value=p.obs||'';
+  document.getElementById('pulv-productos-list').innerHTML='';
+  pulvProductoCount=0;
+  populateLoteSelect('pulv-lote');
+  setTimeout(()=>{
+    document.getElementById('pulv-lote').value=p.lote||'';
+    (p.productos||[]).forEach(pr=>window.addPulvProducto(pr.nombre||'',pr.dosis||'',pr.total||''));
+    if(!(p.productos||[]).length) window.addPulvProducto();
+  },50);
+  document.getElementById('modal-pulv-title').textContent='Editar pulverización';
+  openModal('modal-pulv');
+};
+
+window.guardarPulv = async function(){
+  const id = document.getElementById('pulv-id').value;
+  const productos = [];
+  document.querySelectorAll('#pulv-productos-list > div').forEach(row=>{
+    const n = row.querySelector('.pulv-prod-nombre')?.value?.trim();
+    if(n) productos.push({
+      nombre: n,
+      dosis: parseFloat(row.querySelector('.pulv-prod-dosis')?.value)||0,
+      total: parseFloat(row.querySelector('.pulv-prod-total')?.value)||0
+    });
+  });
+  const data = {
+    fecha: document.getElementById('pulv-fecha').value,
+    lote: document.getElementById('pulv-lote').value,
+    cultivo: document.getElementById('pulv-cultivo').value,
+    tipo: document.getElementById('pulv-tipo').value,
+    equipo: document.getElementById('pulv-equipo').value.trim(),
+    operario: document.getElementById('pulv-operario').value.trim(),
+    costo: parseFloat(document.getElementById('pulv-costo').value)||0,
+    obs: document.getElementById('pulv-obs').value.trim(),
+    productos, _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'pulverizaciones',id), data);
+    else await addDoc(collection(db,'pulverizaciones'), data);
+    toast('Guardado ✓');
+    closeModal('modal-pulv');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderPulv(){
+  const search = document.getElementById('search-pulv')?.value?.toLowerCase()||'';
+  const lote = document.getElementById('filter-lote-pulv')?.value||'';
+  const tipo = document.getElementById('filter-tipo-pulv')?.value||'';
+  const tbody = document.getElementById('tbody-pulv');
+  const stats = document.getElementById('stats-pulv');
+  if(!tbody) return;
+  let rows = DB.pulverizaciones.filter(p=>
+    (!search || p.lote?.toLowerCase().includes(search) || (p.productos||[]).some(pr=>pr.nombre?.toLowerCase().includes(search))) &&
+    (!lote || p.lote===lote) && (!tipo || p.tipo===tipo)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const lotes = [...new Set(DB.pulverizaciones.map(p=>p.lote))].filter(Boolean);
+    stats.innerHTML =
+      '<div class="stat-card green"><div class="stat-num">'+DB.pulverizaciones.length+'</div><div class="stat-lbl">Aplicaciones</div></div>' +
+      '<div class="stat-card brown"><div class="stat-num">'+lotes.length+'</div><div class="stat-lbl">Lotes</div></div>' +
+      '<div class="stat-card amber"><div class="stat-num">'+DB.pulverizaciones.filter(p=>p.tipo==='barbecho').length+'</div><div class="stat-lbl">Barbechos</div></div>' +
+      '<div class="stat-card blue"><div class="stat-num">'+DB.pulverizaciones.filter(p=>p.tipo==='pre-emerg'||p.tipo==='post-emerg').length+'</div><div class="stat-lbl">Post/Pre emerg.</div></div>';
+  }
+  tbody.innerHTML = rows.map(p=>
+    '<tr>' +
+    '<td>'+(p.fecha||'')+'</td>' +
+    '<td style="font-weight:700">'+(p.lote||'')+'</td>' +
+    '<td>'+cultivoBadge(p.cultivo)+'</td>' +
+    '<td>'+tipoPulvBadge(p.tipo)+'</td>' +
+    '<td><div class="pulv-productos">'+(p.productos||[]).map(pr=>'<div class="pulv-prod-row"><b>'+pr.nombre+'</b> <span>'+pr.dosis+' L/ha · '+fmt(pr.total)+' total</span></div>').join('')+'</div></td>' +
+    '<td style="font-size:12px">'+(p.equipo||'')+'</td>' +
+    '<td style="font-size:12px">'+(p.operario||'')+'</td>' +
+    '<td style="font-family:monospace">'+(p.costo?'$'+fmt(p.costo):'-')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(p.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editPulv(\''+p.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deletePulv(\''+p.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="10">Sin aplicaciones</td></tr>';
+}
+
+window.deletePulv = function(id){
+  confirm2('¿Eliminar esta aplicación?', async ()=>{
+    try { await deleteDoc(doc(db,'pulverizaciones',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── FERTILIZACIONES ──
+window.openModalFert = function(){
+  document.getElementById('fert-id').value='';
+  document.getElementById('fert-fecha').value=today();
+  document.getElementById('fert-momento').value='';
+  document.getElementById('fert-producto').value='';
+  document.getElementById('fert-dosis').value='';
+  document.getElementById('fert-ha').value='';
+  document.getElementById('fert-total').value='';
+  document.getElementById('fert-obs').value='';
+  populateLoteSelect('fert-lote');
+  document.getElementById('modal-fert-title').textContent='Nueva fertilización';
+  openModal('modal-fert');
+};
+
+window.calcFert = function(){
+  const d=parseFloat(document.getElementById('fert-dosis').value)||0;
+  const h=parseFloat(document.getElementById('fert-ha').value)||0;
+  document.getElementById('fert-total').value = d*h ? (d*h).toFixed(0) : '';
+};
+
+window.editFert = function(id){
+  const f = DB.fertilizaciones.find(x=>x.id===id); if(!f) return;
+  document.getElementById('fert-id').value=f.id;
+  document.getElementById('fert-fecha').value=f.fecha||today();
+  document.getElementById('fert-momento').value=f.momento||'';
+  document.getElementById('fert-producto').value=f.producto||'';
+  document.getElementById('fert-dosis').value=f.dosis||'';
+  document.getElementById('fert-ha').value=f.ha||'';
+  document.getElementById('fert-total').value=f.total||'';
+  document.getElementById('fert-obs').value=f.obs||'';
+  populateLoteSelect('fert-lote');
+  setTimeout(()=>document.getElementById('fert-lote').value=f.lote||'',50);
+  document.getElementById('modal-fert-title').textContent='Editar fertilización';
+  openModal('modal-fert');
+};
+
+window.guardarFert = async function(){
+  const id = document.getElementById('fert-id').value;
+  const dosis = parseFloat(document.getElementById('fert-dosis').value)||0;
+  const ha = parseFloat(document.getElementById('fert-ha').value)||0;
+  const data = {
+    fecha: document.getElementById('fert-fecha').value,
+    lote: document.getElementById('fert-lote').value,
+    cultivo: document.getElementById('fert-cultivo').value,
+    producto: document.getElementById('fert-producto').value.trim(),
+    dosis, ha, total: dosis*ha,
+    momento: document.getElementById('fert-momento').value.trim(),
+    obs: document.getElementById('fert-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'fertilizaciones',id), data);
+    else await addDoc(collection(db,'fertilizaciones'), data);
+    toast('Guardado ✓');
+    closeModal('modal-fert');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderFert(){
+  const search = document.getElementById('search-fert')?.value?.toLowerCase()||'';
+  const lote = document.getElementById('filter-lote-fert')?.value||'';
+  const tbody = document.getElementById('tbody-fert');
+  const stats = document.getElementById('stats-fert');
+  if(!tbody) return;
+  let rows = DB.fertilizaciones.filter(f=>
+    (!search || f.lote?.toLowerCase().includes(search) || f.producto?.toLowerCase().includes(search)) &&
+    (!lote || f.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalKg = DB.fertilizaciones.reduce((a,f)=>a+(f.total||0),0);
+    const totalHa = DB.fertilizaciones.reduce((a,f)=>a+(f.ha||0),0);
+    stats.innerHTML =
+      '<div class="stat-card green"><div class="stat-num">'+DB.fertilizaciones.length+'</div><div class="stat-lbl">Aplicaciones</div></div>' +
+      '<div class="stat-card brown"><div class="stat-num">'+fmt(Math.round(totalKg))+'</div><div class="stat-lbl">kg totales</div></div>' +
+      '<div class="stat-card amber"><div class="stat-num">'+fmt(Math.round(totalHa))+'</div><div class="stat-lbl">Hectáreas</div></div>';
+  }
+  tbody.innerHTML = rows.map(f=>
+    '<tr>' +
+    '<td>'+(f.fecha||'')+'</td>' +
+    '<td style="font-weight:700">'+(f.lote||'')+'</td>' +
+    '<td>'+cultivoBadge(f.cultivo)+'</td>' +
+    '<td style="font-weight:600">'+(f.producto||'')+'</td>' +
+    '<td style="font-family:monospace">'+fmt(f.dosis)+' kg/ha</td>' +
+    '<td style="font-family:monospace">'+fmt(f.total)+' kg</td>' +
+    '<td style="font-family:monospace">'+fmt(f.ha)+' ha</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(f.momento||'')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(f.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editFert(\''+f.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteFert(\''+f.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="10">Sin registros</td></tr>';
+}
+
+window.deleteFert = function(id){
+  confirm2('¿Eliminar esta fertilización?', async ()=>{
+    try { await deleteDoc(doc(db,'fertilizaciones',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── LABORES ──
+window.openModalLabor = function(){
+  document.getElementById('labor-id').value='';
+  document.getElementById('labor-fecha').value=today();
+  document.getElementById('labor-tipo').value='SIEMBRA';
+  document.getElementById('labor-ha').value='';
+  document.getElementById('labor-cultivo').value='MAIZ';
+  document.getElementById('labor-contratista').value='';
+  document.getElementById('labor-psha').value='';
+  document.getElementById('labor-total').value='';
+  document.getElementById('labor-total-iva').value='';
+  document.getElementById('labor-obs').value='';
+  populateLoteSelect('labor-lote');
+  document.getElementById('modal-labor-title').textContent='Nueva labor';
+  openModal('modal-labor');
+};
+
+window.calcLabor = function(){
+  const ha = parseFloat(document.getElementById('labor-ha')?.value)||0;
+  const psha = parseFloat(document.getElementById('labor-psha')?.value)||0;
+  const total = ha*psha;
+  document.getElementById('labor-total').value = total ? total.toFixed(0) : '';
+  document.getElementById('labor-total-iva').value = total ? (total*1.21).toFixed(0) : '';
+};
+
+window.editLabor = function(id){
+  const l = DB.labores.find(x=>x.id===id); if(!l) return;
+  document.getElementById('labor-id').value=l.id;
+  document.getElementById('labor-fecha').value=l.fecha||today();
+  document.getElementById('labor-tipo').value=l.tipo||'SIEMBRA';
+  document.getElementById('labor-ha').value=l.ha||'';
+  document.getElementById('labor-cultivo').value=l.cultivo||'MAIZ';
+  document.getElementById('labor-contratista').value=l.contratista||'';
+  document.getElementById('labor-psha').value=l.psha||'';
+  document.getElementById('labor-total').value=l.total||'';
+  document.getElementById('labor-total-iva').value=l.totalIva||'';
+  document.getElementById('labor-obs').value=l.obs||'';
+  populateLoteSelect('labor-lote');
+  setTimeout(()=>document.getElementById('labor-lote').value=l.lote||'',50);
+  document.getElementById('modal-labor-title').textContent='Editar labor';
+  openModal('modal-labor');
+};
+
+window.guardarLabor = async function(){
+  const id = document.getElementById('labor-id').value;
+  const ha = parseFloat(document.getElementById('labor-ha').value)||0;
+  const psha = parseFloat(document.getElementById('labor-psha').value)||0;
+  const data = {
+    fecha: document.getElementById('labor-fecha').value,
+    lote: document.getElementById('labor-lote').value,
+    ha, cultivo: document.getElementById('labor-cultivo').value,
+    tipo: document.getElementById('labor-tipo').value,
+    contratista: document.getElementById('labor-contratista').value.trim(),
+    psha, total: ha*psha, totalIva: ha*psha*1.21,
+    obs: document.getElementById('labor-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'labores',id), data);
+    else await addDoc(collection(db,'labores'), data);
+    toast('Guardado ✓');
+    closeModal('modal-labor');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderLabores(){
+  const search = document.getElementById('search-labores')?.value?.toLowerCase()||'';
+  const tipo = document.getElementById('filter-tipo-labor')?.value||'';
+  const lote = document.getElementById('filter-lote-labor')?.value||'';
+  const tbody = document.getElementById('tbody-labores');
+  const stats = document.getElementById('stats-labores');
+  if(!tbody) return;
+  let rows = DB.labores.filter(l=>
+    (!search || l.contratista?.toLowerCase().includes(search) || l.lote?.toLowerCase().includes(search)) &&
+    (!tipo || l.tipo===tipo) && (!lote || l.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalHa = DB.labores.reduce((a,l)=>a+(l.ha||0),0);
+    const totalPesos = DB.labores.reduce((a,l)=>a+(l.total||0),0);
+    const contratistas = [...new Set(DB.labores.map(l=>l.contratista))].filter(Boolean);
+    stats.innerHTML =
+      '<div class="stat-card blue"><div class="stat-num">'+DB.labores.length+'</div><div class="stat-lbl">Labores</div></div>' +
+      '<div class="stat-card brown"><div class="stat-num">'+fmt(Math.round(totalHa))+'</div><div class="stat-lbl">Hectáreas</div></div>' +
+      '<div class="stat-card green"><div class="stat-num">'+contratistas.length+'</div><div class="stat-lbl">Contratistas</div></div>' +
+      '<div class="stat-card amber"><div class="stat-num">'+(totalPesos?'$'+fmt(Math.round(totalPesos)):'-')+'</div><div class="stat-lbl">Total pesos</div></div>';
+  }
+  tbody.innerHTML = rows.map(l=>
+    '<tr>' +
+    '<td>'+(l.fecha||'')+'</td>' +
+    '<td style="font-weight:700">'+(l.lote||'')+'</td>' +
+    '<td style="font-family:monospace">'+fmt(l.ha)+' ha</td>' +
+    '<td>'+cultivoBadge(l.cultivo)+'</td>' +
+    '<td style="font-weight:600">'+(l.tipo||'')+'</td>' +
+    '<td>'+(l.contratista||'')+'</td>' +
+    '<td style="font-family:monospace">'+(l.psha?'$'+fmt(l.psha):'-')+'</td>' +
+    '<td style="font-family:monospace">'+(l.total?'$'+fmt(Math.round(l.total)):'-')+'</td>' +
+    '<td style="font-family:monospace">'+(l.totalIva?'$'+fmt(Math.round(l.totalIva)):'-')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(l.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editLabor(\''+l.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteLabor(\''+l.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="11">Sin labores</td></tr>';
+}
+
+window.deleteLabor = function(id){
+  confirm2('¿Eliminar esta labor?', async ()=>{
+    try { await deleteDoc(doc(db,'labores',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── SIEMBRA ──
+window.openModalSiembra = function(){
+  document.getElementById('siem-id').value='';
+  document.getElementById('siem-fecha').value=today();
+  ['siem-antecesor','siem-variedad','siem-dosis','siem-total-sem','siem-fert-ha','siem-contratista','siem-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('siem-ha').value='';
+  document.getElementById('siem-rend').value='';
+  document.getElementById('siem-cultivo').value='MAIZ';
+  populateLoteSelect('siem-lote');
+  document.getElementById('modal-siembra-title').textContent='Nueva siembra';
+  openModal('modal-siembra');
+};
+
+window.editSiembra = function(id){
+  const s = DB.siembra.find(x=>x.id===id); if(!s) return;
+  document.getElementById('siem-id').value=s.id;
+  document.getElementById('siem-fecha').value=s.fecha||today();
+  document.getElementById('siem-ha').value=s.ha||'';
+  document.getElementById('siem-cultivo').value=s.cultivo||'MAIZ';
+  document.getElementById('siem-antecesor').value=s.antecesor||'';
+  document.getElementById('siem-variedad').value=s.variedad||'';
+  document.getElementById('siem-dosis').value=s.dosis||'';
+  document.getElementById('siem-total-sem').value=s.totalSem||'';
+  document.getElementById('siem-fert-ha').value=s.fertHA||'';
+  document.getElementById('siem-contratista').value=s.contratista||'';
+  document.getElementById('siem-rend').value=s.rendEsp||'';
+  document.getElementById('siem-obs').value=s.obs||'';
+  populateLoteSelect('siem-lote');
+  setTimeout(()=>document.getElementById('siem-lote').value=s.lote||'',50);
+  document.getElementById('modal-siembra-title').textContent='Editar siembra';
+  openModal('modal-siembra');
+};
+
+window.guardarSiembra = async function(){
+  const id = document.getElementById('siem-id').value;
+  const data = {
+    fecha: document.getElementById('siem-fecha').value,
+    lote: document.getElementById('siem-lote').value,
+    ha: parseFloat(document.getElementById('siem-ha').value)||0,
+    cultivo: document.getElementById('siem-cultivo').value,
+    antecesor: document.getElementById('siem-antecesor').value.trim(),
+    variedad: document.getElementById('siem-variedad').value.trim(),
+    dosis: document.getElementById('siem-dosis').value.trim(),
+    totalSem: document.getElementById('siem-total-sem').value.trim(),
+    fertHA: document.getElementById('siem-fert-ha').value.trim(),
+    contratista: document.getElementById('siem-contratista').value.trim(),
+    rendEsp: parseFloat(document.getElementById('siem-rend').value)||0,
+    obs: document.getElementById('siem-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'siembra',id), data);
+    else await addDoc(collection(db,'siembra'), data);
+    toast('Guardado ✓');
+    closeModal('modal-siembra');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderSiembra(){
+  const search = document.getElementById('search-siembra')?.value?.toLowerCase()||'';
+  const cultivo = document.getElementById('filter-cultivo-siembra')?.value||'';
+  const tbody = document.getElementById('tbody-siembra');
+  const stats = document.getElementById('stats-siembra');
+  if(!tbody) return;
+  let rows = DB.siembra.filter(s=>
+    (!search || s.lote?.toLowerCase().includes(search) || s.cultivo?.toLowerCase().includes(search) || s.variedad?.toLowerCase().includes(search)) &&
+    (!cultivo || s.cultivo===cultivo)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalHa = DB.siembra.reduce((a,s)=>a+(s.ha||0),0);
+    const cultivos = [...new Set(DB.siembra.map(s=>s.cultivo))].filter(Boolean);
+    stats.innerHTML =
+      '<div class="stat-card purple"><div class="stat-num">'+DB.siembra.length+'</div><div class="stat-lbl">Lotes sembrados</div></div>' +
+      '<div class="stat-card brown"><div class="stat-num">'+fmt(Math.round(totalHa))+'</div><div class="stat-lbl">Hectáreas</div></div>' +
+      '<div class="stat-card green"><div class="stat-num">'+cultivos.length+'</div><div class="stat-lbl">Cultivos</div></div>';
+  }
+  tbody.innerHTML = rows.map(s=>
+    '<tr>' +
+    '<td>'+(s.fecha||'')+'</td>' +
+    '<td style="font-weight:700">'+(s.lote||'')+'</td>' +
+    '<td style="font-family:monospace">'+fmt(s.ha)+' ha</td>' +
+    '<td style="color:var(--muted)">'+(s.antecesor||'')+'</td>' +
+    '<td>'+cultivoBadge(s.cultivo)+'</td>' +
+    '<td style="font-weight:600">'+(s.variedad||'')+'</td>' +
+    '<td style="font-size:12px">'+(s.dosis||'')+'</td>' +
+    '<td style="font-size:12px">'+(s.totalSem||'')+'</td>' +
+    '<td style="font-size:12px">'+(s.fertHA||'')+'</td>' +
+    '<td style="font-size:12px">'+(s.contratista||'')+'</td>' +
+    '<td style="font-family:monospace">'+(s.rendEsp?fmt(s.rendEsp)+' kg/ha':'-')+'</td>' +
+    '<td style="color:var(--muted);font-size:12px">'+(s.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editSiembra(\''+s.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteSiembra(\''+s.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="13">Sin registros de siembra</td></tr>';
+}
+
+window.deleteSiembra = function(id){
+  confirm2('¿Eliminar este registro de siembra?', async ()=>{
+    try { await deleteDoc(doc(db,'siembra',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── COSECHA ──
+window.calcCosecha = function(){
+  const kgC = parseFloat(document.getElementById('cos-kg-campo').value)||0;
+  const h = parseFloat(document.getElementById('cos-humedad').value)||0;
+  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
+  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
+  const humRef = 14.5;
+  const mermaH = h > humRef ? Math.round(kgC * ((h - humRef) / (100 - humRef))) : 0;
+  document.getElementById('cos-merma-h').value = mermaH || '';
+  const netos = Math.max(0, kgC - mermaH - zaranda);
+  document.getElementById('cos-kg-netos').value = netos ? Math.round(netos) : '';
+  document.getElementById('cos-rend').value = (ha && netos) ? Math.round(netos/ha) : '';
+};
+
+window.openModalCosecha = function(){
+  document.getElementById('cos-id').value='';
+  document.getElementById('cos-fecha').value=today();
+  document.getElementById('cos-tipo').value='COSECHA';
+  document.getElementById('cos-cultivo').value='MAIZ';
+  document.getElementById('cos-destino').value='';
+  document.getElementById('cos-chofer').value='';
+  document.getElementById('cos-chasis').value='';
+  document.getElementById('cos-kg-campo').value='';
+  document.getElementById('cos-kg-destino').value='';
+  document.getElementById('cos-humedad').value='';
+  document.getElementById('cos-merma-h').value='';
+  document.getElementById('cos-zaranda').value='';
+  document.getElementById('cos-kg-netos').value='';
+  document.getElementById('cos-ha').value='';
+  document.getElementById('cos-rend').value='';
+  document.getElementById('cos-obs').value='';
+  populateLoteSelect('cos-lote');
+  document.getElementById('modal-cosecha-title').textContent='Nuevo registro de cosecha';
+  openModal('modal-cosecha');
+};
+
+window.editCosecha = function(id){
+  const c = DB.cosecha.find(x=>x.id===id); if(!c) return;
+  document.getElementById('cos-id').value=c.id;
+  document.getElementById('cos-fecha').value=c.fecha||today();
+  document.getElementById('cos-tipo').value=c.tipo||'COSECHA';
+  document.getElementById('cos-cultivo').value=c.cultivo||'MAIZ';
+  document.getElementById('cos-destino').value=c.destino||'';
+  document.getElementById('cos-chofer').value=c.chofer||'';
+  document.getElementById('cos-chasis').value=c.chasis||'';
+  document.getElementById('cos-kg-campo').value=c.kgCampo||'';
+  document.getElementById('cos-kg-destino').value=c.kgDestino||'';
+  document.getElementById('cos-humedad').value=c.humedad||'';
+  document.getElementById('cos-merma-h').value=c.mermaH||'';
+  document.getElementById('cos-zaranda').value=c.zaranda||'';
+  document.getElementById('cos-kg-netos').value=c.kgNetos||'';
+  document.getElementById('cos-ha').value=c.ha||'';
+  document.getElementById('cos-rend').value=c.rend||'';
+  document.getElementById('cos-obs').value=c.obs||'';
+  populateLoteSelect('cos-lote');
+  setTimeout(()=>document.getElementById('cos-lote').value=c.lote||'',50);
+  document.getElementById('modal-cosecha-title').textContent='Editar cosecha';
+  openModal('modal-cosecha');
+};
+
+window.guardarCosecha = async function(){
+  const id = document.getElementById('cos-id').value;
+  const kgCampo = parseFloat(document.getElementById('cos-kg-campo').value)||0;
+  const humedad = parseFloat(document.getElementById('cos-humedad').value)||0;
+  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
+  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
+  const mermaH = parseFloat(document.getElementById('cos-merma-h').value)||0;
+  const kgNetos = parseFloat(document.getElementById('cos-kg-netos').value)||0;
+  const data = {
+    fecha: document.getElementById('cos-fecha').value,
+    lote: document.getElementById('cos-lote').value,
+    cultivo: document.getElementById('cos-cultivo').value,
+    tipo: document.getElementById('cos-tipo').value,
+    destino: document.getElementById('cos-destino').value.trim(),
+    chofer: document.getElementById('cos-chofer').value.trim(),
+    chasis: document.getElementById('cos-chasis').value.trim(),
+    kgCampo, kgDestino: parseFloat(document.getElementById('cos-kg-destino').value)||0,
+    humedad, mermaH, zaranda, kgNetos,
+    ha, rend: ha ? Math.round(kgNetos/ha) : 0,
+    obs: document.getElementById('cos-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc(doc(db,'cosecha',id), data);
+    else await addDoc(collection(db,'cosecha'), data);
+    toast('Guardado ✓');
+    closeModal('modal-cosecha');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function renderCosechaResumen(){
+  const div = document.getElementById('cosecha-summary');
+  if(!div) return;
+  const cultivos = [...new Set(DB.cosecha.map(c=>c.cultivo))].filter(Boolean);
+  div.innerHTML = cultivos.map(cult=>{
+    const regs = DB.cosecha.filter(c=>c.cultivo===cult);
+    const totalKg = regs.reduce((a,c)=>a+(c.kgCampo||0),0);
+    const totalNetos = regs.reduce((a,c)=>a+(c.kgNetos||0),0);
+    return '<div class="cosecha-card">' +
+      '<div class="cosecha-card-title">'+cultivoBadge(cult)+'</div>' +
+      '<div class="cosecha-num">'+fmt(Math.round(totalKg/1000))+' tn</div>' +
+      '<div class="cosecha-sub">campo total</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:var(--muted)">Netos: <b>'+fmt(Math.round(totalNetos/1000))+' tn</b></div>' +
+      '<div style="font-size:12px;color:var(--muted)">'+regs.length+' registros</div>' +
+    '</div>';
+  }).join('') || '<p style="color:var(--muted);padding:16px">Sin cosecha registrada</p>';
+}
+
+function renderCosecha(){
+  const search = document.getElementById('search-cosecha')?.value?.toLowerCase()||'';
+  const cultivo = document.getElementById('filter-cultivo-cosecha')?.value||'';
+  const lote = document.getElementById('filter-lote-cosecha')?.value||'';
+  const tbody = document.getElementById('tbody-cosecha');
+  if(!tbody) return;
+  let rows = DB.cosecha.filter(c=>
+    (!search || c.lote?.toLowerCase().includes(search) || c.cultivo?.toLowerCase().includes(search) || c.chofer?.toLowerCase().includes(search)) &&
+    (!cultivo || c.cultivo===cultivo) && (!lote || c.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  tbody.innerHTML = rows.map(c=>
+    '<tr>' +
+    '<td>'+(c.fecha||'')+'</td>' +
+    '<td style="font-weight:700">'+(c.lote||'')+'</td>' +
+    '<td>'+cultivoBadge(c.cultivo)+'</td>' +
+    '<td style="font-size:11px;color:var(--muted)">'+(c.tipo||'')+'</td>' +
+    '<td style="font-size:12px">'+(c.destino||'')+'</td>' +
+    '<td style="font-size:12px">'+(c.chofer||'')+' '+(c.chasis?'('+c.chasis+')':'')+'</td>' +
+    '<td style="font-family:monospace">'+fmt(c.kgCampo)+'</td>' +
+    '<td style="font-family:monospace">'+(fmt(c.kgDestino)||'-')+'</td>' +
+    '<td style="font-family:monospace">'+(c.humedad?c.humedad+'%':'-')+'</td>' +
+    '<td style="font-family:monospace">'+(fmt(c.mermaH)||'-')+'</td>' +
+    '<td style="font-family:monospace;font-weight:700;color:var(--teal)">'+(fmt(c.kgNetos)||'-')+'</td>' +
+    '<td style="font-family:monospace;color:var(--brown)">'+(c.rend?fmt(c.rend)+' kg/ha':'-')+'</td>' +
+    '<td style="color:var(--muted);font-size:11px">'+(c.obs||'')+'</td>' +
+    '<td class="td-actions">' +
+      '<button class="btn btn-outline btn-sm btn-icon" onclick="editCosecha(\''+c.id+'\')">✏️</button>' +
+      '<button class="btn btn-danger btn-sm btn-icon" onclick="deleteCosecha(\''+c.id+'\')">🗑</button>' +
+    '</td></tr>'
+  ).join('') || '<tr class="empty-row"><td colspan="14">Sin registros de cosecha</td></tr>';
+}
+
+window.deleteCosecha = function(id){
+  confirm2('¿Eliminar este registro de cosecha?', async ()=>{
+    try { await deleteDoc(doc(db,'cosecha',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+};
+
+// ── SORT TABLE ──
+window.sortTable = function(col, field, th){
+  const key = col+'_'+field;
+  sortState[key] = sortState[key]==='asc' ? 'desc' : 'asc';
+  const dir = sortState[key];
+  const arr = DB[col];
+  if(!arr) return;
+  arr.sort((a,b)=>{
+    const va=a[field]||'', vb=b[field]||'';
+    return dir==='asc' ? (va>vb?1:-1) : (va<vb?1:-1);
+  });
+  document.querySelectorAll('thead th.sorted').forEach(t=>t.classList.remove('sorted'));
+  th.classList.add('sorted');
+  th.querySelector('.sort-ico').textContent = dir==='asc'?'↑':'↓';
+  const fns = {movimientos:renderMovimientos, pulverizaciones:renderPulv, fertilizaciones:renderFert, labores:renderLabores, siembra:renderSiembra, cosecha:renderCosecha};
+  if(fns[col]) fns[col]();
+};
+
+window.closeModal = closeModal;
+window.closeConfirm = closeConfirm;
+
+// ── ESCAPE KEY ──
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-backdrop.show').forEach(m=>m.classList.remove('show'));
+    document.getElementById('confirm-modal').classList.remove('show');
+  }
+});
+
+// ── DATOS INICIALES ──
 
 // ── DATOS INICIALES ──
 // Cargar lotes predeterminados si no hay ninguno
@@ -1577,1183 +2662,27 @@ onSnapshot(collection(db, 'cosecha'), snap => {
   }
 }, {once: true});
 
-</script>
-
-<script>
-// DB siempre disponible aunque Firebase no cargue
-if(!window.DB) window.DB = {productos:[],movimientos:[],gasoil:[],pulverizaciones:[],fertilizaciones:[],labores:[],siembra:[],cosecha:[],lotes:[]};
-if(!window.colRef) window.colRef = ()=>null;
-if(!window.docRef) window.docRef = ()=>null;
-if(!window.addDoc2) window.addDoc2 = ()=>Promise.reject('Firebase no conectado');
-if(!window.updateDoc2) window.updateDoc2 = ()=>Promise.reject('Firebase no conectado');
-if(!window.deleteDoc2) window.deleteDoc2 = ()=>Promise.reject('Firebase no conectado');
-
 // ══════════════════════════════════════
-// HELPERS
+// LISTENERS FIREBASE (al final, cuando todas las funciones están definidas)
 // ══════════════════════════════════════
-function fmt(n){ if(!n && n!==0) return '-'; return Number(n).toLocaleString('es-AR'); }
-function fmtDate(d){ if(!d) return '-'; return d.substring? d : ''; }
-function today(){ return new Date().toISOString().split('T')[0]; }
-function toast(msg, type='success'){
-  const w = document.getElementById('toast-wrap');
-  const t = document.createElement('div');
-  t.className = 'toast '+type;
-  t.textContent = msg;
-  w.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-function openModal(id){ document.getElementById(id).classList.add('show'); }
-function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('show'); }
-function confirm2(msg, fn){
-  document.getElementById('confirm-msg').textContent = msg;
-  document.getElementById('confirm-modal').classList.add('show');
-  document.getElementById('confirm-ok').onclick = () => { fn(); closeConfirm(); };
-}
-function cultivoBadge(c){
-  if(!c) return '';
-  const m = {'TRIGO':'trigo','MAIZ':'maiz','SOJA':'soja','GIRASOL':'girasol','PASTURA':'pastura'};
-  return `<span class="badge badge-${m[c]||'otro'}">${c}</span>`;
-}
-function tipoPulvBadge(t){
-  if(!t) return '';
-  const m = {'barbecho':'barbecho','pre-emerg':'pre','post-emerg':'post','otro':'otro'};
-  const labels = {'barbecho':'Barbecho','pre-emerg':'Pre-emerg.','post-emerg':'Post-emerg.','otro':'Otro'};
-  return `<span class="badge badge-${m[t]||'otro'}">${labels[t]||t}</span>`;
-}
-function categBadge(c){
-  const m = {'HERBICIDA':'herb','FERTILIZANTE':'fert','COADYUVANTE':'coad'};
-  return `<span class="badge badge-${m[c]||'otro'}">${c}</span>`;
-}
-
-// ══════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════
-function showTab(tab){
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
-  document.getElementById('tab-'+tab).classList.add('active');
-}
-
-function showStockSub(sub){
-  ['prod','mov','res'].forEach(s => {
-    document.getElementById('stock-'+s).style.display = s===sub ? '' : 'none';
-    document.getElementById('sub-stock-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
-  });
-  if(sub==='res') renderResumen();
-}
-
-function showGasoilSub(sub){
-  ['panel','reg'].forEach(s => {
-    document.getElementById('gasoil-'+s).style.display = s===sub ? '' : 'none';
-    document.getElementById('sub-gasoil-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
-  });
-}
-
-// ══════════════════════════════════════
-// LOTES — helpers para selects
-// ══════════════════════════════════════
-function getLotesNames(){ return DB.lotes.map(l=>l.nombre).sort(); }
-
-function populateLoteSelect(selId, addBlank=true){
-  const sel = document.getElementById(selId);
-  if(!sel) return;
-  const val = sel.value;
-  sel.innerHTML = (addBlank ? '<option value="">— Lote —</option>' : '') + getLotesNames().map(n=>`<option value="${n}">${n}</option>`).join('');
-  if(val) sel.value = val;
-}
-
-function populateLoteSelects(){
-  ['pulv-lote','fert-lote','labor-lote','siem-lote','cos-lote'].forEach(id => populateLoteSelect(id));
-  // filtros
-  ['filter-lote-pulv','filter-lote-fert','filter-lote-labor','filter-lote-cosecha'].forEach(id => {
-    const sel = document.getElementById(id);
-    if(!sel) return;
-    const val = sel.value;
-    sel.innerHTML = '<option value="">Todos los lotes</option>' + getLotesNames().map(n=>`<option value="${n}">${n}</option>`).join('');
-    if(val) sel.value = val;
-  });
-}
-
-function renderLotes(){
-  const grid = document.getElementById('lotes-grid');
-  const tbody = document.getElementById('tbody-lotes');
-  if(!grid || !tbody) return;
-  const lotes = DB.lotes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre));
-  grid.innerHTML = lotes.map(l =>
-    '<div class="lote-chip">' + l.nombre + ' ' + (l.ha ? '<small style="opacity:.6">' + l.ha + 'ha</small>' : '') +
-    ' <button onclick="editLote(\'' + l.id + '\')" title="Editar">✏️</button>' +
-    ' <button onclick="deleteLote(\'' + l.id + '\',\'' + l.nombre + '\')" title="Eliminar">×</button>' +
-    '</div>'
-  ).join('') || '<span style="color:var(--muted);font-size:12px">Sin lotes configurados</span>';
-  tbody.innerHTML = lotes.map(l =>
-    `<tr>
-      <td style="font-weight:700">${l.nombre}</td>
-      <td>${l.ha||'-'} ha</td>
-      <td>${l.cultivo||'-'}</td>
-      <td>${l.antecesor||'-'}</td>
-      <td style="color:var(--muted);font-size:12px">${l.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editLote('${l.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteLote('${l.id}','${l.nombre}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="6">Sin lotes</td></tr>';
-}
-
-function openModalLote(){
-  document.getElementById('lote-id').value='';
-  document.getElementById('lote-nombre').value='';
-  document.getElementById('lote-ha').value='';
-  document.getElementById('lote-cultivo').value='';
-  document.getElementById('lote-antecesor').value='';
-  document.getElementById('lote-obs').value='';
-  document.getElementById('modal-lote-title').textContent='Nuevo lote';
-  openModal('modal-lote');
-}
-
-function editLote(id){
-  const l = DB.lotes.find(x=>x.id===id); if(!l) return;
-  document.getElementById('lote-id').value=l.id;
-  document.getElementById('lote-nombre').value=l.nombre||'';
-  document.getElementById('lote-ha').value=l.ha||'';
-  document.getElementById('lote-cultivo').value=l.cultivo||'';
-  document.getElementById('lote-antecesor').value=l.antecesor||'';
-  document.getElementById('lote-obs').value=l.obs||'';
-  document.getElementById('modal-lote-title').textContent='Editar lote';
-  openModal('modal-lote');
-}
-
-async function guardarLote(){
-  const id = document.getElementById('lote-id').value;
-  const data = {
-    nombre: document.getElementById('lote-nombre').value.trim(),
-    ha: parseFloat(document.getElementById('lote-ha').value)||0,
-    cultivo: document.getElementById('lote-cultivo').value.trim(),
-    antecesor: document.getElementById('lote-antecesor').value.trim(),
-    obs: document.getElementById('lote-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.nombre){ toast('Ingresá el nombre del lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('lotes',id), data);
-    else await addDoc2(colRef('lotes'), data);
-    toast('Lote guardado ✓');
-    closeModal('modal-lote');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-async function deleteLote(id, nombre){
-  confirm2(`¿Eliminar el lote "${nombre}"? Esta acción no afecta los registros existentes.`, async () => {
-    try { await deleteDoc2(docRef('lotes',id)); toast('Lote eliminado'); }
-    catch(e){ toast('Error: '+e.message,'error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// STOCK — PRODUCTOS
-// ══════════════════════════════════════
-let sortState = {};
-
-function renderProductos(){
-  const search = document.getElementById('search-prod')?.value?.toLowerCase()||'';
-  const cat = document.getElementById('filter-categoria')?.value||'';
-  let prods = DB.productos.filter(p => {
-    const ok = (!search || p.nombre?.toLowerCase().includes(search) || p.marca?.toLowerCase().includes(search));
-    const okCat = (!cat || p.categoria===cat);
-    return ok && okCat;
-  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
-  const grid = document.getElementById('productos-grid');
-  if(!grid) return;
-  grid.innerHTML = prods.map(p => {
-    const low = p.stock <= (p.minimo||0);
-    return `<div class="prod-card" onclick="editProducto('${p.id}')">
-      <div class="prod-card-top">
-        <div>
-          <div class="prod-nombre">${p.nombre}</div>
-          <div class="prod-marca">${p.marca||''}</div>
-        </div>
-        ${categBadge(p.categoria)}
-      </div>
-      <div>
-        <div class="prod-stock ${low?'low'}">${fmt(p.stock)}</div>
-        <div class="prod-unidad">${p.unidad} ${low?'⚠️ stock bajo':''}</div>
-      </div>
-      <div class="prod-actions">
-        <button class="btn btn-green btn-sm" onclick="event.stopPropagation();openMovProd('${p.id}')">↕</button>
-        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editProducto('${p.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteProducto('${p.id}','${p.nombre}')">🗑</button>
-      </div>
-    </div>`;
-  }).join('') || '<p style="color:var(--muted);padding:20px;font-style:italic">Sin productos</p>';
-}
-
-function openModalProducto(){
-  document.getElementById('prod-id').value='';
-  ['prod-nombre','prod-marca','prod-obs'].forEach(id=>document.getElementById(id).value='');
-  ['prod-stock','prod-minimo'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('prod-categoria').value='HERBICIDA';
-  document.getElementById('prod-unidad').value='lts';
-  document.getElementById('modal-producto-title').textContent='Nuevo producto';
-  openModal('modal-producto');
-}
-
-function editProducto(id){
-  const p = DB.productos.find(x=>x.id===id); if(!p) return;
-  document.getElementById('prod-id').value=p.id;
-  document.getElementById('prod-nombre').value=p.nombre||'';
-  document.getElementById('prod-marca').value=p.marca||'';
-  document.getElementById('prod-categoria').value=p.categoria||'HERBICIDA';
-  document.getElementById('prod-unidad').value=p.unidad||'lts';
-  document.getElementById('prod-stock').value=p.stock||'';
-  document.getElementById('prod-minimo').value=p.minimo||'';
-  document.getElementById('prod-obs').value=p.obs||'';
-  document.getElementById('modal-producto-title').textContent='Editar producto';
-  openModal('modal-producto');
-}
-
-async function guardarProducto(){
-  const id = document.getElementById('prod-id').value;
-  const data = {
-    nombre: document.getElementById('prod-nombre').value.trim(),
-    marca: document.getElementById('prod-marca').value.trim(),
-    categoria: document.getElementById('prod-categoria').value,
-    unidad: document.getElementById('prod-unidad').value,
-    stock: parseFloat(document.getElementById('prod-stock').value)||0,
-    minimo: parseFloat(document.getElementById('prod-minimo').value)||0,
-    obs: document.getElementById('prod-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.nombre){ toast('Ingresá el nombre','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('stock_productos',id), data);
-    else await addDoc2(colRef('stock_productos'), data);
-    toast('Producto guardado ✓');
-    closeModal('modal-producto');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-async function deleteProducto(id, nombre){
-  confirm2(`¿Eliminar "${nombre}"?`, async () => {
-    try { await deleteDoc2(docRef('stock_productos',id)); toast('Eliminado'); }
-    catch(e){ toast('Error: '+e.message,'error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// STOCK — MOVIMIENTOS
-// ══════════════════════════════════════
-function populateMovProductos(){
-  const sel = document.getElementById('mov-producto');
-  if(!sel) return;
-  const val = sel.value;
-  sel.innerHTML = DB.productos.map(p=>`<option value="${p.id}" data-nombre="${p.nombre}">${p.nombre} (${p.unidad})</option>`).join('');
-  if(val) sel.value = val;
-}
-
-function openMovProd(prodId){
-  openModalMovimiento();
-  setTimeout(()=>{ document.getElementById('mov-producto').value=prodId; }, 100);
-}
-
-function openModalMovimiento(){
-  document.getElementById('mov-id').value='';
-  document.getElementById('mov-fecha').value=today();
-  document.getElementById('mov-tipo').value='salida';
-  document.getElementById('mov-cantidad').value='';
-  document.getElementById('mov-lote').value='';
-  document.getElementById('mov-obs').value='';
-  populateMovProductos();
-  openModal('modal-movimiento');
-}
-
-function editMovimiento(id){
-  const m = DB.movimientos.find(x=>x.id===id); if(!m) return;
-  document.getElementById('mov-id').value=m.id;
-  document.getElementById('mov-fecha').value=m.fecha||'';
-  document.getElementById('mov-tipo').value=m.tipo||'salida';
-  document.getElementById('mov-cantidad').value=m.cantidad||'';
-  document.getElementById('mov-lote').value=m.lote||'';
-  document.getElementById('mov-obs').value=m.obs||'';
-  populateMovProductos();
-  setTimeout(()=>document.getElementById('mov-producto').value=m.producto||'', 50);
-  openModal('modal-movimiento');
-}
-
-async function guardarMovimiento(){
-  const id = document.getElementById('mov-id').value;
-  const prodId = document.getElementById('mov-producto').value;
-  const cant = parseFloat(document.getElementById('mov-cantidad').value)||0;
-  const tipo = document.getElementById('mov-tipo').value;
-  if(!prodId||!cant){ toast('Completá todos los campos','error'); return; }
-  const prod = DB.productos.find(x=>x.id===prodId);
-  const data = {
-    fecha: document.getElementById('mov-fecha').value,
-    producto: prodId,
-    productoNombre: prod?.nombre||'',
-    unidad: prod?.unidad||'',
-    tipo, cantidad: cant,
-    lote: document.getElementById('mov-lote').value.trim(),
-    obs: document.getElementById('mov-obs').value.trim(),
-    _ts: new Date()
-  };
-  try {
-    if(id) await updateDoc2(docRef('stock_movimientos',id), data);
-    else { await addDoc2(colRef('stock_movimientos'), data);
-      // actualizar stock
-      if(prod){
-        const delta = tipo==='entrada' ? cant : -cant;
-        await updateDoc2(docRef('stock_productos',prodId), {stock: (prod.stock||0)+delta, _ts: new Date()});
-      }
-    }
-    toast('Movimiento guardado ✓');
-    closeModal('modal-movimiento');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderMovimientos(){
-  const search = document.getElementById('search-mov')?.value?.toLowerCase()||'';
-  const tipo = document.getElementById('filter-tipo-mov')?.value||'';
-  const tbody = document.getElementById('tbody-movimientos');
-  if(!tbody) return;
-  let rows = DB.movimientos.filter(m =>
-    (!search || m.productoNombre?.toLowerCase().includes(search) || m.lote?.toLowerCase().includes(search)) &&
-    (!tipo || m.tipo===tipo)
-  );
-  tbody.innerHTML = rows.map(m =>
-    `<tr>
-      <td>${m.fecha||''}</td>
-      <td style="font-weight:600">${m.productoNombre||''}</td>
-      <td><span class="badge badge-${m.tipo==='entrada'?'entrada':'salida'}">${m.tipo}</span></td>
-      <td style="font-family:monospace">${fmt(m.cantidad)}</td>
-      <td>${m.unidad||''}</td>
-      <td>${m.lote||''}</td>
-      <td style="color:var(--muted);font-size:12px">${m.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editMovimiento('${m.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMovimiento('${m.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="8">Sin movimientos</td></tr>';
-}
-
-async function deleteMovimiento(id){
-  confirm2('¿Eliminar este movimiento?', async ()=>{
-    try { await deleteDoc2(docRef('stock_movimientos',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-function renderResumen(){
-  const tbody = document.getElementById('tbody-resumen');
-  const stats = document.getElementById('stats-stock');
-  if(!tbody||!stats) return;
-  const prods = DB.productos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
-  const low = prods.filter(p=>p.stock<=(p.minimo||0)).length;
-  stats.innerHTML = `
-    <div class="stat-card brown"><div class="stat-num">${prods.length}</div><div class="stat-lbl">Productos</div></div>
-    <div class="stat-card ${low>0?'red':'green'}"><div class="stat-num">${low}</div><div class="stat-lbl">Stock bajo</div></div>
-    <div class="stat-card amber"><div class="stat-num">${prods.filter(p=>p.categoria==='HERBICIDA').length}</div><div class="stat-lbl">Herbicidas</div></div>
-    <div class="stat-card blue"><div class="stat-num">${prods.filter(p=>p.categoria==='COADYUVANTE').length}</div><div class="stat-lbl">Coadyuvantes</div></div>
-  `;
-  tbody.innerHTML = prods.map(p=>{
-    const low2=p.stock<=(p.minimo||0);
-    return `<tr>
-      <td style="font-weight:600">${p.nombre}</td>
-      <td style="color:var(--muted)">${p.marca||''}</td>
-      <td>${categBadge(p.categoria)}</td>
-      <td style="font-family:monospace;font-weight:700;color:${low2?'var(--red)':'var(--text)'}">${fmt(p.stock)}</td>
-      <td>${p.unidad}</td>
-      <td>${low2?'<span class="badge badge-warn">⚠️ Bajo</span>':'<span class="badge badge-entrada">OK</span>'}</td>
-    </tr>`;
-  }).join('') || '<tr class="empty-row"><td colspan="6">Sin productos</td></tr>';
-}
-
-function exportarResumen(){
-  const rows = [['Producto','Marca','Categoría','Stock','Unidad']];
-  DB.productos.forEach(p => rows.push([p.nombre,p.marca||'',p.categoria,p.stock,p.unidad]));
-  const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
-  a.download = 'stock_la_angelica.csv';
-  a.click();
-}
-
-// ══════════════════════════════════════
-// GASOIL
-// ══════════════════════════════════════
-function populateCuentas(){
-  const sel = document.getElementById('filter-cuenta');
-  if(!sel) return;
-  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
-  const val = sel.value;
-  sel.innerHTML = '<option value="">Todas las cuentas</option>' + cuentas.map(c=>`<option value="${c}">${c}</option>`).join('');
-  if(val) sel.value=val;
-}
-
-function openModalGasoil(){
-  document.getElementById('gas-id').value='';
-  document.getElementById('gas-fecha').value=today();
-  document.getElementById('gas-tipo').value='egreso';
-  document.getElementById('gas-litros').value='';
-  document.getElementById('gas-concepto').value='';
-  document.getElementById('gas-obs').value='';
-  document.getElementById('modal-gasoil-title').textContent='Nuevo registro de gasoil';
-  openModal('modal-gasoil');
-}
-
-function editGasoil(id){
-  const g = DB.gasoil.find(x=>x.id===id); if(!g) return;
-  document.getElementById('gas-id').value=g.id;
-  document.getElementById('gas-fecha').value=g.fecha||'';
-  document.getElementById('gas-cuenta').value=g.cuenta||'Cuenta 1';
-  document.getElementById('gas-tipo').value=g.tipo||'egreso';
-  document.getElementById('gas-litros').value=g.litros||'';
-  document.getElementById('gas-concepto').value=g.concepto||'';
-  document.getElementById('gas-obs').value=g.obs||'';
-  document.getElementById('modal-gasoil-title').textContent='Editar registro';
-  openModal('modal-gasoil');
-}
-
-async function guardarGasoil(){
-  const id = document.getElementById('gas-id').value;
-  const data = {
-    fecha: document.getElementById('gas-fecha').value,
-    cuenta: document.getElementById('gas-cuenta').value,
-    tipo: document.getElementById('gas-tipo').value,
-    litros: parseFloat(document.getElementById('gas-litros').value)||0,
-    concepto: document.getElementById('gas-concepto').value.trim(),
-    obs: document.getElementById('gas-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.litros){ toast('Ingresá los litros','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('gasoil_registros',id), data);
-    else await addDoc2(colRef('gasoil_registros'), data);
-    toast('Guardado ✓');
-    closeModal('modal-gasoil');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderGasoilBalances(){
-  const div = document.getElementById('gasoil-balances');
-  if(!div) return;
-  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
-  if(!cuentas.length){ div.innerHTML='<p style="color:var(--muted);padding:20px">Sin registros de gasoil aún.</p>'; return; }
-  div.innerHTML = cuentas.map(c=>{
-    const regs = DB.gasoil.filter(g=>g.cuenta===c);
-    const ing = regs.filter(g=>g.tipo==='ingreso').reduce((a,g)=>a+(g.litros||0),0);
-    const eg = regs.filter(g=>g.tipo==='egreso').reduce((a,g)=>a+(g.litros||0),0);
-    const bal = ing-eg;
-    return `<div class="balance-card" style="margin-bottom:10px">
-      <div><div class="balance-label">${c}</div><div class="balance-num ${bal<0?'neg':''}">${fmt(bal)} L</div></div>
-      <div class="balance-sep"></div>
-      <div><div class="balance-label">Ingresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">${fmt(ing)} L</div></div>
-      <div class="balance-sep"></div>
-      <div><div class="balance-label">Egresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">${fmt(eg)} L</div></div>
-    </div>`;
-  }).join('');
-}
-
-function renderGasoil(){
-  const search = document.getElementById('search-gasoil')?.value?.toLowerCase()||'';
-  const cuenta = document.getElementById('filter-cuenta')?.value||'';
-  const tbody = document.getElementById('tbody-gasoil');
-  if(!tbody) return;
-  let rows = DB.gasoil.filter(g =>
-    (!search || g.concepto?.toLowerCase().includes(search) || g.cuenta?.toLowerCase().includes(search)) &&
-    (!cuenta || g.cuenta===cuenta)
-  );
-  tbody.innerHTML = rows.map(g =>
-    `<tr>
-      <td>${g.fecha||''}</td>
-      <td style="font-weight:600">${g.cuenta||''}</td>
-      <td><span class="badge badge-${g.tipo==='ingreso'?'entrada':'salida'}">${g.tipo}</span></td>
-      <td style="font-family:monospace;font-weight:700">${fmt(g.litros)} L</td>
-      <td>${g.concepto||''}</td>
-      <td style="color:var(--muted);font-size:12px">${g.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editGasoil('${g.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteGasoil('${g.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="7">Sin registros</td></tr>';
-}
+function setupListener(colName, stateKey, renderFn) {
+  onSnapshot(query(collection(db, colName), orderBy('_ts', 'desc')), snap => {
+    DB[stateKey] = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    renderFn();
+    dot('online');
+  }, () => dot('offline'));
+}
+
+setupListener('stock_productos', 'productos', () => { renderProductos(); renderResumen(); populateMovProductos(); });
+setupListener('stock_movimientos', 'movimientos', renderMovimientos);
+setupListener('gasoil_registros', 'gasoil', () => { renderGasoil(); renderGasoilBalances(); populateCuentas(); });
+setupListener('pulverizaciones', 'pulverizaciones', renderPulv);
+setupListener('fertilizaciones', 'fertilizaciones', renderFert);
+setupListener('labores', 'labores', renderLabores);
+setupListener('siembra', 'siembra', renderSiembra);
+setupListener('cosecha', 'cosecha', () => { renderCosecha(); renderCosechaResumen(); });
+setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); });
 
-async function deleteGasoil(id){
-  confirm2('¿Eliminar este registro?', async ()=>{
-    try { await deleteDoc2(docRef('gasoil_registros',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// PULVERIZACIONES
-// ══════════════════════════════════════
-let pulvProductoCount = 0;
-
-function addPulvProducto(nombre='', dosis='', total=''){
-  pulvProductoCount++;
-  const list = document.getElementById('pulv-productos-list');
-  const div = document.createElement('div');
-  div.id = 'pulv-prod-'+pulvProductoCount;
-  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:7px;margin-bottom:7px;align-items:center';
-  div.innerHTML = `
-    <input type="text" placeholder="Producto" value="${nombre}" class="pulv-prod-nombre" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
-    <input type="number" placeholder="Dosis/ha" value="${dosis}" class="pulv-prod-dosis" step="0.001" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
-    <input type="number" placeholder="Total" value="${total}" class="pulv-prod-total" step="0.01" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
-    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>
-  `;
-  list.appendChild(div);
-}
-
-function openModalPulv(){
-  document.getElementById('pulv-id').value='';
-  document.getElementById('pulv-fecha').value=today();
-  document.getElementById('pulv-tipo').value='barbecho';
-  document.getElementById('pulv-cultivo').value='MAIZ';
-  document.getElementById('pulv-equipo').value='';
-  document.getElementById('pulv-operario').value='';
-  document.getElementById('pulv-costo').value='';
-  document.getElementById('pulv-obs').value='';
-  document.getElementById('pulv-productos-list').innerHTML='';
-  pulvProductoCount=0;
-  populateLoteSelect('pulv-lote');
-  addPulvProducto();
-  document.getElementById('modal-pulv-title').textContent='Nueva pulverización';
-  openModal('modal-pulv');
-}
-
-function editPulv(id){
-  const p = DB.pulverizaciones.find(x=>x.id===id); if(!p) return;
-  document.getElementById('pulv-id').value=p.id;
-  document.getElementById('pulv-fecha').value=p.fecha||today();
-  document.getElementById('pulv-tipo').value=p.tipo||'barbecho';
-  document.getElementById('pulv-cultivo').value=p.cultivo||'MAIZ';
-  document.getElementById('pulv-equipo').value=p.equipo||'';
-  document.getElementById('pulv-operario').value=p.operario||'';
-  document.getElementById('pulv-costo').value=p.costo||'';
-  document.getElementById('pulv-obs').value=p.obs||'';
-  document.getElementById('pulv-productos-list').innerHTML='';
-  pulvProductoCount=0;
-  populateLoteSelect('pulv-lote');
-  setTimeout(()=>{
-    document.getElementById('pulv-lote').value=p.lote||'';
-    (p.productos||[]).forEach(pr=>addPulvProducto(pr.nombre||'',pr.dosis||'',pr.total||''));
-    if(!(p.productos||[]).length) addPulvProducto();
-  },50);
-  document.getElementById('modal-pulv-title').textContent='Editar pulverización';
-  openModal('modal-pulv');
-}
-
-async function guardarPulv(){
-  const id = document.getElementById('pulv-id').value;
-  const productos = [];
-  document.querySelectorAll('#pulv-productos-list > div').forEach(row=>{
-    const n = row.querySelector('.pulv-prod-nombre')?.value?.trim();
-    if(n) productos.push({
-      nombre: n,
-      dosis: parseFloat(row.querySelector('.pulv-prod-dosis')?.value)||0,
-      total: parseFloat(row.querySelector('.pulv-prod-total')?.value)||0
-    });
-  });
-  const data = {
-    fecha: document.getElementById('pulv-fecha').value,
-    lote: document.getElementById('pulv-lote').value,
-    cultivo: document.getElementById('pulv-cultivo').value,
-    tipo: document.getElementById('pulv-tipo').value,
-    equipo: document.getElementById('pulv-equipo').value.trim(),
-    operario: document.getElementById('pulv-operario').value.trim(),
-    costo: parseFloat(document.getElementById('pulv-costo').value)||0,
-    obs: document.getElementById('pulv-obs').value.trim(),
-    productos, _ts: new Date()
-  };
-  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('pulverizaciones',id), data);
-    else await addDoc2(colRef('pulverizaciones'), data);
-    toast('Guardado ✓');
-    closeModal('modal-pulv');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderPulv(){
-  const search = document.getElementById('search-pulv')?.value?.toLowerCase()||'';
-  const lote = document.getElementById('filter-lote-pulv')?.value||'';
-  const tipo = document.getElementById('filter-tipo-pulv')?.value||'';
-  const tbody = document.getElementById('tbody-pulv');
-  const stats = document.getElementById('stats-pulv');
-  if(!tbody) return;
-  let rows = DB.pulverizaciones.filter(p=>
-    (!search || p.lote?.toLowerCase().includes(search) || (p.productos||[]).some(pr=>pr.nombre?.toLowerCase().includes(search))) &&
-    (!lote || p.lote===lote) && (!tipo || p.tipo===tipo)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  if(stats){
-    const lotes = [...new Set(DB.pulverizaciones.map(p=>p.lote))].filter(Boolean);
-    stats.innerHTML = `
-      <div class="stat-card green"><div class="stat-num">${DB.pulverizaciones.length}</div><div class="stat-lbl">Aplicaciones</div></div>
-      <div class="stat-card brown"><div class="stat-num">${lotes.length}</div><div class="stat-lbl">Lotes</div></div>
-      <div class="stat-card amber"><div class="stat-num">${DB.pulverizaciones.filter(p=>p.tipo==='barbecho').length}</div><div class="stat-lbl">Barbechos</div></div>
-      <div class="stat-card blue"><div class="stat-num">${DB.pulverizaciones.filter(p=>p.tipo==='pre-emerg'||p.tipo==='post-emerg').length}</div><div class="stat-lbl">Post/Pre emerg.</div></div>
-    `;
-  }
-  tbody.innerHTML = rows.map(p=>
-    `<tr>
-      <td>${p.fecha||''}</td>
-      <td style="font-weight:700">${p.lote||''}</td>
-      <td>${cultivoBadge(p.cultivo)}</td>
-      <td>${tipoPulvBadge(p.tipo)}</td>
-      <td><div class="pulv-productos">${(p.productos||[]).map(pr=>'<div class="pulv-prod-row"><b>'+pr.nombre+'</b> <span>'+pr.dosis+' L/ha · '+fmt(pr.total)+' total</span></div>').join('')}</div></td>
-      <td style="font-size:12px">${p.equipo||''}</td>
-      <td style="font-size:12px">${p.operario||''}</td>
-      <td style="font-family:monospace">${p.costo?'$'+fmt(p.costo):'-'}</td>
-      <td style="color:var(--muted);font-size:12px">${p.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editPulv('${p.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePulv('${p.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="10">Sin aplicaciones</td></tr>';
-}
-
-async function deletePulv(id){
-  confirm2('¿Eliminar esta aplicación?', async ()=>{
-    try { await deleteDoc2(docRef('pulverizaciones',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// FERTILIZACIONES
-// ══════════════════════════════════════
-function openModalFert(){
-  document.getElementById('fert-id').value='';
-  document.getElementById('fert-fecha').value=today();
-  document.getElementById('fert-momento').value='';
-  document.getElementById('fert-producto').value='';
-  document.getElementById('fert-dosis').value='';
-  document.getElementById('fert-ha').value='';
-  document.getElementById('fert-total').value='';
-  document.getElementById('fert-obs').value='';
-  populateLoteSelect('fert-lote');
-  document.getElementById('modal-fert-title').textContent='Nueva fertilización';
-  openModal('modal-fert');
-  document.getElementById('fert-dosis').addEventListener('input',calcFert);
-  document.getElementById('fert-ha').addEventListener('input',calcFert);
-}
-
-function calcFert(){
-  const d=parseFloat(document.getElementById('fert-dosis').value)||0;
-  const h=parseFloat(document.getElementById('fert-ha').value)||0;
-  document.getElementById('fert-total').value = d*h ? (d*h).toFixed(0) : '';
-}
-
-function editFert(id){
-  const f = DB.fertilizaciones.find(x=>x.id===id); if(!f) return;
-  document.getElementById('fert-id').value=f.id;
-  document.getElementById('fert-fecha').value=f.fecha||today();
-  document.getElementById('fert-momento').value=f.momento||'';
-  document.getElementById('fert-producto').value=f.producto||'';
-  document.getElementById('fert-dosis').value=f.dosis||'';
-  document.getElementById('fert-ha').value=f.ha||'';
-  document.getElementById('fert-total').value=f.total||'';
-  document.getElementById('fert-obs').value=f.obs||'';
-  populateLoteSelect('fert-lote');
-  setTimeout(()=>document.getElementById('fert-lote').value=f.lote||'',50);
-  document.getElementById('modal-fert-title').textContent='Editar fertilización';
-  openModal('modal-fert');
-}
-
-async function guardarFert(){
-  const id = document.getElementById('fert-id').value;
-  const dosis = parseFloat(document.getElementById('fert-dosis').value)||0;
-  const ha = parseFloat(document.getElementById('fert-ha').value)||0;
-  const data = {
-    fecha: document.getElementById('fert-fecha').value,
-    lote: document.getElementById('fert-lote').value,
-    cultivo: document.getElementById('fert-cultivo').value,
-    producto: document.getElementById('fert-producto').value.trim(),
-    dosis, ha, total: dosis*ha,
-    momento: document.getElementById('fert-momento').value.trim(),
-    obs: document.getElementById('fert-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('fertilizaciones',id), data);
-    else await addDoc2(colRef('fertilizaciones'), data);
-    toast('Guardado ✓');
-    closeModal('modal-fert');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderFert(){
-  const search = document.getElementById('search-fert')?.value?.toLowerCase()||'';
-  const lote = document.getElementById('filter-lote-fert')?.value||'';
-  const tbody = document.getElementById('tbody-fert');
-  const stats = document.getElementById('stats-fert');
-  if(!tbody) return;
-  let rows = DB.fertilizaciones.filter(f=>
-    (!search || f.lote?.toLowerCase().includes(search) || f.producto?.toLowerCase().includes(search)) &&
-    (!lote || f.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  if(stats){
-    const totalKg = DB.fertilizaciones.reduce((a,f)=>a+(f.total||0),0);
-    const totalHa = DB.fertilizaciones.reduce((a,f)=>a+(f.ha||0),0);
-    stats.innerHTML = `
-      <div class="stat-card green"><div class="stat-num">${DB.fertilizaciones.length}</div><div class="stat-lbl">Aplicaciones</div></div>
-      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalKg))}</div><div class="stat-lbl">kg totales</div></div>
-      <div class="stat-card amber"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
-    `;
-  }
-  tbody.innerHTML = rows.map(f=>
-    `<tr>
-      <td>${f.fecha||''}</td>
-      <td style="font-weight:700">${f.lote||''}</td>
-      <td>${cultivoBadge(f.cultivo)}</td>
-      <td style="font-weight:600">${f.producto||''}</td>
-      <td style="font-family:monospace">${fmt(f.dosis)} kg/ha</td>
-      <td style="font-family:monospace">${fmt(f.total)} kg</td>
-      <td style="font-family:monospace">${fmt(f.ha)} ha</td>
-      <td style="color:var(--muted);font-size:12px">${f.momento||''}</td>
-      <td style="color:var(--muted);font-size:12px">${f.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editFert('${f.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteFert('${f.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="10">Sin registros</td></tr>';
-}
-
-async function deleteFert(id){
-  confirm2('¿Eliminar esta fertilización?', async ()=>{
-    try { await deleteDoc2(docRef('fertilizaciones',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// LABORES
-// ══════════════════════════════════════
-function openModalLabor(){
-  document.getElementById('labor-id').value='';
-  document.getElementById('labor-fecha').value=today();
-  document.getElementById('labor-tipo').value='SIEMBRA';
-  document.getElementById('labor-ha').value='';
-  document.getElementById('labor-cultivo').value='MAIZ';
-  document.getElementById('labor-contratista').value='';
-  document.getElementById('labor-psha').value='';
-  document.getElementById('labor-total').value='';
-  document.getElementById('labor-total-iva').value='';
-  document.getElementById('labor-obs').value='';
-  populateLoteSelect('labor-lote');
-  document.getElementById('modal-labor-title').textContent='Nueva labor';
-  openModal('modal-labor');
-}
-
-function calcLabor(){
-  const ha = parseFloat(document.getElementById('labor-ha')?.value)||0;
-  const psha = parseFloat(document.getElementById('labor-psha')?.value)||0;
-  const total = ha*psha;
-  document.getElementById('labor-total').value = total ? total.toFixed(0) : '';
-  document.getElementById('labor-total-iva').value = total ? (total*1.21).toFixed(0) : '';
-}
-
-function editLabor(id){
-  const l = DB.labores.find(x=>x.id===id); if(!l) return;
-  document.getElementById('labor-id').value=l.id;
-  document.getElementById('labor-fecha').value=l.fecha||today();
-  document.getElementById('labor-tipo').value=l.tipo||'SIEMBRA';
-  document.getElementById('labor-ha').value=l.ha||'';
-  document.getElementById('labor-cultivo').value=l.cultivo||'MAIZ';
-  document.getElementById('labor-contratista').value=l.contratista||'';
-  document.getElementById('labor-psha').value=l.psha||'';
-  document.getElementById('labor-total').value=l.total||'';
-  document.getElementById('labor-total-iva').value=l.totalIva||'';
-  document.getElementById('labor-obs').value=l.obs||'';
-  populateLoteSelect('labor-lote');
-  setTimeout(()=>document.getElementById('labor-lote').value=l.lote||'',50);
-  document.getElementById('modal-labor-title').textContent='Editar labor';
-  openModal('modal-labor');
-  document.getElementById('labor-ha').addEventListener('input',calcLabor);
-  document.getElementById('labor-psha').addEventListener('input',calcLabor);
-}
-
-async function guardarLabor(){
-  const id = document.getElementById('labor-id').value;
-  const ha = parseFloat(document.getElementById('labor-ha').value)||0;
-  const psha = parseFloat(document.getElementById('labor-psha').value)||0;
-  const data = {
-    fecha: document.getElementById('labor-fecha').value,
-    lote: document.getElementById('labor-lote').value,
-    ha, cultivo: document.getElementById('labor-cultivo').value,
-    tipo: document.getElementById('labor-tipo').value,
-    contratista: document.getElementById('labor-contratista').value.trim(),
-    psha, total: ha*psha, totalIva: ha*psha*1.21,
-    obs: document.getElementById('labor-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('labores',id), data);
-    else await addDoc2(colRef('labores'), data);
-    toast('Guardado ✓');
-    closeModal('modal-labor');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderLabores(){
-  const search = document.getElementById('search-labores')?.value?.toLowerCase()||'';
-  const tipo = document.getElementById('filter-tipo-labor')?.value||'';
-  const lote = document.getElementById('filter-lote-labor')?.value||'';
-  const tbody = document.getElementById('tbody-labores');
-  const stats = document.getElementById('stats-labores');
-  if(!tbody) return;
-  let rows = DB.labores.filter(l=>
-    (!search || l.contratista?.toLowerCase().includes(search) || l.lote?.toLowerCase().includes(search)) &&
-    (!tipo || l.tipo===tipo) && (!lote || l.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  if(stats){
-    const totalHa = DB.labores.reduce((a,l)=>a+(l.ha||0),0);
-    const totalPesos = DB.labores.reduce((a,l)=>a+(l.total||0),0);
-    const contratistas = [...new Set(DB.labores.map(l=>l.contratista))].filter(Boolean);
-    stats.innerHTML = `
-      <div class="stat-card blue"><div class="stat-num">${DB.labores.length}</div><div class="stat-lbl">Labores</div></div>
-      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
-      <div class="stat-card green"><div class="stat-num">${contratistas.length}</div><div class="stat-lbl">Contratistas</div></div>
-      <div class="stat-card amber"><div class="stat-num">${totalPesos?'$'+fmt(Math.round(totalPesos)):'-'}</div><div class="stat-lbl">Total pesos</div></div>
-    `;
-  }
-  tbody.innerHTML = rows.map(l=>
-    `<tr>
-      <td>${l.fecha||''}</td>
-      <td style="font-weight:700">${l.lote||''}</td>
-      <td style="font-family:monospace">${fmt(l.ha)} ha</td>
-      <td>${cultivoBadge(l.cultivo)}</td>
-      <td style="font-weight:600">${l.tipo||''}</td>
-      <td>${l.contratista||''}</td>
-      <td style="font-family:monospace">${l.psha?'$'+fmt(l.psha):'-'}</td>
-      <td style="font-family:monospace">${l.total?'$'+fmt(Math.round(l.total)):'-'}</td>
-      <td style="font-family:monospace">${l.totalIva?'$'+fmt(Math.round(l.totalIva)):'-'}</td>
-      <td style="color:var(--muted);font-size:12px">${l.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editLabor('${l.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteLabor('${l.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="11">Sin labores</td></tr>';
-}
-
-async function deleteLabor(id){
-  confirm2('¿Eliminar esta labor?', async ()=>{
-    try { await deleteDoc2(docRef('labores',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// SIEMBRA
-// ══════════════════════════════════════
-function openModalSiembra(){
-  document.getElementById('siem-id').value='';
-  ['siem-fecha'].forEach(id=>document.getElementById(id).value=today());
-  ['siem-antecesor','siem-variedad','siem-dosis','siem-total-sem','siem-fert-ha','siem-contratista','siem-obs'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('siem-ha').value='';
-  document.getElementById('siem-rend').value='';
-  document.getElementById('siem-cultivo').value='MAIZ';
-  populateLoteSelect('siem-lote');
-  document.getElementById('modal-siembra-title').textContent='Nueva siembra';
-  openModal('modal-siembra');
-}
-
-function editSiembra(id){
-  const s = DB.siembra.find(x=>x.id===id); if(!s) return;
-  document.getElementById('siem-id').value=s.id;
-  document.getElementById('siem-fecha').value=s.fecha||today();
-  document.getElementById('siem-ha').value=s.ha||'';
-  document.getElementById('siem-cultivo').value=s.cultivo||'MAIZ';
-  document.getElementById('siem-antecesor').value=s.antecesor||'';
-  document.getElementById('siem-variedad').value=s.variedad||'';
-  document.getElementById('siem-dosis').value=s.dosis||'';
-  document.getElementById('siem-total-sem').value=s.totalSem||'';
-  document.getElementById('siem-fert-ha').value=s.fertHA||'';
-  document.getElementById('siem-contratista').value=s.contratista||'';
-  document.getElementById('siem-rend').value=s.rendEsp||'';
-  document.getElementById('siem-obs').value=s.obs||'';
-  populateLoteSelect('siem-lote');
-  setTimeout(()=>document.getElementById('siem-lote').value=s.lote||'',50);
-  document.getElementById('modal-siembra-title').textContent='Editar siembra';
-  openModal('modal-siembra');
-}
-
-async function guardarSiembra(){
-  const id = document.getElementById('siem-id').value;
-  const data = {
-    fecha: document.getElementById('siem-fecha').value,
-    lote: document.getElementById('siem-lote').value,
-    ha: parseFloat(document.getElementById('siem-ha').value)||0,
-    cultivo: document.getElementById('siem-cultivo').value,
-    antecesor: document.getElementById('siem-antecesor').value.trim(),
-    variedad: document.getElementById('siem-variedad').value.trim(),
-    dosis: document.getElementById('siem-dosis').value.trim(),
-    totalSem: document.getElementById('siem-total-sem').value.trim(),
-    fertHA: document.getElementById('siem-fert-ha').value.trim(),
-    contratista: document.getElementById('siem-contratista').value.trim(),
-    rendEsp: parseFloat(document.getElementById('siem-rend').value)||0,
-    obs: document.getElementById('siem-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('siembra',id), data);
-    else await addDoc2(colRef('siembra'), data);
-    toast('Guardado ✓');
-    closeModal('modal-siembra');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderSiembra(){
-  const search = document.getElementById('search-siembra')?.value?.toLowerCase()||'';
-  const cultivo = document.getElementById('filter-cultivo-siembra')?.value||'';
-  const tbody = document.getElementById('tbody-siembra');
-  const stats = document.getElementById('stats-siembra');
-  if(!tbody) return;
-  let rows = DB.siembra.filter(s=>
-    (!search || s.lote?.toLowerCase().includes(search) || s.cultivo?.toLowerCase().includes(search) || s.variedad?.toLowerCase().includes(search)) &&
-    (!cultivo || s.cultivo===cultivo)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  if(stats){
-    const totalHa = DB.siembra.reduce((a,s)=>a+(s.ha||0),0);
-    const cultivos = [...new Set(DB.siembra.map(s=>s.cultivo))].filter(Boolean);
-    stats.innerHTML = `
-      <div class="stat-card purple"><div class="stat-num">${DB.siembra.length}</div><div class="stat-lbl">Lotes sembrados</div></div>
-      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
-      <div class="stat-card green"><div class="stat-num">${cultivos.length}</div><div class="stat-lbl">Cultivos</div></div>
-    `;
-  }
-  tbody.innerHTML = rows.map(s=>
-    `<tr>
-      <td>${s.fecha||''}</td>
-      <td style="font-weight:700">${s.lote||''}</td>
-      <td style="font-family:monospace">${fmt(s.ha)} ha</td>
-      <td style="color:var(--muted)">${s.antecesor||''}</td>
-      <td>${cultivoBadge(s.cultivo)}</td>
-      <td style="font-weight:600">${s.variedad||''}</td>
-      <td style="font-size:12px">${s.dosis||''}</td>
-      <td style="font-size:12px">${s.totalSem||''}</td>
-      <td style="font-size:12px">${s.fertHA||''}</td>
-      <td style="font-size:12px">${s.contratista||''}</td>
-      <td style="font-family:monospace">${s.rendEsp?fmt(s.rendEsp)+' kg/ha':'-'}</td>
-      <td style="color:var(--muted);font-size:12px">${s.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editSiembra('${s.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteSiembra('${s.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="13">Sin registros de siembra</td></tr>';
-}
-
-async function deleteSiembra(id){
-  confirm2('¿Eliminar este registro de siembra?', async ()=>{
-    try { await deleteDoc2(docRef('siembra',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// COSECHA
-// ══════════════════════════════════════
-function calcCosecha(){
-  const kgC = parseFloat(document.getElementById('cos-kg-campo').value)||0;
-  const h = parseFloat(document.getElementById('cos-humedad').value)||0;
-  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
-  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
-  // Humedad estándar maíz: 14.5%, soja: 13.5%. Usamos 14.5 como default
-  const humRef = 14.5;
-  const mermaH = h > humRef ? Math.round(kgC * ((h - humRef) / (100 - humRef))) : 0;
-  document.getElementById('cos-merma-h').value = mermaH || '';
-  const netos = Math.max(0, kgC - mermaH - zaranda);
-  document.getElementById('cos-kg-netos').value = netos ? Math.round(netos) : '';
-  document.getElementById('cos-rend').value = (ha && netos) ? Math.round(netos/ha) : '';
-}
-
-function openModalCosecha(){
-  document.getElementById('cos-id').value='';
-  document.getElementById('cos-fecha').value=today();
-  document.getElementById('cos-tipo').value='COSECHA';
-  document.getElementById('cos-cultivo').value='MAIZ';
-  document.getElementById('cos-destino').value='';
-  document.getElementById('cos-chofer').value='';
-  document.getElementById('cos-chasis').value='';
-  document.getElementById('cos-kg-campo').value='';
-  document.getElementById('cos-kg-destino').value='';
-  document.getElementById('cos-humedad').value='';
-  document.getElementById('cos-merma-h').value='';
-  document.getElementById('cos-zaranda').value='';
-  document.getElementById('cos-kg-netos').value='';
-  document.getElementById('cos-ha').value='';
-  document.getElementById('cos-rend').value='';
-  document.getElementById('cos-obs').value='';
-  populateLoteSelect('cos-lote');
-  document.getElementById('modal-cosecha-title').textContent='Nuevo registro de cosecha';
-  openModal('modal-cosecha');
-}
-
-function editCosecha(id){
-  const c = DB.cosecha.find(x=>x.id===id); if(!c) return;
-  document.getElementById('cos-id').value=c.id;
-  document.getElementById('cos-fecha').value=c.fecha||today();
-  document.getElementById('cos-tipo').value=c.tipo||'COSECHA';
-  document.getElementById('cos-cultivo').value=c.cultivo||'MAIZ';
-  document.getElementById('cos-destino').value=c.destino||'';
-  document.getElementById('cos-chofer').value=c.chofer||'';
-  document.getElementById('cos-chasis').value=c.chasis||'';
-  document.getElementById('cos-kg-campo').value=c.kgCampo||'';
-  document.getElementById('cos-kg-destino').value=c.kgDestino||'';
-  document.getElementById('cos-humedad').value=c.humedad||'';
-  document.getElementById('cos-merma-h').value=c.mermaH||'';
-  document.getElementById('cos-zaranda').value=c.zaranda||'';
-  document.getElementById('cos-kg-netos').value=c.kgNetos||'';
-  document.getElementById('cos-ha').value=c.ha||'';
-  document.getElementById('cos-rend').value=c.rend||'';
-  document.getElementById('cos-obs').value=c.obs||'';
-  populateLoteSelect('cos-lote');
-  setTimeout(()=>document.getElementById('cos-lote').value=c.lote||'',50);
-  document.getElementById('modal-cosecha-title').textContent='Editar cosecha';
-  openModal('modal-cosecha');
-}
-
-async function guardarCosecha(){
-  const id = document.getElementById('cos-id').value;
-  const kgCampo = parseFloat(document.getElementById('cos-kg-campo').value)||0;
-  const humedad = parseFloat(document.getElementById('cos-humedad').value)||0;
-  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
-  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
-  const mermaH = parseFloat(document.getElementById('cos-merma-h').value)||0;
-  const kgNetos = parseFloat(document.getElementById('cos-kg-netos').value)||0;
-  const data = {
-    fecha: document.getElementById('cos-fecha').value,
-    lote: document.getElementById('cos-lote').value,
-    cultivo: document.getElementById('cos-cultivo').value,
-    tipo: document.getElementById('cos-tipo').value,
-    destino: document.getElementById('cos-destino').value.trim(),
-    chofer: document.getElementById('cos-chofer').value.trim(),
-    chasis: document.getElementById('cos-chasis').value.trim(),
-    kgCampo, kgDestino: parseFloat(document.getElementById('cos-kg-destino').value)||0,
-    humedad, mermaH, zaranda, kgNetos,
-    ha, rend: ha ? Math.round(kgNetos/ha) : 0,
-    obs: document.getElementById('cos-obs').value.trim(),
-    _ts: new Date()
-  };
-  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
-  try {
-    if(id) await updateDoc2(docRef('cosecha',id), data);
-    else await addDoc2(colRef('cosecha'), data);
-    toast('Guardado ✓');
-    closeModal('modal-cosecha');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-function renderCosechaResumen(){
-  const div = document.getElementById('cosecha-summary');
-  if(!div) return;
-  const cultivos = [...new Set(DB.cosecha.map(c=>c.cultivo))].filter(Boolean);
-  div.innerHTML = cultivos.map(cult=>{
-    const regs = DB.cosecha.filter(c=>c.cultivo===cult);
-    const totalKg = regs.reduce((a,c)=>a+(c.kgCampo||0),0);
-    const totalNetos = regs.reduce((a,c)=>a+(c.kgNetos||0),0);
-    const totalHa = regs.filter(c=>c.tipo==='COSECHA/STOCK').reduce((a,c)=>a+(c.ha||0),0) || regs[0]?.ha || 0;
-    return `<div class="cosecha-card">
-      <div class="cosecha-card-title">${cultivoBadge(cult)}</div>
-      <div class="cosecha-num">${fmt(Math.round(totalKg/1000))} tn</div>
-      <div class="cosecha-sub">campo total</div>
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Netos: <b>${fmt(Math.round(totalNetos/1000))} tn</b></div>
-      <div style="font-size:12px;color:var(--muted)">${regs.length} registros</div>
-    </div>`;
-  }).join('') || '<p style="color:var(--muted);padding:16px">Sin cosecha registrada</p>';
-}
-
-function renderCosecha(){
-  const search = document.getElementById('search-cosecha')?.value?.toLowerCase()||'';
-  const cultivo = document.getElementById('filter-cultivo-cosecha')?.value||'';
-  const lote = document.getElementById('filter-lote-cosecha')?.value||'';
-  const tbody = document.getElementById('tbody-cosecha');
-  if(!tbody) return;
-  let rows = DB.cosecha.filter(c=>
-    (!search || c.lote?.toLowerCase().includes(search) || c.cultivo?.toLowerCase().includes(search) || c.chofer?.toLowerCase().includes(search)) &&
-    (!cultivo || c.cultivo===cultivo) && (!lote || c.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  tbody.innerHTML = rows.map(c=>
-    `<tr>
-      <td>${c.fecha||''}</td>
-      <td style="font-weight:700">${c.lote||''}</td>
-      <td>${cultivoBadge(c.cultivo)}</td>
-      <td style="font-size:11px;color:var(--muted)">${c.tipo||''}</td>
-      <td style="font-size:12px">${c.destino||''}</td>
-      <td style="font-size:12px">${c.chofer||''} ${c.chasis?'('+c.chasis+')':''}</td>
-      <td style="font-family:monospace">${fmt(c.kgCampo)}</td>
-      <td style="font-family:monospace">${fmt(c.kgDestino)||'-'}</td>
-      <td style="font-family:monospace">${c.humedad?c.humedad+'%':'-'}</td>
-      <td style="font-family:monospace">${fmt(c.mermaH)||'-'}</td>
-      <td style="font-family:monospace;font-weight:700;color:var(--teal)">${fmt(c.kgNetos)||'-'}</td>
-      <td style="font-family:monospace;color:var(--brown)">${c.rend?fmt(c.rend)+' kg/ha':'-'}</td>
-      <td style="color:var(--muted);font-size:11px">${c.obs||''}</td>
-      <td class="td-actions">
-        <button class="btn btn-outline btn-sm btn-icon" onclick="editCosecha('${c.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCosecha('${c.id}')">🗑</button>
-      </td>
-    </tr>`
-  ).join('') || '<tr class="empty-row"><td colspan="14">Sin registros de cosecha</td></tr>';
-}
-
-async function deleteCosecha(id){
-  confirm2('¿Eliminar este registro de cosecha?', async ()=>{
-    try { await deleteDoc2(docRef('cosecha',id)); toast('Eliminado'); }
-    catch(e){ toast('Error','error'); }
-  });
-}
-
-// ══════════════════════════════════════
-// SORT TABLE (genérico)
-// ══════════════════════════════════════
-function sortTable(col, field, th){
-  const key = col+'_'+field;
-  sortState[key] = sortState[key]==='asc' ? 'desc' : 'asc';
-  const dir = sortState[key];
-  const arr = DB[col];
-  if(!arr) return;
-  arr.sort((a,b)=>{
-    const va=a[field]||'', vb=b[field]||'';
-    return dir==='asc' ? (va>vb?1:-1) : (va<vb?1:-1);
-  });
-  document.querySelectorAll('thead th.sorted').forEach(t=>t.classList.remove('sorted'));
-  th.classList.add('sorted');
-  th.querySelector('.sort-ico').textContent = dir==='asc'?'↑':'↓';
-  const fns = {movimientos:renderMovimientos, pulverizaciones:renderPulv, fertilizaciones:renderFert, labores:renderLabores, siembra:renderSiembra, cosecha:renderCosecha};
-  if(fns[col]) fns[col]();
-}
-
-// Cerrar modales con Escape
-document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){
-    document.querySelectorAll('.modal-backdrop.show').forEach(m=>m.classList.remove('show'));
-    document.getElementById('confirm-modal').classList.remove('show');
-  }
-});
-
-// Iniciar listeners de Firebase (todas las render functions ya están definidas aquí)
-if(window.setupAllListeners) {
-  window.setupAllListeners();
-} else {
-  // Firebase módulo aún no cargó — esperar
-  let attempts = 0;
-  const waitFB = setInterval(() => {
-    attempts++;
-    if(window.setupAllListeners) { window.setupAllListeners(); clearInterval(waitFB); }
-    else if(attempts > 50) clearInterval(waitFB); // 5 segundos máximo
-  }, 100);
-}
 </script>
 </body>
 </html>
