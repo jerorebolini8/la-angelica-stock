@@ -1682,10 +1682,10 @@ function renderLotes(){
   if(!grid || !tbody) return;
   const lotes = DB.lotes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre));
   grid.innerHTML = lotes.map(l =>
-    `<div class="lote-chip">${l.nombre} ${l.ha ? `<small style="opacity:.6">${l.ha}ha</small>` : ''}
-      <button onclick="editLote('${l.id}')" title="Editar">✏️</button>
-      <button onclick="deleteLote('${l.id}','${l.nombre}')" title="Eliminar">×</button>
-    </div>`
+    '<div class="lote-chip">' + l.nombre + ' ' + (l.ha ? '<small style="opacity:.6">' + l.ha + 'ha</small>' : '') +
+    ' <button onclick="editLote(\'' + l.id + '\')" title="Editar">✏️</button>' +
+    ' <button onclick="deleteLote(\'' + l.id + '\',\'' + l.nombre + '\')" title="Eliminar">×</button>' +
+    '</div>'
   ).join('') || '<span style="color:var(--muted);font-size:12px">Sin lotes configurados</span>';
   tbody.innerHTML = lotes.map(l =>
     `<tr>
@@ -2204,7 +2204,7 @@ function renderPulv(){
       <td style="font-weight:700">${p.lote||''}</td>
       <td>${cultivoBadge(p.cultivo)}</td>
       <td>${tipoPulvBadge(p.tipo)}</td>
-      <td><div class="pulv-productos">${(p.productos||[]).map(pr=>`<div class="pulv-prod-row"><b>${pr.nombre}</b> <span>${pr.dosis} L/ha · ${fmt(pr.total)} total</span></div>`).join('')}</div></td>
+      <td><div class="pulv-productos">${(p.productos||[]).map(pr=>'<div class="pulv-prod-row"><b>'+pr.nombre+'</b> <span>'+pr.dosis+' L/ha · '+fmt(pr.total)+' total</span></div>').join('')}</div></td>
       <td style="font-size:12px">${p.equipo||''}</td>
       <td style="font-size:12px">${p.operario||''}</td>
       <td style="font-family:monospace">${p.costo?'$'+fmt(p.costo):'-'}</td>
