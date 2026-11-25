@@ -34,524 +34,711 @@ select{-webkit-appearance:none;appearance:none}
   --red-pale:#ffebee;
   --blue:#1565c0;
   --blue-pale:#e3f2fd;
+  --purple:#6a1b9a;
+  --purple-pale:#f3e5f5;
+  --teal:#00695c;
+  --teal-pale:#e0f2f1;
   --shadow:0 2px 8px rgba(0,0,0,.08);
   --shadow-md:0 4px 16px rgba(0,0,0,.12);
 }
 
-/* ── LAYOUT ── */
-.layout{display:flex;min-height:100vh}
-
-/* ── SIDEBAR ── */
-.sidebar{width:220px;flex-shrink:0;background:var(--brown);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:20;transition:transform .25s}
-.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.12)}
-.logo-mark{font-size:9px;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:2.5px;margin-bottom:5px;text-transform:uppercase}
-.logo-name{font-size:19px;font-weight:800;color:#fff;line-height:1.1}
-.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:3px}
-
-.sidebar-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
-.nav-section{font-size:9px;font-weight:800;color:rgba(255,255,255,.35);letter-spacing:2px;padding:12px 12px 4px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.65);cursor:pointer;transition:.15s;border:none;background:none;width:100%;text-align:left}
-.nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
-.nav-item.active{background:rgba(255,255,255,.2);color:#fff}
-.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.75}
-.nav-item.active svg{opacity:1}
-
-.sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.12)}
-.sync-row{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.45)}
+/* ── TOP TABS LAYOUT ── */
+.app-header{background:var(--brown);position:sticky;top:0;z-index:30}
+.app-brand{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 0}
+.brand-name{font-size:16px;font-weight:800;color:#fff}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.45);font-weight:500}
+.sync-row{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#81c784;flex-shrink:0}
-.sync-dot.off{background:#ef9a9a}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sync-dot.live{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.tab-bar{display:flex;gap:2px;padding:8px 16px 0;overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:700;color:rgba(255,255,255,.55);background:transparent;border:none;cursor:pointer;white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:5px}
+.tab-btn:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}
+.tab-btn.active{color:#fff;background:var(--bg)}
+.tab-btn svg{width:14px;height:14px;flex-shrink:0}
 
 /* ── MAIN ── */
-.main{margin-left:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
-
-/* ── TOPBAR ── */
-.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.topbar-title{font-size:15px;font-weight:700;color:var(--text)}
-.topbar-title span{color:var(--muted);font-weight:500}
-.topbar-actions{display:flex;gap:8px;align-items:center}
-
-/* ── MOBILE HEADER ── */
-.mobile-header{display:none;background:var(--brown);color:#fff;padding:14px 16px;align-items:center;gap:12px;position:sticky;top:0;z-index:30}
-.hamburger{background:none;border:none;padding:4px;cursor:pointer;color:#fff;font-size:20px}
-.mobile-title{font-size:15px;font-weight:700;flex:1}
-
-/* ── OVERLAY ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:19}
-.overlay.show{display:block}
+.main{padding:16px 20px;max-width:1300px;margin:0 auto}
 
 /* ── PAGE ── */
-.page{display:none;padding:20px 24px;flex:1;flex-direction:column;gap:16px}
+.page{display:none;flex-direction:column;gap:14px}
 .page.active{display:flex}
 
 /* ── SECTION HEADER ── */
-.section-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.section-title{font-size:17px;font-weight:800;color:var(--text)}
-.section-title small{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-top:1px}
+.section-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.section-title{font-size:16px;font-weight:800;color:var(--text)}
+.section-title small{font-size:11px;font-weight:500;color:var(--muted);display:block;margin-top:1px}
 
 /* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-.stat-card{background:var(--surface);border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
-.stat-num{font-family:'Roboto Mono',monospace;font-size:1.9rem;font-weight:600;line-height:1}
-.stat-lbl{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat-card{background:var(--surface);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-num{font-family:'Roboto Mono',monospace;font-size:1.7rem;font-weight:600;line-height:1}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
 .stat-card.brown .stat-num{color:var(--brown)}
 .stat-card.green .stat-num{color:var(--green)}
 .stat-card.amber .stat-num{color:var(--amber)}
 .stat-card.red .stat-num{color:var(--red)}
 .stat-card.blue .stat-num{color:var(--blue)}
+.stat-card.purple .stat-num{color:var(--purple)}
+.stat-card.teal .stat-num{color:var(--teal)}
 
 /* ── TOOLBAR ── */
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.toolbar input,.toolbar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:#fff;color:var(--text);min-height:38px}
-.toolbar input{flex:1;min-width:140px}
+.toolbar input,.toolbar select{padding:7px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:#fff;color:var(--text);min-height:36px}
+.toolbar input{flex:1;min-width:130px}
 .toolbar input:focus,.toolbar select:focus{outline:none;border-color:var(--brown)}
 .sel-wrap{position:relative;display:inline-flex;align-items:center}
-.sel-wrap::after{content:'▾';position:absolute;right:10px;pointer-events:none;color:var(--muted);font-size:11px}
-.sel-wrap select{padding-right:28px}
+.sel-wrap::after{content:'▾';position:absolute;right:9px;pointer-events:none;color:var(--muted);font-size:10px}
+.sel-wrap select{padding-right:26px}
 
 /* ── BUTTONS ── */
-.btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap;min-height:38px}
+.btn{padding:7px 14px;border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap;min-height:36px}
 .btn-primary{background:var(--brown);color:#fff}
 .btn-primary:hover{background:var(--brown-dark)}
 .btn-green{background:var(--green);color:#fff}
 .btn-green:hover{background:#2e7d32}
 .btn-amber{background:var(--amber);color:#fff}
 .btn-amber:hover{background:#e65100}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:#0d47a1}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover{background:#4a148c}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:#004d40}
 .btn-danger{background:var(--red);color:#fff}
 .btn-danger:hover{background:#8b0000}
 .btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
 .btn-outline:hover{border-color:var(--brown);color:var(--brown)}
-.btn-sm{padding:5px 11px;font-size:12px;min-height:30px}
-.btn-icon{width:32px;height:32px;padding:0;justify-content:center;border-radius:7px}
+.btn-sm{padding:4px 10px;font-size:12px;min-height:28px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:7px}
 
 /* ── TABLE ── */
 .table-wrap{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
 .table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:var(--surface2);color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;padding:10px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{background:var(--surface2);color:var(--muted);font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;padding:9px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
 thead th:hover{color:var(--brown)}
 thead th .sort-ico{opacity:.4;font-size:9px;margin-left:3px}
 thead th.sorted .sort-ico{opacity:1}
 tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
-tbody td{padding:10px 14px;vertical-align:middle}
-.empty-row td{text-align:center;color:var(--muted);padding:36px;font-style:italic;font-size:13px}
+tbody td{padding:9px 12px;vertical-align:middle}
+.empty-row td{text-align:center;color:var(--muted);padding:30px;font-style:italic;font-size:13px}
 .td-actions{display:flex;gap:5px;justify-content:flex-end}
 
 /* ── BADGE ── */
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.badge-agro{background:#efebe9;color:#6d4c41}
-.badge-semilla{background:var(--amber-pale);color:#8b5e02}
-.badge-herr{background:var(--blue-pale);color:var(--blue)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-herb{background:#efebe9;color:#6d4c41}
+.badge-fert{background:var(--green-pale);color:var(--green)}
+.badge-coad{background:var(--blue-pale);color:var(--blue)}
 .badge-otro{background:#f3e5f5;color:#6a1b9a}
 .badge-entrada,.badge-ingreso{background:var(--green-pale);color:var(--green)}
 .badge-salida,.badge-egreso{background:var(--red-pale);color:var(--red)}
 .badge-warn{background:var(--amber-pale);color:#8b5e02}
+.badge-trigo{background:var(--amber-pale);color:#8b5e02}
+.badge-maiz{background:var(--green-pale);color:var(--green)}
+.badge-soja{background:var(--blue-pale);color:var(--blue)}
+.badge-girasol{background:#fff8e1;color:#f57f00}
+.badge-pastura{background:var(--teal-pale);color:var(--teal)}
+.badge-barbecho{background:#efebe9;color:#6d4c41}
+.badge-pre{background:var(--purple-pale);color:var(--purple)}
+.badge-post{background:var(--green-pale);color:var(--green)}
 
 /* ── STOCK CARD ── */
-.productos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.prod-card{background:var(--surface);border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.productos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.prod-card{background:var(--surface);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:box-shadow .15s,transform .15s}
 .prod-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
 .prod-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.prod-nombre{font-size:14px;font-weight:700;line-height:1.3;flex:1}
-.prod-stock{font-family:'Roboto Mono',monospace;font-size:22px;font-weight:600;color:var(--brown)}
+.prod-nombre{font-size:13px;font-weight:700;line-height:1.3;flex:1}
+.prod-marca{font-size:11px;color:var(--muted);font-style:italic}
+.prod-stock{font-family:'Roboto Mono',monospace;font-size:20px;font-weight:600;color:var(--brown)}
 .prod-stock.low{color:var(--red)}
-.prod-unidad{font-size:11px;color:var(--muted);font-weight:600}
-.prod-ultima{font-size:11px;color:var(--muted)}
+.prod-unidad{font-size:10px;color:var(--muted);font-weight:600}
 .prod-actions{display:flex;gap:5px;margin-top:4px}
 
 /* ── GASOIL BALANCE ── */
-.balance-card{background:linear-gradient(135deg,var(--brown) 0%,var(--brown-dark) 100%);border-radius:14px;padding:20px 24px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.balance-label{font-size:11px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
-.balance-num{font-family:'Roboto Mono',monospace;font-size:2.4rem;font-weight:600;line-height:1}
+.balance-card{background:linear-gradient(135deg,var(--brown) 0%,var(--brown-dark) 100%);border-radius:14px;padding:18px 22px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.balance-label{font-size:10px;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.balance-num{font-family:'Roboto Mono',monospace;font-size:2.2rem;font-weight:600;line-height:1}
 .balance-num.neg{color:#ffcdd2}
-.balance-sep{width:1px;background:rgba(255,255,255,.2);height:48px}
+.balance-sep{width:1px;background:rgba(255,255,255,.2);height:44px}
+
+/* ── COSECHA CARDS ── */
+.cosecha-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cosecha-card{background:var(--surface);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.cosecha-card-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.cosecha-num{font-family:'Roboto Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--brown)}
+.cosecha-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── LOTES CONFIG ── */
+.lotes-grid{display:flex;flex-wrap:wrap;gap:7px}
+.lote-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;background:var(--brown-pale);color:var(--brown);display:flex;align-items:center;gap:5px}
+.lote-chip button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+.lote-chip button:hover{color:var(--red)}
 
 /* ── MODAL ── */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:center;justify-content:center;padding:16px}
 .modal-backdrop.show{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal-header{padding:20px 22px 0;display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:16px;font-weight:800}
-.modal-close{background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:7px}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-lg{max-width:700px}
+.modal-header{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:800}
+.modal-close{background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px}
 .modal-close:hover{background:var(--surface2)}
-.modal-body{padding:20px 22px}
-.modal-footer{padding:0 22px 20px;display:flex;gap:8px;justify-content:flex-end}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.form-group label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.form-group input,.form-group select,.form-group textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;width:100%;background:#fff;transition:.15s}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:0 20px 18px;display:flex;gap:8px;justify-content:flex-end}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.form-group{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.form-group label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{padding:8px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;width:100%;background:#fff;transition:.15s}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--brown);box-shadow:0 0 0 3px rgba(109,76,65,.1)}
-.form-group textarea{resize:vertical;min-height:70px}
+.form-group textarea{resize:vertical;min-height:60px}
 .sel-group{position:relative}
-.sel-group::after{content:'▾';position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);font-size:12px}
-.sel-group select{padding-right:30px}
+.sel-group::after{content:'▾';position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);font-size:11px}
+.sel-group select{padding-right:28px}
+.form-divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.form-section-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
 
 /* ── TOAST ── */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;box-shadow:var(--shadow-md);animation:slideIn .25s ease;pointer-events:auto;max-width:320px}
+.toast{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;box-shadow:var(--shadow-md);animation:slideIn .25s ease;pointer-events:auto;max-width:300px}
 @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
 .toast.success{background:#2e7d32}
 .toast.error{background:#c62828}
 .toast.info{background:var(--brown)}
 
 /* ── LOADING ── */
-.loading-row td{text-align:center;padding:28px}
-.spinner{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--brown);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{display:inline-block;width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--brown);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── CONFIRM ── */
 .confirm-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;align-items:center;justify-content:center;padding:16px}
 .confirm-backdrop.show{display:flex}
-.confirm-box{background:#fff;border-radius:14px;padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);text-align:center}
-.confirm-icon{font-size:36px;margin-bottom:12px}
-.confirm-title{font-size:16px;font-weight:800;margin-bottom:8px}
-.confirm-msg{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.confirm-box{background:#fff;border-radius:14px;padding:22px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);text-align:center}
+.confirm-icon{font-size:34px;margin-bottom:10px}
+.confirm-title{font-size:15px;font-weight:800;margin-bottom:7px}
+.confirm-msg{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
 .confirm-actions{display:flex;gap:8px;justify-content:center}
+
+/* ── PULVERIZACIONES ── */
+.pulv-productos{display:flex;flex-direction:column;gap:4px}
+.pulv-prod-row{font-size:12px;color:var(--text)}
+.pulv-prod-row span{color:var(--muted);font-size:11px}
+
+/* ── CALCULO BOX ── */
+.calc-box{background:var(--surface2);border-radius:10px;padding:12px 16px;border:1px solid var(--border);margin-top:4px}
+.calc-box-title{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.calc-row{display:flex;justify-content:space-between;font-size:12.5px;padding:2px 0}
+.calc-row.total{font-weight:800;font-size:13.5px;border-top:1px solid var(--border);margin-top:6px;padding-top:6px;color:var(--brown)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:none}
-  .main{margin-left:0}
-  .mobile-header{display:flex}
-  .topbar{display:none}
-  .page{padding:14px 12px}
+  .tab-btn{padding:7px 11px;font-size:11px}
+  .main{padding:12px}
   .form-row{grid-template-columns:1fr}
+  .form-row3{grid-template-columns:1fr 1fr}
   .balance-sep{display:none}
   .productos-grid{grid-template-columns:1fr 1fr}
+  .cosecha-summary{grid-template-columns:1fr 1fr}
 }
-@media(max-width:420px){
+@media(max-width:480px){
+  .tab-btn span{display:none}
   .productos-grid{grid-template-columns:1fr}
+  .form-row3{grid-template-columns:1fr}
+  .cosecha-summary{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- OVERLAY MOBILE -->
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- SIDEBAR -->
-<nav class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">Campo</div>
-    <div class="logo-name">La Angélica</div>
-    <div class="logo-sub">Sistema de gestión</div>
-  </div>
-  <div class="sidebar-nav">
-    <div class="nav-section">Stock</div>
-    <button class="nav-item active" onclick="showPage('stock-productos')" id="nav-stock-productos">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H4V9h16v10zM12 3H8L6 7h2l1-2h6l1 2h2z"/></svg>
-      Productos
-    </button>
-    <button class="nav-item" onclick="showPage('stock-movimientos')" id="nav-stock-movimientos">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 16l-4-4 4-4v3h10V8l4 4-4 4v-3H7z"/></svg>
-      Movimientos
-    </button>
-    <button class="nav-item" onclick="showPage('stock-resumen')" id="nav-stock-resumen">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-      Resumen
-    </button>
-
-    <div class="nav-section" style="margin-top:8px">Combustible</div>
-    <button class="nav-item" onclick="showPage('gasoil-dashboard')" id="nav-gasoil-dashboard">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.77 7.23l.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1s-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5z"/></svg>
-      Panel
-    </button>
-    <button class="nav-item" onclick="showPage('gasoil-movimientos')" id="nav-gasoil-movimientos">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-      Registros
-    </button>
-  </div>
-  <div class="sidebar-footer">
+<!-- APP HEADER + TABS -->
+<div class="app-header">
+  <div class="app-brand">
+    <div>
+      <div class="brand-name">🌾 La Angélica</div>
+      <div class="brand-sub">Sistema de gestión · Temporada 26/27</div>
+    </div>
     <div class="sync-row">
       <div class="sync-dot live" id="sync-dot"></div>
-      <span id="sync-txt">Conectado</span>
+      <span id="sync-txt">Firebase</span>
     </div>
   </div>
-</nav>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('stock')" id="tab-stock">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H4V9h16v10zM12 3H8L6 7h2l1-2h6l1 2h2z"/></svg>
+      <span>Stock</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('gasoil')" id="tab-gasoil">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.77 7.23l.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1s-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5z"/></svg>
+      <span>Gasoil</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('pulverizaciones')" id="tab-pulverizaciones">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 11.5c0-1.93 1.57-3.5 3.5-3.5h1V6h-1C7.46 6 5 8.46 5 11.5S7.46 17 10.5 17H14v-2h-3.5C8.57 15 7 13.43 7 11.5zM14 6h-1v2h1c1.93 0 3.5 1.57 3.5 3.5S15.93 15 14 15h-1v2h1c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-5 6h6v-2H9z"/></svg>
+      <span>Pulverizaciones</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('fertilizaciones')" id="tab-fertilizaciones">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C8 10 5.9 16.17 3.82 21L5.71 22l1-2.3c.44.16.9.3 1.29.3C19 20 22 3 22 3c-1 2-8 2-14 7 1-1 11.11-2.75 15-7.21C22.95 7.57 15.47 11 7.5 20c-.19-.22-.29-.3-.5-.5 0 0-1-7 7-10 1.5-.5 2.5-.5 3-2.5z"/></svg>
+      <span>Fertilizaciones</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('labores')" id="tab-labores">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      <span>Labores</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('siembra')" id="tab-siembra">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      <span>Siembra</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('cosecha')" id="tab-cosecha">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+      <span>Cosecha</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('lotes')" id="tab-lotes">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <span>Lotes</span>
+    </button>
+  </div>
+</div>
 
-<!-- MAIN -->
 <div class="main">
-  <!-- MOBILE HEADER -->
-  <div class="mobile-header">
-    <button class="hamburger" onclick="openSidebar()">☰</button>
-    <span class="mobile-title" id="mobile-title">Productos</span>
-    <button class="btn btn-primary btn-sm" id="mobile-fab" onclick="fabAction()">+ Nuevo</button>
+
+<!-- ══════════ TAB: STOCK ══════════ -->
+<div class="page active" id="page-stock">
+  <!-- Sub-tabs stock -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:10px">
+    <button class="btn btn-primary btn-sm active-sub" id="sub-stock-prod" onclick="showStockSub('prod')">Productos</button>
+    <button class="btn btn-outline btn-sm" id="sub-stock-mov" onclick="showStockSub('mov')">Movimientos</button>
+    <button class="btn btn-outline btn-sm" id="sub-stock-res" onclick="showStockSub('res')">Resumen</button>
   </div>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-title" id="topbar-title">Stock <span>/ Productos</span></div>
-    <div class="topbar-actions" id="topbar-actions"></div>
-  </div>
-
-  <!-- ══════════ STOCK: PRODUCTOS ══════════ -->
-  <div class="page active" id="page-stock-productos">
+  <!-- PRODUCTOS -->
+  <div id="stock-prod">
     <div class="section-header">
-      <div class="section-title">Productos en stock<small>Inventario actual del galpón</small></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-green" onclick="openModalProducto()">+ Nuevo producto</button>
+      <div class="section-title">Productos en stock<small>Inventario de insumos del galpón</small></div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="openModalProducto()">+ Nuevo</button>
         <button class="btn btn-primary" onclick="openModalMovimiento()">↕ Movimiento</button>
       </div>
     </div>
-
-    <div class="stats-grid" id="stock-stats">
-      <div class="stat-card brown"><div class="stat-num" id="st-total">—</div><div class="stat-lbl">Productos</div></div>
-      <div class="stat-card green"><div class="stat-num" id="st-ok">—</div><div class="stat-lbl">Con stock</div></div>
-      <div class="stat-card amber"><div class="stat-num" id="st-low">—</div><div class="stat-lbl">Stock bajo</div></div>
-      <div class="stat-card red"><div class="stat-num" id="st-zero">—</div><div class="stat-lbl">Sin stock</div></div>
-    </div>
-
     <div class="toolbar">
-      <input type="text" id="buscar-prod" placeholder="🔍 Buscar producto..." oninput="renderProductos()">
+      <input type="text" placeholder="🔍 Buscar producto..." id="search-prod" oninput="renderProductos()">
       <div class="sel-wrap">
-        <select id="filtro-cat" onchange="renderProductos()">
+        <select id="filter-categoria" onchange="renderProductos()">
           <option value="">Todas las categorías</option>
-          <option value="agroquimicos">Agroquímicos</option>
-          <option value="semillas">Semillas</option>
-          <option value="herramientas">Herramientas</option>
-          <option value="otros">Otros</option>
+          <option value="HERBICIDA">Herbicida</option>
+          <option value="FERTILIZANTE">Fertilizante</option>
+          <option value="COADYUVANTE">Coadyuvante</option>
+          <option value="OTRO">Otro</option>
         </select>
       </div>
+    </div>
+    <div class="productos-grid" id="productos-grid"></div>
+  </div>
+
+  <!-- MOVIMIENTOS -->
+  <div id="stock-mov" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Movimientos<small>Entradas y salidas de insumos</small></div>
+      <button class="btn btn-primary" onclick="openModalMovimiento()">+ Nuevo movimiento</button>
+    </div>
+    <div class="toolbar">
+      <input type="text" placeholder="🔍 Buscar..." id="search-mov" oninput="renderMovimientos()">
       <div class="sel-wrap">
-        <select id="filtro-stock" onchange="renderProductos()">
+        <select id="filter-tipo-mov" onchange="renderMovimientos()">
           <option value="">Todos</option>
-          <option value="ok">Con stock</option>
-          <option value="zero">Sin stock</option>
+          <option value="entrada">Entradas</option>
+          <option value="salida">Salidas</option>
         </select>
       </div>
-      <button class="btn btn-outline" onclick="toggleView()" id="view-toggle">≡ Lista</button>
     </div>
-
-    <div id="productos-container">
-      <div class="productos-grid" id="productos-grid">
-        <div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1"><div class="spinner"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ STOCK: MOVIMIENTOS ══════════ -->
-  <div class="page" id="page-stock-movimientos">
-    <div class="section-header">
-      <div class="section-title">Movimientos<small>Historial de entradas y salidas</small></div>
-      <button class="btn btn-primary" onclick="openModalMovimiento()">↕ Nuevo movimiento</button>
-    </div>
-
-    <div class="toolbar">
-      <input type="text" id="buscar-mov" placeholder="🔍 Buscar..." oninput="renderMovimientos()">
-      <div class="sel-wrap">
-        <select id="filtro-tipo-mov" onchange="renderMovimientos()">
-          <option value="">Entradas y salidas</option>
-          <option value="entrada">Solo entradas</option>
-          <option value="salida">Solo salidas</option>
-        </select>
-      </div>
-      <input type="date" id="filtro-fecha-mov" onchange="renderMovimientos()" style="min-width:140px">
-    </div>
-
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
-          <thead>
-            <tr>
-              <th onclick="sortMov('fecha')">Fecha <span class="sort-ico">↕</span></th>
-              <th onclick="sortMov('nombreProducto')">Producto <span class="sort-ico">↕</span></th>
-              <th onclick="sortMov('tipo')">Tipo <span class="sort-ico">↕</span></th>
-              <th onclick="sortMov('cantidad')">Cantidad <span class="sort-ico">↕</span></th>
-              <th>Observación</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-movimientos">
-            <tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr>
-          </tbody>
+          <thead><tr>
+            <th onclick="sortTable('movimientos','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+            <th onclick="sortTable('movimientos','producto',this)">Producto<span class="sort-ico">↕</span></th>
+            <th>Tipo</th>
+            <th>Cantidad</th>
+            <th>Unidad</th>
+            <th>Lote/Campo</th>
+            <th>Obs.</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-movimientos"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ══════════ STOCK: RESUMEN ══════════ -->
-  <div class="page" id="page-stock-resumen">
+  <!-- RESUMEN -->
+  <div id="stock-res" style="display:none">
     <div class="section-header">
-      <div class="section-title">Resumen de stock<small>Totales por categoría</small></div>
-      <button class="btn btn-outline" onclick="exportarResumen()">⬇ Exportar CSV</button>
+      <div class="section-title">Resumen de stock<small>Estado actual de todos los productos</small></div>
+      <button class="btn btn-outline" onclick="exportarResumen()">⬇ CSV</button>
     </div>
+    <div class="stats-grid" id="stats-stock"></div>
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Categoría</th>
-              <th>Stock actual</th>
-              <th>Unidad</th>
-              <th>Último movimiento</th>
-              <th>Entradas</th>
-              <th>Salidas</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-resumen">
-            <tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>
-          </tbody>
+          <thead><tr>
+            <th>Producto</th><th>Marca</th><th>Categoría</th><th>Stock actual</th><th>Unidad</th><th>Alerta</th>
+          </tr></thead>
+          <tbody id="tbody-resumen"></tbody>
         </table>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ GASOIL: DASHBOARD ══════════ -->
-  <div class="page" id="page-gasoil-dashboard">
-    <div class="section-header">
-      <div class="section-title">Panel de combustible<small>Balance general</small></div>
-      <button class="btn btn-primary" onclick="openModalGasoil()">+ Nuevo registro</button>
-    </div>
-
-    <div class="balance-card" id="balance-card">
-      <div>
-        <div class="balance-label">Stock actual</div>
-        <div class="balance-num" id="gasoil-stock-num">—</div>
-        <div style="font-size:11px;opacity:.55;margin-top:3px">litros</div>
-      </div>
-      <div class="balance-sep"></div>
-      <div>
-        <div class="balance-label">Total ingresos</div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:1.4rem;font-weight:600" id="gasoil-ing-num">—</div>
-        <div style="font-size:11px;opacity:.55;margin-top:3px">litros</div>
-      </div>
-      <div class="balance-sep"></div>
-      <div>
-        <div class="balance-label">Total egresos</div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:1.4rem;font-weight:600" id="gasoil-egr-num">—</div>
-        <div style="font-size:11px;opacity:.55;margin-top:3px">litros</div>
-      </div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card brown"><div class="stat-num" id="gst-registros">—</div><div class="stat-lbl">Registros</div></div>
-      <div class="stat-card green"><div class="stat-num" id="gst-ingresos">—</div><div class="stat-lbl">Ingresos</div></div>
-      <div class="stat-card red"><div class="stat-num" id="gst-egresos">—</div><div class="stat-lbl">Egresos</div></div>
-    </div>
-
-    <!-- últimos 5 -->
-    <div>
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--muted)">ÚLTIMOS REGISTROS</div>
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table>
-            <thead><tr><th>Fecha</th><th>Tipo</th><th>Litros</th><th>Cuenta</th><th>Sector</th><th>Obs</th></tr></thead>
-            <tbody id="tbody-gasoil-recent">
-              <tr class="loading-row"><td colspan="6"><div class="spinner"></div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+<!-- ══════════ TAB: GASOIL ══════════ -->
+<div class="page" id="page-gasoil">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:10px">
+    <button class="btn btn-primary btn-sm" id="sub-gasoil-panel" onclick="showGasoilSub('panel')">Panel</button>
+    <button class="btn btn-outline btn-sm" id="sub-gasoil-reg" onclick="showGasoilSub('reg')">Registros</button>
   </div>
 
-  <!-- ══════════ GASOIL: MOVIMIENTOS ══════════ -->
-  <div class="page" id="page-gasoil-movimientos">
+  <!-- PANEL -->
+  <div id="gasoil-panel">
     <div class="section-header">
-      <div class="section-title">Registros de combustible<small>Historial completo</small></div>
-      <button class="btn btn-primary" onclick="openModalGasoil()">+ Nuevo registro</button>
+      <div class="section-title">Combustible<small>Control de gasoil por cuenta</small></div>
+      <button class="btn btn-primary" onclick="openModalGasoil()">+ Registro</button>
     </div>
+    <div id="gasoil-balances"></div>
+  </div>
 
+  <!-- REGISTROS -->
+  <div id="gasoil-reg" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Registros de gasoil</div>
+      <button class="btn btn-primary" onclick="openModalGasoil()">+ Nuevo</button>
+    </div>
     <div class="toolbar">
-      <input type="text" id="buscar-gasoil" placeholder="🔍 Buscar..." oninput="renderGasoil()">
+      <input type="text" placeholder="🔍 Buscar..." id="search-gasoil" oninput="renderGasoil()">
       <div class="sel-wrap">
-        <select id="filtro-tipo-gasoil" onchange="renderGasoil()">
-          <option value="">Ingresos y egresos</option>
-          <option value="ingreso">Solo ingresos</option>
-          <option value="egreso">Solo egresos</option>
-        </select>
-      </div>
-      <div class="sel-wrap">
-        <select id="filtro-cuenta-gasoil" onchange="renderGasoil()">
+        <select id="filter-cuenta" onchange="renderGasoil()">
           <option value="">Todas las cuentas</option>
         </select>
       </div>
     </div>
-
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
-          <thead>
-            <tr>
-              <th onclick="sortGas('fecha')">Fecha <span class="sort-ico">↕</span></th>
-              <th onclick="sortGas('tipo')">Tipo <span class="sort-ico">↕</span></th>
-              <th onclick="sortGas('litros')">Litros <span class="sort-ico">↕</span></th>
-              <th>Cuenta</th>
-              <th>Sector</th>
-              <th>Obs</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-gasoil">
-            <tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>
-          </tbody>
+          <thead><tr>
+            <th>Fecha</th><th>Cuenta</th><th>Tipo</th><th>Litros</th><th>Concepto</th><th>Obs.</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-gasoil"></tbody>
         </table>
       </div>
     </div>
   </div>
+</div>
+
+<!-- ══════════ TAB: PULVERIZACIONES ══════════ -->
+<div class="page" id="page-pulverizaciones">
+  <div class="section-header">
+    <div class="section-title">Pulverizaciones<small>Aplicaciones por lote · Temporada 26/27</small></div>
+    <button class="btn btn-green" onclick="openModalPulv()">+ Nueva aplicación</button>
+  </div>
+  <div class="stats-grid" id="stats-pulv"></div>
+  <div class="toolbar">
+    <input type="text" placeholder="🔍 Buscar lote o producto..." id="search-pulv" oninput="renderPulv()">
+    <div class="sel-wrap">
+      <select id="filter-lote-pulv" onchange="renderPulv()">
+        <option value="">Todos los lotes</option>
+      </select>
+    </div>
+    <div class="sel-wrap">
+      <select id="filter-tipo-pulv" onchange="renderPulv()">
+        <option value="">Todos los tipos</option>
+        <option value="barbecho">Barbecho</option>
+        <option value="pre-emerg">Pre-emergencia</option>
+        <option value="post-emerg">Post-emergencia</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('pulverizaciones','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+          <th>Lote</th>
+          <th>Cultivo</th>
+          <th>Tipo</th>
+          <th>Productos</th>
+          <th>Equipo</th>
+          <th>Operario</th>
+          <th>Costo $/ha</th>
+          <th>Obs.</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-pulv"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: FERTILIZACIONES ══════════ -->
+<div class="page" id="page-fertilizaciones">
+  <div class="section-header">
+    <div class="section-title">Fertilizaciones<small>Aplicaciones de fertilizante por lote</small></div>
+    <button class="btn btn-green" onclick="openModalFert()">+ Nueva fertilización</button>
+  </div>
+  <div class="stats-grid" id="stats-fert"></div>
+  <div class="toolbar">
+    <input type="text" placeholder="🔍 Buscar..." id="search-fert" oninput="renderFert()">
+    <div class="sel-wrap">
+      <select id="filter-lote-fert" onchange="renderFert()">
+        <option value="">Todos los lotes</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('fertilizaciones','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+          <th>Lote</th>
+          <th>Cultivo</th>
+          <th>Producto</th>
+          <th>Dosis kg/ha</th>
+          <th>Total kg</th>
+          <th>Hectáreas</th>
+          <th>Momento</th>
+          <th>Obs.</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-fert"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: LABORES ══════════ -->
+<div class="page" id="page-labores">
+  <div class="section-header">
+    <div class="section-title">Labores<small>Trabajos de campo y contratistas</small></div>
+    <button class="btn btn-blue" onclick="openModalLabor()">+ Nueva labor</button>
+  </div>
+  <div class="stats-grid" id="stats-labores"></div>
+  <div class="toolbar">
+    <input type="text" placeholder="🔍 Buscar contratista, lote..." id="search-labores" oninput="renderLabores()">
+    <div class="sel-wrap">
+      <select id="filter-tipo-labor" onchange="renderLabores()">
+        <option value="">Todos los tipos</option>
+        <option value="DISCO">Disco</option>
+        <option value="SIEMBRA">Siembra</option>
+        <option value="PULVERIZACIÓN">Pulverización</option>
+        <option value="COSECHA">Cosecha</option>
+        <option value="OTRO">Otro</option>
+      </select>
+    </div>
+    <div class="sel-wrap">
+      <select id="filter-lote-labor" onchange="renderLabores()">
+        <option value="">Todos los lotes</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('labores','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+          <th>Lote</th>
+          <th>Hectáreas</th>
+          <th>Cultivo</th>
+          <th>Labor</th>
+          <th>Contratista</th>
+          <th>$/ha</th>
+          <th>Total</th>
+          <th>Total + IVA</th>
+          <th>Obs.</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-labores"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: SIEMBRA ══════════ -->
+<div class="page" id="page-siembra">
+  <div class="section-header">
+    <div class="section-title">Siembra<small>Lotes sembrados · Temporada 26/27</small></div>
+    <button class="btn btn-purple" onclick="openModalSiembra()">+ Nueva siembra</button>
+  </div>
+  <div class="stats-grid" id="stats-siembra"></div>
+  <div class="toolbar">
+    <input type="text" placeholder="🔍 Buscar cultivo, variedad, lote..." id="search-siembra" oninput="renderSiembra()">
+    <div class="sel-wrap">
+      <select id="filter-cultivo-siembra" onchange="renderSiembra()">
+        <option value="">Todos los cultivos</option>
+        <option value="TRIGO">Trigo</option>
+        <option value="MAIZ">Maíz</option>
+        <option value="SOJA">Soja</option>
+        <option value="GIRASOL">Girasol</option>
+        <option value="PASTURA">Pastura</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('siembra','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+          <th>Lote</th>
+          <th>Hectáreas</th>
+          <th>Antecesor</th>
+          <th>Cultivo</th>
+          <th>Variedad</th>
+          <th>Dosis sem./ha</th>
+          <th>Total semilla</th>
+          <th>Fertilizante/ha</th>
+          <th>Contratista</th>
+          <th>Rend. esp.</th>
+          <th>Obs.</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-siembra"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: COSECHA ══════════ -->
+<div class="page" id="page-cosecha">
+  <div class="section-header">
+    <div class="section-title">Cosecha<small>Resultados de cosecha por lote</small></div>
+    <button class="btn btn-teal" onclick="openModalCosecha()">+ Nuevo registro</button>
+  </div>
+  <div class="cosecha-summary" id="cosecha-summary"></div>
+  <div class="toolbar">
+    <input type="text" placeholder="🔍 Buscar lote, cultivo..." id="search-cosecha" oninput="renderCosecha()">
+    <div class="sel-wrap">
+      <select id="filter-cultivo-cosecha" onchange="renderCosecha()">
+        <option value="">Todos los cultivos</option>
+        <option value="MAIZ">Maíz</option>
+        <option value="SOJA">Soja</option>
+        <option value="TRIGO">Trigo</option>
+        <option value="GIRASOL">Girasol</option>
+      </select>
+    </div>
+    <div class="sel-wrap">
+      <select id="filter-lote-cosecha" onchange="renderCosecha()">
+        <option value="">Todos los lotes</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('cosecha','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+          <th>Lote</th>
+          <th>Cultivo</th>
+          <th>Tipo</th>
+          <th>Destino</th>
+          <th>Chofer/Chasis</th>
+          <th>kg Campo</th>
+          <th>kg Destino</th>
+          <th>H%</th>
+          <th>Merma H</th>
+          <th>kg Netos</th>
+          <th>Rend./ha</th>
+          <th>Obs.</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-cosecha"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: LOTES ══════════ -->
+<div class="page" id="page-lotes">
+  <div class="section-header">
+    <div class="section-title">Lotes del campo<small>Configuración de lotes de La Angélica</small></div>
+    <button class="btn btn-primary" onclick="openModalLote()">+ Agregar lote</button>
+  </div>
+  <div class="table-wrap" style="padding:16px">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Los lotes configurados acá aparecen como opciones en todas las secciones (pulverizaciones, labores, siembra, cosecha).</p>
+    <div class="lotes-grid" id="lotes-grid"></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Nombre</th><th>Hectáreas</th><th>Cultivo actual</th><th>Antecesor</th><th>Observaciones</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-lotes"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 </div><!-- /main -->
 
-<!-- ══════════ MODALES ══════════ -->
+<!-- ══════════ MODALS ══════════ -->
 
-<!-- MODAL PRODUCTO -->
+<!-- MODAL: PRODUCTO STOCK -->
 <div class="modal-backdrop" id="modal-producto">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="mp-title">Nuevo producto</div>
+      <div class="modal-title" id="modal-producto-title">Nuevo producto</div>
       <button class="modal-close" onclick="closeModal('modal-producto')">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="mp-id">
+      <input type="hidden" id="prod-id">
       <div class="form-row">
-        <div class="form-group" style="grid-column:1/-1">
-          <label>Nombre del producto *</label>
-          <input type="text" id="mp-nombre" placeholder="Ej: Glifosato 48%">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="prod-nombre" placeholder="Ej: GLIFOSATO LT BOX">
+        </div>
+        <div class="form-group">
+          <label>Marca / Principio activo</label>
+          <input type="text" id="prod-marca" placeholder="Ej: GLIFOSATO 75%">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Categoría</label>
           <div class="sel-group">
-            <select id="mp-categoria">
-              <option value="agroquimicos">Agroquímicos</option>
-              <option value="semillas">Semillas</option>
-              <option value="herramientas">Herramientas</option>
-              <option value="otros">Otros</option>
+            <select id="prod-categoria">
+              <option value="HERBICIDA">Herbicida</option>
+              <option value="FERTILIZANTE">Fertilizante</option>
+              <option value="COADYUVANTE">Coadyuvante</option>
+              <option value="OTRO">Otro</option>
             </select>
           </div>
         </div>
         <div class="form-group">
           <label>Unidad</label>
           <div class="sel-group">
-            <select id="mp-unidad">
-              <option value="lts">Litros (lts)</option>
-              <option value="kg">Kilogramos (kg)</option>
-              <option value="unidades">Unidades</option>
-              <option value="bolsas">Bolsas</option>
-              <option value="g">Gramos (g)</option>
+            <select id="prod-unidad">
+              <option value="lts">Litros</option>
+              <option value="kg">Kilogramos</option>
+              <option value="u">Unidades</option>
+              <option value="g">Gramos</option>
             </select>
           </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Stock actual</label>
-          <input type="number" id="mp-stock" placeholder="0" min="0" step="0.01">
+          <label>Stock inicial</label>
+          <input type="number" id="prod-stock" min="0" step="0.1" placeholder="0">
         </div>
         <div class="form-group">
-          <label>Stock mínimo</label>
-          <input type="number" id="mp-minimo" placeholder="0" min="0" step="0.01">
+          <label>Alerta mínimo</label>
+          <input type="number" id="prod-minimo" min="0" step="0.1" placeholder="0">
         </div>
       </div>
       <div class="form-group">
-        <label>Notas</label>
-        <textarea id="mp-notas" placeholder="Observaciones del producto..."></textarea>
+        <label>Observaciones</label>
+        <textarea id="prod-obs" placeholder="Notas opcionales..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -561,112 +748,105 @@ tbody td{padding:10px 14px;vertical-align:middle}
   </div>
 </div>
 
-<!-- MODAL MOVIMIENTO STOCK -->
+<!-- MODAL: MOVIMIENTO STOCK -->
 <div class="modal-backdrop" id="modal-movimiento">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="mm-title">Registrar movimiento</div>
+      <div class="modal-title">Movimiento de stock</div>
       <button class="modal-close" onclick="closeModal('modal-movimiento')">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="mm-id">
-      <div class="form-group">
-        <label>Tipo de movimiento *</label>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-green" id="btn-tipo-entrada" onclick="setTipoMov('entrada')" style="flex:1">⬆ Entrada</button>
-          <button class="btn btn-outline" id="btn-tipo-salida" onclick="setTipoMov('salida')" style="flex:1">⬇ Salida</button>
+      <input type="hidden" id="mov-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="mov-fecha">
         </div>
-        <input type="hidden" id="mm-tipo" value="entrada">
+        <div class="form-group">
+          <label>Tipo</label>
+          <div class="sel-group">
+            <select id="mov-tipo">
+              <option value="entrada">Entrada</option>
+              <option value="salida">Salida</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="form-group">
-        <label>Producto *</label>
+        <label>Producto</label>
         <div class="sel-group">
-          <select id="mm-producto">
-            <option value="">— seleccioná un producto —</option>
-          </select>
+          <select id="mov-producto"></select>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Cantidad *</label>
-          <input type="number" id="mm-cantidad" placeholder="0" min="0.01" step="0.01">
+          <label>Cantidad</label>
+          <input type="number" id="mov-cantidad" min="0" step="0.01" placeholder="0">
         </div>
         <div class="form-group">
-          <label>Fecha</label>
-          <input type="date" id="mm-fecha">
+          <label>Lote / Campo</label>
+          <input type="text" id="mov-lote" placeholder="Ej: 13D">
         </div>
       </div>
       <div class="form-group">
-        <label>Observación</label>
-        <input type="text" id="mm-obs" placeholder="Opcional...">
-      </div>
-      <div id="mm-stock-info" style="font-size:12px;color:var(--muted);margin-top:-4px;display:none">
-        Stock actual: <strong id="mm-stock-val">—</strong>
+        <label>Observaciones</label>
+        <textarea id="mov-obs" placeholder="Motivo, operario, etc."></textarea>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-movimiento')">Cancelar</button>
-      <button class="btn btn-primary" id="mm-btn-guardar" onclick="guardarMovimiento()">Guardar</button>
+      <button class="btn btn-primary" onclick="guardarMovimiento()">Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL GASOIL -->
+<!-- MODAL: GASOIL -->
 <div class="modal-backdrop" id="modal-gasoil">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="mg-title">Nuevo registro de combustible</div>
+      <div class="modal-title" id="modal-gasoil-title">Nuevo registro de gasoil</div>
       <button class="modal-close" onclick="closeModal('modal-gasoil')">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="mg-id">
-      <div class="form-group">
-        <label>Tipo *</label>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-green" id="btn-tipo-ingreso" onclick="setTipoGas('ingreso')" style="flex:1">⬆ Ingreso</button>
-          <button class="btn btn-outline" id="btn-tipo-egreso" onclick="setTipoGas('egreso')" style="flex:1">⬇ Egreso</button>
-        </div>
-        <input type="hidden" id="mg-tipo" value="ingreso">
-      </div>
+      <input type="hidden" id="gas-id">
       <div class="form-row">
-        <div class="form-group">
-          <label>Litros *</label>
-          <input type="number" id="mg-litros" placeholder="0" min="0.01" step="0.01">
-        </div>
         <div class="form-group">
           <label>Fecha</label>
-          <input type="date" id="mg-fecha">
+          <input type="date" id="gas-fecha">
         </div>
-      </div>
-      <div class="form-row">
         <div class="form-group">
           <label>Cuenta</label>
           <div class="sel-group">
-            <select id="mg-cuenta">
-              <option value="">— sin cuenta —</option>
-              <!-- Se llenan dinámicamente o con las cuentas del campo -->
+            <select id="gas-cuenta">
               <option value="Cuenta 1">Cuenta 1</option>
               <option value="Cuenta 2">Cuenta 2</option>
               <option value="Cuenta 3">Cuenta 3</option>
             </select>
           </div>
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
-          <label>Sector</label>
+          <label>Tipo</label>
           <div class="sel-group">
-            <select id="mg-sector">
-              <option value="">— sin sector —</option>
-              <option value="Chacra">Chacra</option>
-              <option value="Ganaderia">Ganadería</option>
-              <option value="Estructura">Estructura</option>
-              <option value="Otros">Otros</option>
+            <select id="gas-tipo">
+              <option value="ingreso">Ingreso (carga)</option>
+              <option value="egreso">Egreso (uso)</option>
             </select>
           </div>
         </div>
+        <div class="form-group">
+          <label>Litros</label>
+          <input type="number" id="gas-litros" min="0" step="0.1" placeholder="0">
+        </div>
       </div>
       <div class="form-group">
-        <label>Proveedor / Observación</label>
-        <input type="text" id="mg-obs" placeholder="Opcional...">
+        <label>Concepto</label>
+        <input type="text" id="gas-concepto" placeholder="Ej: Siembra 13D, Pulverización...">
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="gas-obs" placeholder="Notas opcionales..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -676,15 +856,486 @@ tbody td{padding:10px 14px;vertical-align:middle}
   </div>
 </div>
 
+<!-- MODAL: PULVERIZACIÓN -->
+<div class="modal-backdrop" id="modal-pulv">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-pulv-title">Nueva pulverización</div>
+      <button class="modal-close" onclick="closeModal('modal-pulv')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pulv-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="pulv-fecha">
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <div class="sel-group">
+            <select id="pulv-tipo">
+              <option value="barbecho">Barbecho</option>
+              <option value="pre-emerg">Pre-emergencia</option>
+              <option value="post-emerg">Post-emergencia</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lote</label>
+          <div class="sel-group">
+            <select id="pulv-lote"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cultivo</label>
+          <div class="sel-group">
+            <select id="pulv-cultivo">
+              <option value="TRIGO">Trigo</option>
+              <option value="MAIZ">Maíz</option>
+              <option value="SOJA">Soja</option>
+              <option value="GIRASOL">Girasol</option>
+              <option value="PASTURA">Pastura</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Equipo / Maquinaria</label>
+          <input type="text" id="pulv-equipo" placeholder="Ej: Metalfor 2800">
+        </div>
+        <div class="form-group">
+          <label>Operario</label>
+          <input type="text" id="pulv-operario" placeholder="Nombre del operario">
+        </div>
+      </div>
+      <hr class="form-divider">
+      <div class="form-section-label">Productos aplicados</div>
+      <div id="pulv-productos-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addPulvProducto()" style="margin-bottom:10px">+ Agregar producto</button>
+      <hr class="form-divider">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Costo $/ha</label>
+          <input type="number" id="pulv-costo" min="0" step="1" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="pulv-obs" placeholder="Notas...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-pulv')">Cancelar</button>
+      <button class="btn btn-green" onclick="guardarPulv()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: FERTILIZACIÓN -->
+<div class="modal-backdrop" id="modal-fert">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-fert-title">Nueva fertilización</div>
+      <button class="modal-close" onclick="closeModal('modal-fert')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fert-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="fert-fecha">
+        </div>
+        <div class="form-group">
+          <label>Momento</label>
+          <input type="text" id="fert-momento" placeholder="Ej: 2 hojas, macollaje...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lote</label>
+          <div class="sel-group">
+            <select id="fert-lote"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cultivo</label>
+          <div class="sel-group">
+            <select id="fert-cultivo">
+              <option value="TRIGO">Trigo</option>
+              <option value="MAIZ">Maíz</option>
+              <option value="SOJA">Soja</option>
+              <option value="GIRASOL">Girasol</option>
+              <option value="PASTURA">Pastura</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row3">
+        <div class="form-group">
+          <label>Producto</label>
+          <input type="text" id="fert-producto" placeholder="Ej: UREA, MAP">
+        </div>
+        <div class="form-group">
+          <label>Dosis kg/ha</label>
+          <input type="number" id="fert-dosis" min="0" step="0.1" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Hectáreas</label>
+          <input type="number" id="fert-ha" min="0" step="0.1" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Total kg <small style="color:var(--muted)">(calculado)</small></label>
+        <input type="number" id="fert-total" readonly style="background:var(--surface2)">
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="fert-obs" placeholder="Notas..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-fert')">Cancelar</button>
+      <button class="btn btn-green" onclick="guardarFert()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LABOR -->
+<div class="modal-backdrop" id="modal-labor">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-labor-title">Nueva labor</div>
+      <button class="modal-close" onclick="closeModal('modal-labor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="labor-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="labor-fecha">
+        </div>
+        <div class="form-group">
+          <label>Tipo de labor</label>
+          <div class="sel-group">
+            <select id="labor-tipo">
+              <option value="DISCO">Disco</option>
+              <option value="SIEMBRA">Siembra</option>
+              <option value="PULVERIZACIÓN">Pulverización</option>
+              <option value="COSECHA">Cosecha</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lote</label>
+          <div class="sel-group">
+            <select id="labor-lote"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Hectáreas</label>
+          <input type="number" id="labor-ha" min="0" step="0.1" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cultivo</label>
+          <div class="sel-group">
+            <select id="labor-cultivo">
+              <option value="TRIGO">Trigo</option>
+              <option value="MAIZ">Maíz</option>
+              <option value="SOJA">Soja</option>
+              <option value="GIRASOL">Girasol</option>
+              <option value="PASTURA">Pastura</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Contratista</label>
+          <input type="text" id="labor-contratista" placeholder="Nombre del contratista">
+        </div>
+      </div>
+      <div class="form-row3">
+        <div class="form-group">
+          <label>$/ha</label>
+          <input type="number" id="labor-psha" min="0" step="1" placeholder="0" oninput="calcLabor()">
+        </div>
+        <div class="form-group">
+          <label>Total $ <small>(calc.)</small></label>
+          <input type="number" id="labor-total" readonly style="background:var(--surface2)">
+        </div>
+        <div class="form-group">
+          <label>Total + IVA <small>(calc.)</small></label>
+          <input type="number" id="labor-total-iva" readonly style="background:var(--surface2)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="labor-obs" placeholder="Notas..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-labor')">Cancelar</button>
+      <button class="btn btn-blue" onclick="guardarLabor()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SIEMBRA -->
+<div class="modal-backdrop" id="modal-siembra">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-siembra-title">Nueva siembra</div>
+      <button class="modal-close" onclick="closeModal('modal-siembra')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="siem-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="siem-fecha">
+        </div>
+        <div class="form-group">
+          <label>Lote</label>
+          <div class="sel-group">
+            <select id="siem-lote"></select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hectáreas</label>
+          <input type="number" id="siem-ha" min="0" step="0.1" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Cultivo</label>
+          <div class="sel-group">
+            <select id="siem-cultivo">
+              <option value="TRIGO">Trigo</option>
+              <option value="MAIZ">Maíz</option>
+              <option value="SOJA">Soja</option>
+              <option value="GIRASOL">Girasol</option>
+              <option value="PASTURA">Pastura</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Antecesor</label>
+          <input type="text" id="siem-antecesor" placeholder="Ej: Soja, Girasol...">
+        </div>
+        <div class="form-group">
+          <label>Variedad</label>
+          <input type="text" id="siem-variedad" placeholder="Ej: FRESNO, NS1115...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Dosis semilla /ha</label>
+          <input type="text" id="siem-dosis" placeholder="Ej: 100 kg, 60.000 pl">
+        </div>
+        <div class="form-group">
+          <label>Total semilla</label>
+          <input type="text" id="siem-total-sem" placeholder="Ej: 5.400 kg">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fertilizante /ha</label>
+          <input type="text" id="siem-fert-ha" placeholder="Ej: 60 kg MAP">
+        </div>
+        <div class="form-group">
+          <label>Contratista</label>
+          <input type="text" id="siem-contratista" placeholder="Nombre">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rendimiento esperado (kg/ha)</label>
+          <input type="number" id="siem-rend" min="0" step="1" placeholder="Ej: 5000">
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="siem-obs" placeholder="Notas...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-siembra')">Cancelar</button>
+      <button class="btn btn-purple" onclick="guardarSiembra()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COSECHA -->
+<div class="modal-backdrop" id="modal-cosecha">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-cosecha-title">Nuevo registro de cosecha</div>
+      <button class="modal-close" onclick="closeModal('modal-cosecha')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cos-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="cos-fecha">
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <div class="sel-group">
+            <select id="cos-tipo">
+              <option value="COSECHA">Cosecha (camión)</option>
+              <option value="COSECHA/STOCK">Cosecha a stock/bolsa</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Lote</label>
+          <div class="sel-group">
+            <select id="cos-lote"></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Cultivo</label>
+          <div class="sel-group">
+            <select id="cos-cultivo">
+              <option value="MAIZ">Maíz</option>
+              <option value="SOJA">Soja</option>
+              <option value="TRIGO">Trigo</option>
+              <option value="GIRASOL">Girasol</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Destino</label>
+          <input type="text" id="cos-destino" placeholder="Ej: Bolsa 1, GILBERTA, FEEDLOT...">
+        </div>
+        <div class="form-group">
+          <label>Chofer</label>
+          <input type="text" id="cos-chofer" placeholder="Nombre del chofer">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Patente chasis</label>
+        <input type="text" id="cos-chasis" placeholder="Ej: EHW803">
+      </div>
+      <hr class="form-divider">
+      <div class="form-section-label">Pesos y calidad</div>
+      <div class="form-row3">
+        <div class="form-group">
+          <label>kg Campo</label>
+          <input type="number" id="cos-kg-campo" min="0" step="1" placeholder="0" oninput="calcCosecha()">
+        </div>
+        <div class="form-group">
+          <label>kg Destino</label>
+          <input type="number" id="cos-kg-destino" min="0" step="1" placeholder="0" oninput="calcCosecha()">
+        </div>
+        <div class="form-group">
+          <label>Humedad %</label>
+          <input type="number" id="cos-humedad" min="0" max="40" step="0.1" placeholder="0" oninput="calcCosecha()">
+        </div>
+      </div>
+      <div class="form-row3">
+        <div class="form-group">
+          <label>Merma H (kg)</label>
+          <input type="number" id="cos-merma-h" readonly style="background:var(--surface2)">
+        </div>
+        <div class="form-group">
+          <label>Merma Zaranda (kg)</label>
+          <input type="number" id="cos-zaranda" min="0" step="1" placeholder="0" oninput="calcCosecha()">
+        </div>
+        <div class="form-group">
+          <label>kg Netos</label>
+          <input type="number" id="cos-kg-netos" readonly style="background:var(--surface2);font-weight:700">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hectáreas lote</label>
+          <input type="number" id="cos-ha" min="0" step="0.1" placeholder="0" oninput="calcCosecha()">
+        </div>
+        <div class="form-group">
+          <label>Rendimiento kg/ha</label>
+          <input type="number" id="cos-rend" readonly style="background:var(--surface2);color:var(--brown);font-weight:700">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <input type="text" id="cos-obs" placeholder="PH, notas...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-cosecha')">Cancelar</button>
+      <button class="btn btn-teal" onclick="guardarCosecha()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LOTE -->
+<div class="modal-backdrop" id="modal-lote">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-lote-title">Nuevo lote</div>
+      <button class="modal-close" onclick="closeModal('modal-lote')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lote-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del lote</label>
+          <input type="text" id="lote-nombre" placeholder="Ej: 15A, 13D...">
+        </div>
+        <div class="form-group">
+          <label>Hectáreas</label>
+          <input type="number" id="lote-ha" min="0" step="0.1" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cultivo actual</label>
+          <input type="text" id="lote-cultivo" placeholder="Ej: Maíz, Soja...">
+        </div>
+        <div class="form-group">
+          <label>Antecesor</label>
+          <input type="text" id="lote-antecesor" placeholder="Ej: Soja, Girasol...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="lote-obs" placeholder="Notas del lote..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-lote')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarLote()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM -->
-<div class="confirm-backdrop" id="confirm-backdrop">
+<div class="confirm-backdrop" id="confirm-modal">
   <div class="confirm-box">
     <div class="confirm-icon">🗑️</div>
-    <div class="confirm-title" id="confirm-title">¿Eliminar?</div>
+    <div class="confirm-title">¿Eliminar registro?</div>
     <div class="confirm-msg" id="confirm-msg">Esta acción no se puede deshacer.</div>
     <div class="confirm-actions">
       <button class="btn btn-outline" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn btn-danger" id="confirm-ok-btn">Eliminar</button>
+      <button class="btn btn-danger" id="confirm-ok">Eliminar</button>
     </div>
   </div>
 </div>
@@ -692,548 +1343,1394 @@ tbody td{padding:10px 14px;vertical-align:middle}
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- ══════════ FIREBASE + LÓGICA ══════════ -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ══ CONFIGURACIÓN FIREBASE — reemplazar con los datos de La Angélica ══
 const firebaseConfig = {
-  apiKey:            "AIzaSyDSyoOgMBH_pLWjOFADaJdPztIEcC2D5bA",
-  authDomain:        "la-angelica.firebaseapp.com",
-  projectId:         "la-angelica",
-  storageBucket:     "la-angelica.firebasestorage.app",
+  apiKey: "AIzaSyDSyoOgMBH_pLWjOFADaJdPztIEcM2D5bA",
+  authDomain: "la-angelica.firebaseapp.com",
+  projectId: "la-angelica",
+  storageBucket: "la-angelica.firebasestorage.app",
   messagingSenderId: "696044755360",
-  appId:             "1:696044755360:web:f0f1cb92a8349c2fdd6cc5"
+  appId: "1:696044755360:web:f0f1cb92a8349c2fdd6cc5"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// ══ ESTADO ══
-let productos   = [];
-let movimientos = [];
-let gasoilReg   = [];
-let viewMode    = 'grid'; // 'grid' | 'list'
-let sortMovCol  = 'fecha'; let sortMovDir = -1;
-let sortGasCol  = 'fecha'; let sortGasDir = -1;
-let editandoProductoId   = null;
-let editandoMovimientoId = null;
-let editandoGasoilId     = null;
+// ── STATE ──
+window.DB = {
+  productos: [], movimientos: [], gasoil: [],
+  pulverizaciones: [], fertilizaciones: [], labores: [],
+  siembra: [], cosecha: [], lotes: []
+};
+window.db = db;
+window.colRef = (name) => collection(db, name);
+window.docRef = (col, id) => doc(db, col, id);
+window.addDoc2 = addDoc;
+window.updateDoc2 = updateDoc;
+window.deleteDoc2 = deleteDoc;
+window.serverTS = serverTimestamp;
+window.writeBatch2 = writeBatch;
 
-// ══ FIRESTORE: escuchar cambios en tiempo real ══
-function initListeners() {
-  onSnapshot(query(collection(db,'stock_productos'), orderBy('nombre')), snap => {
-    productos = snap.docs.map(d => ({id:d.id,...d.data()}));
-    renderProductos();
-    renderResumen();
-    renderStockStats();
-    updateSelectProductos();
-  });
+// ── SYNC INDICATOR ──
+let syncDot = document.getElementById('sync-dot');
+let syncTxt = document.getElementById('sync-txt');
 
-  onSnapshot(query(collection(db,'stock_movimientos'), orderBy('fecha','desc')), snap => {
-    movimientos = snap.docs.map(d => ({id:d.id,...d.data()}));
-    renderMovimientos();
-    renderResumen();
-  });
-
-  onSnapshot(query(collection(db,'gasoil_registros'), orderBy('fecha','desc')), snap => {
-    gasoilReg = snap.docs.map(d => ({id:d.id,...d.data()}));
-    renderGasoil();
-    renderGasoilDashboard();
-    renderGasoilStats();
-    updateSelectCuentas();
+function setupListener(colName, stateKey, renderFn) {
+  onSnapshot(query(collection(db, colName), orderBy('_ts', 'desc')), snap => {
+    DB[stateKey] = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    renderFn();
+    syncDot.classList.add('live');
+    syncTxt.textContent = 'En línea';
+  }, err => {
+    syncDot.classList.remove('live');
+    syncDot.style.background = '#ef9a9a';
+    syncTxt.textContent = 'Sin conexión';
   });
 }
 
-// ═══════════ NAVEGACIÓN ═══════════
-window.showPage = function(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.getElementById('nav-'+page).classList.add('active');
-  const titles = {
-    'stock-productos':'Productos','stock-movimientos':'Movimientos',
-    'stock-resumen':'Resumen','gasoil-dashboard':'Panel combustible',
-    'gasoil-movimientos':'Registros combustible'
-  };
-  document.getElementById('topbar-title').innerHTML = page.startsWith('stock')
-    ? `Stock <span>/ ${titles[page]}</span>` : `Gasoil <span>/ ${titles[page]}</span>`;
-  document.getElementById('mobile-title').textContent = titles[page];
-  closeSidebar();
-};
+// Setup all listeners
+setupListener('stock_productos', 'productos', () => { renderProductos(); renderResumen(); populateMovProductos(); });
+setupListener('stock_movimientos', 'movimientos', renderMovimientos);
+setupListener('gasoil_registros', 'gasoil', () => { renderGasoil(); renderGasoilBalances(); populateCuentas(); });
+setupListener('pulverizaciones', 'pulverizaciones', renderPulv);
+setupListener('fertilizaciones', 'fertilizaciones', renderFert);
+setupListener('labores', 'labores', renderLabores);
+setupListener('siembra', 'siembra', renderSiembra);
+setupListener('cosecha', 'cosecha', () => { renderCosecha(); renderCosechaResumen(); });
+setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); });
 
-window.openSidebar  = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); };
-window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); };
+// ── DATOS INICIALES ──
+// Cargar lotes predeterminados si no hay ninguno
+onSnapshot(collection(db, 'lotes'), snap => {
+  if (snap.empty) {
+    const lotesDefault = [
+      {nombre:'15A', ha:50, cultivo:'Trigo', antecesor:'Soja', obs:''},
+      {nombre:'16ST', ha:54, cultivo:'Trigo', antecesor:'Girasol', obs:''},
+      {nombre:'16S', ha:52, cultivo:'Pastura', antecesor:'Soja', obs:''},
+      {nombre:'9', ha:42, cultivo:'Pastura', antecesor:'Girasol', obs:''},
+      {nombre:'10', ha:59, cultivo:'Pastura', antecesor:'Girasol', obs:''},
+      {nombre:'13D', ha:107, cultivo:'Maíz', antecesor:'Soja', obs:''},
+      {nombre:'13C', ha:85, cultivo:'Soja', antecesor:'Maíz', obs:''},
+      {nombre:'15T', ha:38, cultivo:'Girasol', antecesor:'Soja', obs:''},
+      {nombre:'16TT', ha:30, cultivo:'Soja', antecesor:'Maíz', obs:''},
+      {nombre:'16T', ha:37, cultivo:'Girasol', antecesor:'Maíz', obs:''},
+    ];
+    lotesDefault.forEach(l => addDoc(collection(db, 'lotes'), {...l, _ts: new Date()}));
+  }
+}, {once: true});
 
-window.fabAction = function() {
-  const active = document.querySelector('.page.active')?.id;
-  if (active==='page-stock-productos'||active==='page-stock-movimientos') openModalMovimiento();
-  else openModalGasoil();
-};
+// Cargar productos de stock si no hay ninguno
+onSnapshot(collection(db, 'stock_productos'), snap => {
+  if (snap.empty) {
+    const prods = [
+      {nombre:'GLIFOSATO LT BOX',marca:'GLIFOSATO',categoria:'HERBICIDA',unidad:'lts',stock:75,minimo:10,obs:''},
+      {nombre:'SELECT UPL',marca:'CLETODIM',categoria:'HERBICIDA',unidad:'lts',stock:25,minimo:5,obs:''},
+      {nombre:'FLUROCLORIDONA',marca:'FLUROCLORIDONA',categoria:'HERBICIDA',unidad:'lts',stock:30,minimo:5,obs:''},
+      {nombre:'PARAQUAT',marca:'PARAQUAT',categoria:'HERBICIDA',unidad:'lts',stock:60,minimo:10,obs:''},
+      {nombre:'FOKKER',marca:'FOMESAFEN',categoria:'HERBICIDA',unidad:'lts',stock:10,minimo:2,obs:''},
+      {nombre:'GLUFOSINATO DE AMONIO',marca:'',categoria:'HERBICIDA',unidad:'lts',stock:20,minimo:5,obs:''},
+      {nombre:'ELEVATE',marca:'FLUMETSULAM',categoria:'HERBICIDA',unidad:'lts',stock:27.5,minimo:5,obs:''},
+      {nombre:'ONTARIO NOVA',marca:'IMAZAPIR',categoria:'HERBICIDA',unidad:'lts',stock:5,minimo:1,obs:''},
+      {nombre:'STRIM UPL',marca:'S-METOLACLORO',categoria:'HERBICIDA',unidad:'lts',stock:85,minimo:10,obs:''},
+      {nombre:'BROMOXINIL',marca:'',categoria:'HERBICIDA',unidad:'lts',stock:2.5,minimo:1,obs:''},
+      {nombre:'SHARK',marca:'CARFENTRAZONE',categoria:'HERBICIDA',unidad:'lts',stock:8,minimo:1,obs:''},
+      {nombre:'SIGMA METRIBUZIN',marca:'METRIBUZIN',categoria:'HERBICIDA',unidad:'kg',stock:5,minimo:1,obs:''},
+      {nombre:'MCPA 28',marca:'MCPA 28',categoria:'HERBICIDA',unidad:'lts',stock:15,minimo:3,obs:''},
+      {nombre:'AMINA 75',marca:'MCPA 75%',categoria:'HERBICIDA',unidad:'lts',stock:15,minimo:3,obs:''},
+      {nombre:'NOVA 2,4D 30%',marca:'2,4 D 30%',categoria:'HERBICIDA',unidad:'lts',stock:40,minimo:10,obs:''},
+      {nombre:'VECTOR 89 LV',marca:'2,4 D ETIL HEXIL',categoria:'HERBICIDA',unidad:'lts',stock:280,minimo:20,obs:''},
+      {nombre:'2,4 D ENLIST',marca:'2,4 D ENLIST',categoria:'HERBICIDA',unidad:'lts',stock:20,minimo:5,obs:''},
+      {nombre:'ATRAZINA',marca:'ATRAZINA',categoria:'HERBICIDA',unidad:'lts',stock:60,minimo:10,obs:''},
+      {nombre:'DURANOR ADVANCE',marca:'DICAMBA',categoria:'HERBICIDA',unidad:'lts',stock:30,minimo:5,obs:''},
+      {nombre:'SIGMA DICAMBA',marca:'DICAMBA',categoria:'HERBICIDA',unidad:'lts',stock:75,minimo:10,obs:''},
+      {nombre:'2,4 DB',marca:'2,4 DB',categoria:'HERBICIDA',unidad:'lts',stock:120,minimo:20,obs:''},
+      {nombre:'VAQUERO',marca:'DICLOSULAM',categoria:'HERBICIDA',unidad:'kg',stock:1,minimo:0.2,obs:''},
+      {nombre:'CAPAZ',marca:'SULFENTRAZONE',categoria:'HERBICIDA',unidad:'lts',stock:3,minimo:0.5,obs:''},
+      {nombre:'ROTAONE',marca:'SULFENTRAZONE',categoria:'HERBICIDA',unidad:'lts',stock:5,minimo:1,obs:''},
+      {nombre:'VELTROMA',marca:'SAFLUFENACIL',categoria:'HERBICIDA',unidad:'lts',stock:1.4,minimo:0.3,obs:''},
+      {nombre:'SHUTDOWN',marca:'SULFENTRAZONE',categoria:'HERBICIDA',unidad:'lts',stock:2.5,minimo:0.5,obs:''},
+      {nombre:'FLOUX',marca:'ACETAMIPRID',categoria:'HERBICIDA',unidad:'kg',stock:5,minimo:1,obs:''},
+      {nombre:'TEKOVE',marca:'MESOTRIONE',categoria:'HERBICIDA',unidad:'lts',stock:2.5,minimo:0.5,obs:''},
+      {nombre:'ADAMA PINOXADEM',marca:'PINOXADEM',categoria:'HERBICIDA',unidad:'lts',stock:2.5,minimo:0.5,obs:''},
+      {nombre:'CLORIMURON 75 HUAGRO',marca:'CLORIMURON 75',categoria:'HERBICIDA',unidad:'g',stock:300,minimo:50,obs:''},
+      {nombre:'BROMETAN',marca:'DENTAMET',categoria:'FERTILIZANTE',unidad:'lts',stock:5,minimo:1,obs:''},
+      {nombre:'VITAGROW',marca:'VITAGROW RIZOBACTER',categoria:'FERTILIZANTE',unidad:'lts',stock:3,minimo:1,obs:''},
+      {nombre:'EXITO NOVA',marca:'EXITO',categoria:'COADYUVANTE',unidad:'lts',stock:0,minimo:1,obs:''},
+      {nombre:'OPTIMIZER BAYER',marca:'OPTIMIZER',categoria:'COADYUVANTE',unidad:'lts',stock:2.5,minimo:0.5,obs:''},
+      {nombre:'LL PLUS LECITINA',marca:'LECITINA DE SOJA',categoria:'COADYUVANTE',unidad:'lts',stock:25,minimo:5,obs:''},
+      {nombre:'SONIC NOVA',marca:'SONIC',categoria:'COADYUVANTE',unidad:'lts',stock:5,minimo:1,obs:''},
+      {nombre:'WR4 ALLTEC',marca:'WR4',categoria:'COADYUVANTE',unidad:'lts',stock:50,minimo:10,obs:''},
+      {nombre:'A35T BIO ALLTEC',marca:'A35T BIO',categoria:'COADYUVANTE',unidad:'lts',stock:0,minimo:1,obs:''},
+      {nombre:'MSO MAX BASF',marca:'MSO MAX',categoria:'COADYUVANTE',unidad:'lts',stock:4,minimo:1,obs:''},
+      {nombre:'MSO MAX TROPFEN',marca:'MSO MAX',categoria:'COADYUVANTE',unidad:'lts',stock:0,minimo:1,obs:''},
+      {nombre:'INSIGNIA ALLTEC',marca:'INSIGNIA',categoria:'COADYUVANTE',unidad:'lts',stock:20,minimo:5,obs:''},
+      {nombre:'RIZOSPRAY EXTREMO',marca:'RIZOBACTER',categoria:'COADYUVANTE',unidad:'lts',stock:2,minimo:0.5,obs:''},
+      {nombre:'A35T BIO (PEQUEÑO)',marca:'A35T BIO',categoria:'COADYUVANTE',unidad:'lts',stock:0.5,minimo:0.1,obs:''},
+    ];
+    prods.forEach(p => addDoc(collection(db, 'stock_productos'), {...p, _ts: new Date()}));
+  }
+}, {once: true});
 
-// ═══════════ UTILS ═══════════
-function fmt(n){ return n==null?'—':Number(n).toLocaleString('es-AR',{maximumFractionDigits:2}); }
-function fmtFecha(f){ if(!f)return'—'; const[y,m,d]=f.split('-'); return`${d}/${m}/${y}`; }
-function today(){ return new Date().toISOString().slice(0,10); }
+// Cargar datos del Excel si están vacíos
+onSnapshot(collection(db, 'pulverizaciones'), snap => {
+  if (snap.empty) {
+    const pulvData = [
+      {fecha:'2026-08-10',lote:'15A',cultivo:'TRIGO',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'PARAQUAT',dosis:2,total:100}], _ts: new Date()},
+      {fecha:'2026-08-24',lote:'16ST',cultivo:'TRIGO',tipo:'post-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:2.16},{nombre:'FLUROCLORIDONA',dosis:0.75,total:40.5},{nombre:'BROMOXINIL',dosis:0.8,total:43.2}], _ts: new Date()},
+      {fecha:'2026-08-24',lote:'16S',cultivo:'PASTURA',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'AC. MSO MAX',dosis:0.25,total:13},{nombre:'GLIFO LT BOX',dosis:1.5,total:78},{nombre:'CLETODIM 24',dosis:1.2,total:62.4},{nombre:'2,4 D 59%',dosis:1.2,total:62.4}], _ts: new Date()},
+      {fecha:'2026-08-21',lote:'9',cultivo:'PASTURA',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:1.68},{nombre:'GLIFO LT BOX',dosis:1.8,total:75.6},{nombre:'FLUMETSULAN',dosis:0.5,total:21}], _ts: new Date()},
+      {fecha:'2026-08-21',lote:'10',cultivo:'PASTURA',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:2.36},{nombre:'GLIFO LT BOX',dosis:1.8,total:106.2},{nombre:'FLUMETSULAN',dosis:0.5,total:29.5}], _ts: new Date()},
+      {fecha:'2026-06-10',lote:'13D',cultivo:'MAIZ',tipo:'barbecho',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:4.28},{nombre:'GLIFO LT BOX',dosis:1.5,total:160.5},{nombre:'2,4 D 59%',dosis:1.2,total:128.4},{nombre:'PICLORAM',dosis:0.14,total:14.98}], _ts: new Date()},
+      {fecha:'2026-10-20',lote:'13C',cultivo:'SOJA',tipo:'barbecho',equipo:'',operario:'R. GARCIA',costo:0,obs:'',productos:[{nombre:'A35T GOLD',dosis:0.15,total:11.7},{nombre:'EXITO',dosis:0.25,total:19.5},{nombre:'GLIFO LT BOX',dosis:1.5,total:117},{nombre:'CLETODIM',dosis:1.2,total:93.6},{nombre:'SAFLUFENACIL',dosis:0.035,total:2.73},{nombre:'2,4 D 30%',dosis:1.4,total:109.2}], _ts: new Date()},
+      {fecha:'2026-10-20',lote:'15T',cultivo:'GIRASOL',tipo:'barbecho',equipo:'',operario:'R. GARCIA',costo:0,obs:'',productos:[{nombre:'A35T GOLD',dosis:0.15,total:5.25},{nombre:'EXITO',dosis:0.25,total:8.75},{nombre:'GLIFO LT BOX',dosis:1.5,total:52.5},{nombre:'CLETODIM',dosis:1.2,total:42},{nombre:'CARFENTRAZONE',dosis:0.12,total:4.2},{nombre:'2,4 D 30%',dosis:1.4,total:49}], _ts: new Date()},
+      {fecha:'2026-11-12',lote:'16TT',cultivo:'SOJA',tipo:'barbecho',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:1.2},{nombre:'GLIFO LT BOX',dosis:1.5,total:45},{nombre:'CLETODIM',dosis:1.2,total:36},{nombre:'SAFLUFENACIL',dosis:0.035,total:1.05},{nombre:'2,4 D 30%',dosis:1.4,total:42}], _ts: new Date()},
+      {fecha:'2026-11-15',lote:'16T',cultivo:'GIRASOL',tipo:'barbecho',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:1.48},{nombre:'GLIFO LT BOX',dosis:1.8,total:66.6},{nombre:'CLETODIM',dosis:1.2,total:44.4},{nombre:'CARFENTRAZONE',dosis:0.15,total:5.55},{nombre:'2,4 D 89%',dosis:1.2,total:44.4}], _ts: new Date()},
+      {fecha:'2026-09-24',lote:'15A',cultivo:'TRIGO',tipo:'post-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'ADYUVANTE A35T BIO',dosis:0.04,total:2},{nombre:'HUSSAR',dosis:1,total:3},{nombre:'DIFLUFENICAN',dosis:0.3,total:15},{nombre:'MCPA 75%',dosis:0.3,total:15}], _ts: new Date()},
+      {fecha:'2026-11-05',lote:'13D',cultivo:'MAIZ',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'SONIC NOVA',dosis:0.45,total:48.2},{nombre:'GLIFO LT BOX',dosis:1.1,total:117.7},{nombre:'ATRAZINA',dosis:1.5,total:160.5},{nombre:'SAFLUFENACIL',dosis:0.036,total:3.9},{nombre:'ADENGO',dosis:0.37,total:39.6}], _ts: new Date()},
+      {fecha:'2026-11-15',lote:'15T',cultivo:'GIRASOL',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'A35T BIO',dosis:0.04,total:1.44},{nombre:'CARFENTRAZONE',dosis:0.15,total:5.4},{nombre:'FLUROCLORIDONA',dosis:1.2,total:43.2}], _ts: new Date()},
+      {fecha:'2026-11-23',lote:'15A',cultivo:'TRIGO',tipo:'otro',equipo:'',operario:'',costo:0,obs:'HB',productos:[{nombre:'ACEITE',dosis:0.04,total:2},{nombre:'CRIPTON',dosis:0.7,total:35}], _ts: new Date()},
+      {fecha:'2026-11-23',lote:'16ST',cultivo:'TRIGO',tipo:'otro',equipo:'',operario:'',costo:0,obs:'HB',productos:[{nombre:'ACEITE',dosis:0.04,total:2.16},{nombre:'CRIPTON',dosis:0.7,total:37.8}], _ts: new Date()},
+      {fecha:'2026-09-07',lote:'16S',cultivo:'PASTURA',tipo:'pre-emerg',equipo:'',operario:'M. ROLDAN',costo:0,obs:'',productos:[{nombre:'AC. MSO MAX',dosis:0.2,total:10.4},{nombre:'PARAQUAT',dosis:2.5,total:130}], _ts: new Date()},
+    ];
+    pulvData.forEach(p => addDoc(collection(db, 'pulverizaciones'), p));
+  }
+}, {once: true});
 
-function toast(msg,type='success'){
-  const w=document.getElementById('toast-wrap');
-  const t=document.createElement('div');
-  t.className=`toast ${type}`; t.textContent=msg;
-  w.appendChild(t); setTimeout(()=>t.remove(),3200);
+onSnapshot(collection(db, 'fertilizaciones'), snap => {
+  if (snap.empty) {
+    const fertData = [
+      {fecha:'2026-09-05',lote:'16ST',cultivo:'TRIGO',producto:'UREA',dosis:100,ha:54,total:5400,momento:'2 hojas',obs:'', _ts: new Date()},
+      {fecha:'2026-09-07',lote:'15A',cultivo:'TRIGO',producto:'UREA',dosis:100,ha:50,total:5000,momento:'2 hojas',obs:'', _ts: new Date()},
+    ];
+    fertData.forEach(f => addDoc(collection(db, 'fertilizaciones'), f));
+  }
+}, {once: true});
+
+onSnapshot(collection(db, 'labores'), snap => {
+  if (snap.empty) {
+    const laboresData = [
+      {fecha:'2026-07-04',lote:'16ST',ha:54,cultivo:'TRIGO',tipo:'DISCO',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-07-06',lote:'16ST',ha:54,cultivo:'TRIGO',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-10',lote:'15A',ha:50,cultivo:'TRIGO',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-13',lote:'15A',ha:50,cultivo:'TRIGO',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-24',lote:'16ST',ha:54,cultivo:'TRIGO',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-24',lote:'16S',ha:52,cultivo:'PASTURA',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-24',lote:'9',ha:42,cultivo:'PASTURA',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-24',lote:'10',ha:59,cultivo:'PASTURA',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-24',lote:'13D',ha:107,cultivo:'MAIZ',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-29',lote:'9',ha:42,cultivo:'PASTURA',tipo:'DISCO',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-29',lote:'10',ha:59,cultivo:'PASTURA',tipo:'DISCO',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-30',lote:'9',ha:42,cultivo:'PASTURA',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-01',lote:'10',ha:59,cultivo:'PASTURA',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'13C',ha:75,cultivo:'MAIZ',tipo:'COSECHA',contratista:'PRESINGER',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-10',lote:'16T',ha:30,cultivo:'MAIZ',tipo:'COSECHA',contratista:'MARASCA',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-11',lote:'16TT',ha:110,cultivo:'MAIZ',tipo:'COSECHA',contratista:'MARASCA',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-10',lote:'16S',ha:22,cultivo:'SOJA',tipo:'COSECHA',contratista:'L. PRESINGER',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-09-24',lote:'15A',ha:54,cultivo:'TRIGO',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-10-20',lote:'15T',ha:35,cultivo:'GIRASOL',tipo:'PULVERIZACIÓN',contratista:'R. GARCIA',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-10-20',lote:'13C',ha:78,cultivo:'SOJA',tipo:'PULVERIZACIÓN',contratista:'R. GARCIA',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-03',lote:'13D',ha:107,cultivo:'MAIZ',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-11',lote:'16S',ha:52,cultivo:'PASTURA',tipo:'SIEMBRA',contratista:'O. FERREIRO',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-12',lote:'16TT',ha:30,cultivo:'SOJA',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-15',lote:'16T',ha:37,cultivo:'GIRASOL',tipo:'PULVERIZACIÓN',contratista:'M. ROLDAN',psha:0,total:0,totalIva:0,obs:'', _ts: new Date()},
+    ];
+    laboresData.forEach(l => addDoc(collection(db, 'labores'), l));
+  }
+}, {once: true});
+
+onSnapshot(collection(db, 'siembra'), snap => {
+  if (snap.empty) {
+    const siembraData = [
+      {fecha:'2026-07-06',lote:'16ST',ha:54,antecesor:'GIRASOL',cultivo:'TRIGO',variedad:'FRESNO',dosis:'100 kg/ha',totalSem:'5.400 kg',fertHA:'60 kg',contratista:'O. FERREIRO',rendEsp:5000,obs:'', _ts: new Date()},
+      {fecha:'2026-08-13',lote:'15A',ha:50,antecesor:'SOJA',cultivo:'TRIGO',variedad:'FRESNO',dosis:'124 kg/ha',totalSem:'6.200 kg',fertHA:'85 kg',contratista:'O. FERREIRO',rendEsp:5000,obs:'ACA 502 mezcla TB', _ts: new Date()},
+      {fecha:'2026-09-11',lote:'16S',ha:52,antecesor:'SOJA',cultivo:'PASTURA',variedad:'FEST/TB/LT',dosis:'',totalSem:'',fertHA:'',contratista:'O. FERREIRO',rendEsp:0,obs:'Festuca 15 kg/ha + T.Blanco 1.5 kg/ha + Lotus 1 kg/ha', _ts: new Date()},
+      {fecha:'2026-09-01',lote:'10',ha:59,antecesor:'GIRASOL',cultivo:'PASTURA',variedad:'FEST/TB/LT',dosis:'',totalSem:'',fertHA:'180 kg MAP',contratista:'O. FERREIRO',rendEsp:0,obs:'', _ts: new Date()},
+      {fecha:'2026-08-30',lote:'9',ha:42,antecesor:'GIRASOL',cultivo:'PASTURA',variedad:'FEST/TB/LT',dosis:'',totalSem:'',fertHA:'180 kg MAP',contratista:'O. FERREIRO',rendEsp:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-02',lote:'13D',ha:107,antecesor:'SOJA',cultivo:'MAIZ',variedad:'LT 721 TRE B2',dosis:'40.000 pl/ha',totalSem:'',fertHA:'60 kg MAP',contratista:'O. FERREIRO',rendEsp:0,obs:'', _ts: new Date()},
+      {fecha:'2026-11-16',lote:'15T',ha:38,antecesor:'SOJA',cultivo:'GIRASOL',variedad:'NS1115 CL',dosis:'60.000 pl/ha',totalSem:'',fertHA:'40 kg MAP',contratista:'L. PRESINGER',rendEsp:0,obs:'', _ts: new Date()},
+    ];
+    siembraData.forEach(s => addDoc(collection(db, 'siembra'), s));
+  }
+}, {once: true});
+
+onSnapshot(collection(db, 'cosecha'), snap => {
+  if (snap.empty) {
+    const cosechaData = [
+      {fecha:'2026-09-07',lote:'16S',cultivo:'SOJA',tipo:'COSECHA/STOCK',destino:'BOLSA 1',chofer:'',chasis:'',kgCampo:12000,kgDestino:0,humedad:0,mermaH:0,zaranda:0,kgNetos:12000,ha:22,rend:545,obs:'', _ts: new Date()},
+      {fecha:'2026-09-10',lote:'13C',cultivo:'MAIZ',tipo:'COSECHA/STOCK',destino:'BOLSA 1',chofer:'',chasis:'',kgCampo:195140,kgDestino:0,humedad:15,mermaH:0,zaranda:0,kgNetos:195140,ha:30,rend:6505,obs:'', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'13C',cultivo:'MAIZ',tipo:'COSECHA/STOCK',destino:'BOLSA 2',chofer:'',chasis:'',kgCampo:228180,kgDestino:0,humedad:15,mermaH:0,zaranda:0,kgNetos:228180,ha:30,rend:7606,obs:'', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'13C',cultivo:'MAIZ',tipo:'COSECHA',destino:'',chofer:'LUNA',chasis:'EHW803',kgCampo:31030,kgDestino:31000,humedad:15.5,mermaH:794,zaranda:151,kgNetos:30055,ha:30,rend:1002,obs:'PH 75,3', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'13C',cultivo:'MAIZ',tipo:'COSECHA',destino:'',chofer:'LOPEZ',chasis:'FVO960',kgCampo:34090,kgDestino:34060,humedad:15.5,mermaH:872,zaranda:166,kgNetos:33022,ha:30,rend:1101,obs:'PH 73', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'13C',cultivo:'MAIZ',tipo:'COSECHA',destino:'',chofer:'GONZALEZ',chasis:'JDV187',kgCampo:31240,kgDestino:31240,humedad:15.4,mermaH:765,zaranda:152,kgNetos:30323,ha:30,rend:1011,obs:'PH 72,4', _ts: new Date()},
+      {fecha:'2026-09-11',lote:'16T-16TT',cultivo:'MAIZ',tipo:'COSECHA/STOCK',destino:'BOLSA 1',chofer:'',chasis:'',kgCampo:205600,kgDestino:0,humedad:15.5,mermaH:0,zaranda:0,kgNetos:205600,ha:140,rend:1469,obs:'', _ts: new Date()},
+      {fecha:'2026-09-11',lote:'16T-16TT',cultivo:'MAIZ',tipo:'COSECHA/STOCK',destino:'BOLSA 2',chofer:'',chasis:'',kgCampo:236300,kgDestino:0,humedad:15.5,mermaH:0,zaranda:0,kgNetos:236300,ha:140,rend:1688,obs:'', _ts: new Date()},
+      {fecha:'2026-09-09',lote:'16T-16TT',cultivo:'MAIZ',tipo:'COSECHA',destino:'',chofer:'CONQUEYRO',chasis:'JER678',kgCampo:30800,kgDestino:30740,humedad:15.9,mermaH:928,zaranda:149,kgNetos:29663,ha:140,rend:212,obs:'PH 70,7', _ts: new Date()},
+      {fecha:'2026-09-11',lote:'16T-16TT',cultivo:'MAIZ',tipo:'COSECHA',destino:'',chofer:'BALDOVINO',chasis:'BOX786',kgCampo:38000,kgDestino:38300,humedad:15.4,mermaH:938,zaranda:187,kgNetos:37175,ha:140,rend:265,obs:'PH 68', _ts: new Date()},
+    ];
+    cosechaData.forEach(c => addDoc(collection(db, 'cosecha'), c));
+  }
+}, {once: true});
+
+</script>
+
+<script>
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function fmt(n){ if(!n && n!==0) return '-'; return Number(n).toLocaleString('es-AR'); }
+function fmtDate(d){ if(!d) return '-'; return d.substring? d : ''; }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function toast(msg, type='success'){
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
 }
-
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-window.closeModal = closeModal;
-
-function openConfirm(title,msg,onOk){
-  document.getElementById('confirm-title').textContent=title;
-  document.getElementById('confirm-msg').textContent=msg;
-  document.getElementById('confirm-ok-btn').onclick=()=>{ closeConfirm(); onOk(); };
-  document.getElementById('confirm-backdrop').classList.add('show');
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('show'); }
+function confirm2(msg, fn){
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-modal').classList.add('show');
+  document.getElementById('confirm-ok').onclick = () => { fn(); closeConfirm(); };
 }
-function closeConfirm(){ document.getElementById('confirm-backdrop').classList.remove('show'); }
-window.closeConfirm = closeConfirm;
-
-function catBadge(c){
-  const m={'agroquimicos':'badge-agro','semillas':'badge-semilla','herramientas':'badge-herr','otros':'badge-otro'};
-  const l={'agroquimicos':'Agroquímicos','semillas':'Semillas','herramientas':'Herramientas','otros':'Otros'};
-  return `<span class="badge ${m[c]||'badge-otro'}">${l[c]||c}</span>`;
+function cultivoBadge(c){
+  if(!c) return '';
+  const m = {'TRIGO':'trigo','MAIZ':'maiz','SOJA':'soja','GIRASOL':'girasol','PASTURA':'pastura'};
+  return `<span class="badge badge-${m[c]||'otro'}">${c}</span>`;
 }
-
-// ═══════════ STOCK STATS ═══════════
-function renderStockStats(){
-  const total = productos.length;
-  const ok    = productos.filter(p=>(p.stockActual||0)>(p.stockMinimo||0)).length;
-  const low   = productos.filter(p=>(p.stockActual||0)>0 && (p.stockActual||0)<=(p.stockMinimo||0)).length;
-  const zero  = productos.filter(p=>(p.stockActual||0)<=0).length;
-  document.getElementById('st-total').textContent = total;
-  document.getElementById('st-ok').textContent    = ok;
-  document.getElementById('st-low').textContent   = low;
-  document.getElementById('st-zero').textContent  = zero;
+function tipoPulvBadge(t){
+  if(!t) return '';
+  const m = {'barbecho':'barbecho','pre-emerg':'pre','post-emerg':'post','otro':'otro'};
+  const labels = {'barbecho':'Barbecho','pre-emerg':'Pre-emerg.','post-emerg':'Post-emerg.','otro':'Otro'};
+  return `<span class="badge badge-${m[t]||'otro'}">${labels[t]||t}</span>`;
+}
+function categBadge(c){
+  const m = {'HERBICIDA':'herb','FERTILIZANTE':'fert','COADYUVANTE':'coad'};
+  return `<span class="badge badge-${m[c]||'otro'}">${c}</span>`;
 }
 
-// ═══════════ PRODUCTOS ═══════════
-window.toggleView = function(){
-  viewMode = viewMode==='grid'?'list':'grid';
-  document.getElementById('view-toggle').textContent = viewMode==='grid'?'≡ Lista':'⊞ Cuadrícula';
-  renderProductos();
-};
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function showTab(tab){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
 
-window.renderProductos = function(){
-  const q = document.getElementById('buscar-prod').value.toLowerCase();
-  const cat = document.getElementById('filtro-cat').value;
-  const st  = document.getElementById('filtro-stock').value;
-  let list = productos.filter(p => {
-    if(q && !p.nombre?.toLowerCase().includes(q)) return false;
-    if(cat && p.categoria!==cat) return false;
-    if(st==='ok'  && (p.stockActual||0)<=0) return false;
-    if(st==='zero'&& (p.stockActual||0)>0 ) return false;
-    return true;
+function showStockSub(sub){
+  ['prod','mov','res'].forEach(s => {
+    document.getElementById('stock-'+s).style.display = s===sub ? '' : 'none';
+    document.getElementById('sub-stock-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
   });
+  if(sub==='res') renderResumen();
+}
 
-  const cont = document.getElementById('productos-container');
-  if(viewMode==='grid'){
-    if(!document.getElementById('productos-grid')){
-      cont.innerHTML='<div class="productos-grid" id="productos-grid"></div>';
-    }
-    const g = document.getElementById('productos-grid') || (() => { cont.innerHTML='<div class="productos-grid" id="productos-grid"></div>'; return document.getElementById('productos-grid'); })();
-    g.innerHTML = list.length ? list.map(p => {
-      const low = (p.stockMinimo||0)>0 && (p.stockActual||0)<=(p.stockMinimo||0);
-      const zero= (p.stockActual||0)<=0;
-      return `<div class="prod-card">
-        <div class="prod-card-top">
-          <div class="prod-nombre">${p.nombre}</div>
-          ${catBadge(p.categoria||'otros')}
-        </div>
-        <div>
-          <span class="prod-stock${zero?' low':low?' low':''}">${fmt(p.stockActual||0)}</span>
-          <span class="prod-unidad"> ${p.unidad||''}</span>
-          ${low&&!zero?'<span class="badge badge-warn" style="margin-left:6px">Stock bajo</span>':''}
-          ${zero?'<span class="badge badge-egreso" style="margin-left:6px">Sin stock</span>':''}
-        </div>
-        ${p.ultimoMovimiento?`<div class="prod-ultima">Último mov: ${fmtFecha(p.ultimoMovimiento)}</div>`:''}
-        <div class="prod-actions">
-          <button class="btn btn-green btn-sm" onclick="openModalMovimiento('${p.id}','entrada')">⬆</button>
-          <button class="btn btn-amber btn-sm" onclick="openModalMovimiento('${p.id}','salida')">⬇</button>
-          <button class="btn btn-outline btn-sm" onclick="openModalProducto('${p.id}')">✎</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmarEliminarProducto('${p.id}','${p.nombre.replace(/'/g,"\\'")}')">🗑</button>
-        </div>
-      </div>`;
-    }).join('') : '<div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1;font-style:italic">No hay productos</div>';
-  } else {
-    cont.innerHTML = `<div class="table-wrap"><div class="table-scroll"><table>
-      <thead><tr><th>Nombre</th><th>Categoría</th><th>Stock</th><th>Unidad</th><th>Mínimo</th><th></th></tr></thead>
-      <tbody>${list.length ? list.map(p=>{
-        const low=(p.stockMinimo||0)>0&&(p.stockActual||0)<=(p.stockMinimo||0);
-        const zero=(p.stockActual||0)<=0;
-        return `<tr>
-          <td><strong>${p.nombre}</strong></td>
-          <td>${catBadge(p.categoria||'otros')}</td>
-          <td><span class="${zero?'badge badge-egreso':low?'badge badge-warn':''}" style="${zero||low?'':'font-weight:700'}">${fmt(p.stockActual||0)}</span></td>
-          <td>${p.unidad||'—'}</td>
-          <td>${fmt(p.stockMinimo||0)}</td>
-          <td class="td-actions">
-            <button class="btn btn-green btn-sm btn-icon" onclick="openModalMovimiento('${p.id}','entrada')" title="Entrada">⬆</button>
-            <button class="btn btn-amber btn-sm btn-icon" onclick="openModalMovimiento('${p.id}','salida')" title="Salida">⬇</button>
-            <button class="btn btn-outline btn-sm btn-icon" onclick="openModalProducto('${p.id}')" title="Editar">✎</button>
-            <button class="btn btn-danger btn-sm btn-icon" onclick="confirmarEliminarProducto('${p.id}','${p.nombre.replace(/'/g,"\\'")}')">🗑</button>
-          </td></tr>`;
-      }).join(''):'<tr class="empty-row"><td colspan="6">No hay productos</td></tr>'}</tbody>
-    </table></div></div>`;
-  }
-};
+function showGasoilSub(sub){
+  ['panel','reg'].forEach(s => {
+    document.getElementById('gasoil-'+s).style.display = s===sub ? '' : 'none';
+    document.getElementById('sub-gasoil-'+s).className = 'btn btn-sm ' + (s===sub ? 'btn-primary' : 'btn-outline');
+  });
+}
 
-// ═══════════ MODAL PRODUCTO ═══════════
-window.openModalProducto = function(id=null){
-  editandoProductoId = id;
-  document.getElementById('mp-title').textContent = id ? 'Editar producto' : 'Nuevo producto';
-  if(id){
-    const p = productos.find(x=>x.id===id);
-    if(!p) return;
-    document.getElementById('mp-nombre').value    = p.nombre||'';
-    document.getElementById('mp-categoria').value = p.categoria||'agroquimicos';
-    document.getElementById('mp-unidad').value    = p.unidad||'lts';
-    document.getElementById('mp-stock').value     = p.stockActual||0;
-    document.getElementById('mp-minimo').value    = p.stockMinimo||0;
-    document.getElementById('mp-notas').value     = p.notas||'';
-  } else {
-    document.getElementById('mp-nombre').value='';
-    document.getElementById('mp-categoria').value='agroquimicos';
-    document.getElementById('mp-unidad').value='lts';
-    document.getElementById('mp-stock').value='';
-    document.getElementById('mp-minimo').value='';
-    document.getElementById('mp-notas').value='';
-  }
-  document.getElementById('modal-producto').classList.add('show');
-  setTimeout(()=>document.getElementById('mp-nombre').focus(),100);
-};
+// ══════════════════════════════════════
+// LOTES — helpers para selects
+// ══════════════════════════════════════
+function getLotesNames(){ return DB.lotes.map(l=>l.nombre).sort(); }
 
-window.guardarProducto = async function(){
-  const nombre = document.getElementById('mp-nombre').value.trim();
-  if(!nombre){ toast('Ingresá el nombre del producto','error'); return; }
+function populateLoteSelect(selId, addBlank=true){
+  const sel = document.getElementById(selId);
+  if(!sel) return;
+  const val = sel.value;
+  sel.innerHTML = (addBlank ? '<option value="">— Lote —</option>' : '') + getLotesNames().map(n=>`<option value="${n}">${n}</option>`).join('');
+  if(val) sel.value = val;
+}
+
+function populateLoteSelects(){
+  ['pulv-lote','fert-lote','labor-lote','siem-lote','cos-lote'].forEach(id => populateLoteSelect(id));
+  // filtros
+  ['filter-lote-pulv','filter-lote-fert','filter-lote-labor','filter-lote-cosecha'].forEach(id => {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const val = sel.value;
+    sel.innerHTML = '<option value="">Todos los lotes</option>' + getLotesNames().map(n=>`<option value="${n}">${n}</option>`).join('');
+    if(val) sel.value = val;
+  });
+}
+
+function renderLotes(){
+  const grid = document.getElementById('lotes-grid');
+  const tbody = document.getElementById('tbody-lotes');
+  if(!grid || !tbody) return;
+  const lotes = DB.lotes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  grid.innerHTML = lotes.map(l =>
+    `<div class="lote-chip">${l.nombre} ${l.ha ? `<small style="opacity:.6">${l.ha}ha</small>` : ''}
+      <button onclick="editLote('${l.id}')" title="Editar">✏️</button>
+      <button onclick="deleteLote('${l.id}','${l.nombre}')" title="Eliminar">×</button>
+    </div>`
+  ).join('') || '<span style="color:var(--muted);font-size:12px">Sin lotes configurados</span>';
+  tbody.innerHTML = lotes.map(l =>
+    `<tr>
+      <td style="font-weight:700">${l.nombre}</td>
+      <td>${l.ha||'-'} ha</td>
+      <td>${l.cultivo||'-'}</td>
+      <td>${l.antecesor||'-'}</td>
+      <td style="color:var(--muted);font-size:12px">${l.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editLote('${l.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteLote('${l.id}','${l.nombre}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="6">Sin lotes</td></tr>';
+}
+
+function openModalLote(){
+  document.getElementById('lote-id').value='';
+  document.getElementById('lote-nombre').value='';
+  document.getElementById('lote-ha').value='';
+  document.getElementById('lote-cultivo').value='';
+  document.getElementById('lote-antecesor').value='';
+  document.getElementById('lote-obs').value='';
+  document.getElementById('modal-lote-title').textContent='Nuevo lote';
+  openModal('modal-lote');
+}
+
+function editLote(id){
+  const l = DB.lotes.find(x=>x.id===id); if(!l) return;
+  document.getElementById('lote-id').value=l.id;
+  document.getElementById('lote-nombre').value=l.nombre||'';
+  document.getElementById('lote-ha').value=l.ha||'';
+  document.getElementById('lote-cultivo').value=l.cultivo||'';
+  document.getElementById('lote-antecesor').value=l.antecesor||'';
+  document.getElementById('lote-obs').value=l.obs||'';
+  document.getElementById('modal-lote-title').textContent='Editar lote';
+  openModal('modal-lote');
+}
+
+async function guardarLote(){
+  const id = document.getElementById('lote-id').value;
   const data = {
-    nombre,
-    categoria: document.getElementById('mp-categoria').value,
-    unidad:    document.getElementById('mp-unidad').value,
-    stockActual: parseFloat(document.getElementById('mp-stock').value)||0,
-    stockMinimo: parseFloat(document.getElementById('mp-minimo').value)||0,
-    notas:     document.getElementById('mp-notas').value.trim(),
+    nombre: document.getElementById('lote-nombre').value.trim(),
+    ha: parseFloat(document.getElementById('lote-ha').value)||0,
+    cultivo: document.getElementById('lote-cultivo').value.trim(),
+    antecesor: document.getElementById('lote-antecesor').value.trim(),
+    obs: document.getElementById('lote-obs').value.trim(),
+    _ts: new Date()
   };
+  if(!data.nombre){ toast('Ingresá el nombre del lote','error'); return; }
   try {
-    if(editandoProductoId){
-      await updateDoc(doc(db,'stock_productos',editandoProductoId),data);
-      toast('Producto actualizado ✓');
-    } else {
-      await addDoc(collection(db,'stock_productos'),data);
-      toast('Producto creado ✓');
-    }
+    if(id) await updateDoc2(docRef('lotes',id), data);
+    else await addDoc2(colRef('lotes'), data);
+    toast('Lote guardado ✓');
+    closeModal('modal-lote');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+async function deleteLote(id, nombre){
+  confirm2(`¿Eliminar el lote "${nombre}"? Esta acción no afecta los registros existentes.`, async () => {
+    try { await deleteDoc2(docRef('lotes',id)); toast('Lote eliminado'); }
+    catch(e){ toast('Error: '+e.message,'error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// STOCK — PRODUCTOS
+// ══════════════════════════════════════
+let sortState = {};
+
+function renderProductos(){
+  const search = document.getElementById('search-prod')?.value?.toLowerCase()||'';
+  const cat = document.getElementById('filter-categoria')?.value||'';
+  let prods = DB.productos.filter(p => {
+    const ok = (!search || p.nombre?.toLowerCase().includes(search) || p.marca?.toLowerCase().includes(search));
+    const okCat = (!cat || p.categoria===cat);
+    return ok && okCat;
+  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const grid = document.getElementById('productos-grid');
+  if(!grid) return;
+  grid.innerHTML = prods.map(p => {
+    const low = p.stock <= (p.minimo||0);
+    return `<div class="prod-card" onclick="editProducto('${p.id}')">
+      <div class="prod-card-top">
+        <div>
+          <div class="prod-nombre">${p.nombre}</div>
+          <div class="prod-marca">${p.marca||''}</div>
+        </div>
+        ${categBadge(p.categoria)}
+      </div>
+      <div>
+        <div class="prod-stock ${low?'low'}">${fmt(p.stock)}</div>
+        <div class="prod-unidad">${p.unidad} ${low?'⚠️ stock bajo':''}</div>
+      </div>
+      <div class="prod-actions">
+        <button class="btn btn-green btn-sm" onclick="event.stopPropagation();openMovProd('${p.id}')">↕</button>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editProducto('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteProducto('${p.id}','${p.nombre}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);padding:20px;font-style:italic">Sin productos</p>';
+}
+
+function openModalProducto(){
+  document.getElementById('prod-id').value='';
+  ['prod-nombre','prod-marca','prod-obs'].forEach(id=>document.getElementById(id).value='');
+  ['prod-stock','prod-minimo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prod-categoria').value='HERBICIDA';
+  document.getElementById('prod-unidad').value='lts';
+  document.getElementById('modal-producto-title').textContent='Nuevo producto';
+  openModal('modal-producto');
+}
+
+function editProducto(id){
+  const p = DB.productos.find(x=>x.id===id); if(!p) return;
+  document.getElementById('prod-id').value=p.id;
+  document.getElementById('prod-nombre').value=p.nombre||'';
+  document.getElementById('prod-marca').value=p.marca||'';
+  document.getElementById('prod-categoria').value=p.categoria||'HERBICIDA';
+  document.getElementById('prod-unidad').value=p.unidad||'lts';
+  document.getElementById('prod-stock').value=p.stock||'';
+  document.getElementById('prod-minimo').value=p.minimo||'';
+  document.getElementById('prod-obs').value=p.obs||'';
+  document.getElementById('modal-producto-title').textContent='Editar producto';
+  openModal('modal-producto');
+}
+
+async function guardarProducto(){
+  const id = document.getElementById('prod-id').value;
+  const data = {
+    nombre: document.getElementById('prod-nombre').value.trim(),
+    marca: document.getElementById('prod-marca').value.trim(),
+    categoria: document.getElementById('prod-categoria').value,
+    unidad: document.getElementById('prod-unidad').value,
+    stock: parseFloat(document.getElementById('prod-stock').value)||0,
+    minimo: parseFloat(document.getElementById('prod-minimo').value)||0,
+    obs: document.getElementById('prod-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.nombre){ toast('Ingresá el nombre','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('stock_productos',id), data);
+    else await addDoc2(colRef('stock_productos'), data);
+    toast('Producto guardado ✓');
     closeModal('modal-producto');
   } catch(e){ toast('Error: '+e.message,'error'); }
-};
-
-window.confirmarEliminarProducto = function(id,nombre){
-  openConfirm('¿Eliminar producto?',`"${nombre}" será eliminado permanentemente.`, async ()=>{
-    try{ await deleteDoc(doc(db,'stock_productos',id)); toast('Producto eliminado'); }
-    catch(e){ toast('Error: '+e.message,'error'); }
-  });
-};
-
-// ═══════════ MODAL MOVIMIENTO ═══════════
-function updateSelectProductos(){
-  const sel = document.getElementById('mm-producto');
-  const val = sel.value;
-  sel.innerHTML = '<option value="">— seleccioná un producto —</option>' +
-    productos.map(p=>`<option value="${p.id}">${p.nombre} (${fmt(p.stockActual||0)} ${p.unidad||''})</option>`).join('');
-  if(val) sel.value = val;
-  sel.onchange = () => {
-    const p = productos.find(x=>x.id===sel.value);
-    const info = document.getElementById('mm-stock-info');
-    if(p){ info.style.display='block'; document.getElementById('mm-stock-val').textContent=`${fmt(p.stockActual||0)} ${p.unidad||''}`; }
-    else info.style.display='none';
-  };
 }
 
-window.setTipoMov = function(t){
-  document.getElementById('mm-tipo').value=t;
-  document.getElementById('btn-tipo-entrada').className='btn '+(t==='entrada'?'btn-green':'btn-outline')+' ';
-  document.getElementById('btn-tipo-salida').className='btn '+(t==='salida'?'btn-amber':'btn-outline')+' ';
-  document.getElementById('btn-tipo-entrada').style.flex='1';
-  document.getElementById('btn-tipo-salida').style.flex='1';
-};
+async function deleteProducto(id, nombre){
+  confirm2(`¿Eliminar "${nombre}"?`, async () => {
+    try { await deleteDoc2(docRef('stock_productos',id)); toast('Eliminado'); }
+    catch(e){ toast('Error: '+e.message,'error'); }
+  });
+}
 
-window.openModalMovimiento = function(prodId=null, tipo='entrada', movId=null){
-  editandoMovimientoId = movId;
-  document.getElementById('mm-title').textContent = movId ? 'Editar movimiento' : 'Registrar movimiento';
-  document.getElementById('mm-fecha').value = today();
-  document.getElementById('mm-cantidad').value = '';
-  document.getElementById('mm-obs').value = '';
-  document.getElementById('mm-stock-info').style.display='none';
-  if(movId){
-    const m = movimientos.find(x=>x.id===movId);
-    if(m){
-      setTipoMov(m.tipo||'entrada');
-      document.getElementById('mm-producto').value = m.productoId||'';
-      document.getElementById('mm-cantidad').value = m.cantidad||'';
-      document.getElementById('mm-fecha').value    = m.fecha||today();
-      document.getElementById('mm-obs').value      = m.observacion||'';
-    }
-  } else {
-    setTipoMov(tipo);
-    document.getElementById('mm-producto').value = prodId||'';
-    if(prodId){
-      const p=productos.find(x=>x.id===prodId);
-      if(p){ document.getElementById('mm-stock-info').style.display='block'; document.getElementById('mm-stock-val').textContent=`${fmt(p.stockActual||0)} ${p.unidad||''}`; }
-    }
-  }
-  document.getElementById('modal-movimiento').classList.add('show');
-};
+// ══════════════════════════════════════
+// STOCK — MOVIMIENTOS
+// ══════════════════════════════════════
+function populateMovProductos(){
+  const sel = document.getElementById('mov-producto');
+  if(!sel) return;
+  const val = sel.value;
+  sel.innerHTML = DB.productos.map(p=>`<option value="${p.id}" data-nombre="${p.nombre}">${p.nombre} (${p.unidad})</option>`).join('');
+  if(val) sel.value = val;
+}
 
-window.guardarMovimiento = async function(){
-  const prodId   = document.getElementById('mm-producto').value;
-  const cantidad = parseFloat(document.getElementById('mm-cantidad').value);
-  const tipo     = document.getElementById('mm-tipo').value;
-  const fecha    = document.getElementById('mm-fecha').value||today();
-  const obs      = document.getElementById('mm-obs').value.trim();
-  if(!prodId){ toast('Seleccioná un producto','error'); return; }
-  if(!cantidad||cantidad<=0){ toast('Ingresá una cantidad válida','error'); return; }
+function openMovProd(prodId){
+  openModalMovimiento();
+  setTimeout(()=>{ document.getElementById('mov-producto').value=prodId; }, 100);
+}
 
-  const prod = productos.find(p=>p.id===prodId);
-  if(!prod) return;
-  const delta    = tipo==='entrada' ? cantidad : -cantidad;
-  const nuevoSt  = (prod.stockActual||0)+delta;
+function openModalMovimiento(){
+  document.getElementById('mov-id').value='';
+  document.getElementById('mov-fecha').value=today();
+  document.getElementById('mov-tipo').value='salida';
+  document.getElementById('mov-cantidad').value='';
+  document.getElementById('mov-lote').value='';
+  document.getElementById('mov-obs').value='';
+  populateMovProductos();
+  openModal('modal-movimiento');
+}
 
+function editMovimiento(id){
+  const m = DB.movimientos.find(x=>x.id===id); if(!m) return;
+  document.getElementById('mov-id').value=m.id;
+  document.getElementById('mov-fecha').value=m.fecha||'';
+  document.getElementById('mov-tipo').value=m.tipo||'salida';
+  document.getElementById('mov-cantidad').value=m.cantidad||'';
+  document.getElementById('mov-lote').value=m.lote||'';
+  document.getElementById('mov-obs').value=m.obs||'';
+  populateMovProductos();
+  setTimeout(()=>document.getElementById('mov-producto').value=m.producto||'', 50);
+  openModal('modal-movimiento');
+}
+
+async function guardarMovimiento(){
+  const id = document.getElementById('mov-id').value;
+  const prodId = document.getElementById('mov-producto').value;
+  const cant = parseFloat(document.getElementById('mov-cantidad').value)||0;
+  const tipo = document.getElementById('mov-tipo').value;
+  if(!prodId||!cant){ toast('Completá todos los campos','error'); return; }
+  const prod = DB.productos.find(x=>x.id===prodId);
+  const data = {
+    fecha: document.getElementById('mov-fecha').value,
+    producto: prodId,
+    productoNombre: prod?.nombre||'',
+    unidad: prod?.unidad||'',
+    tipo, cantidad: cant,
+    lote: document.getElementById('mov-lote').value.trim(),
+    obs: document.getElementById('mov-obs').value.trim(),
+    _ts: new Date()
+  };
   try {
-    if(editandoMovimientoId){
-      const old = movimientos.find(x=>x.id===editandoMovimientoId);
-      if(old){
-        const oldDelta = old.tipo==='entrada' ? old.cantidad : -old.cantidad;
-        const revert   = (prod.stockActual||0) - oldDelta + delta;
-        await updateDoc(doc(db,'stock_productos',prodId),{stockActual:revert,ultimoMovimiento:fecha});
-        await updateDoc(doc(db,'stock_movimientos',editandoMovimientoId),{tipo,cantidad,fecha,observacion:obs,productoId:prodId,nombreProducto:prod.nombre,unidad:prod.unidad||''});
+    if(id) await updateDoc2(docRef('stock_movimientos',id), data);
+    else { await addDoc2(colRef('stock_movimientos'), data);
+      // actualizar stock
+      if(prod){
+        const delta = tipo==='entrada' ? cant : -cant;
+        await updateDoc2(docRef('stock_productos',prodId), {stock: (prod.stock||0)+delta, _ts: new Date()});
       }
-      toast('Movimiento actualizado ✓');
-    } else {
-      await updateDoc(doc(db,'stock_productos',prodId),{stockActual:nuevoSt,ultimoMovimiento:fecha});
-      await addDoc(collection(db,'stock_movimientos'),{tipo,fecha,productoId:prodId,nombreProducto:prod.nombre,categoriaProducto:prod.categoria||'',unidad:prod.unidad||'',cantidad,observacion:obs});
-      toast(`${tipo==='entrada'?'Entrada':'Salida'} registrada ✓`);
     }
+    toast('Movimiento guardado ✓');
     closeModal('modal-movimiento');
   } catch(e){ toast('Error: '+e.message,'error'); }
-};
+}
 
-// ═══════════ MOVIMIENTOS ═══════════
-let movSortCol='fecha'; let movSortDir=-1;
-window.sortMov = function(col){ if(movSortCol===col)movSortDir*=-1; else{movSortCol=col;movSortDir=-1;} renderMovimientos(); };
-
-window.renderMovimientos = function(){
-  const q   = document.getElementById('buscar-mov').value.toLowerCase();
-  const tip = document.getElementById('filtro-tipo-mov').value;
-  const fec = document.getElementById('filtro-fecha-mov').value;
-  let list  = movimientos.filter(m=>{
-    if(q && !m.nombreProducto?.toLowerCase().includes(q)&&!m.observacion?.toLowerCase().includes(q)) return false;
-    if(tip && m.tipo!==tip) return false;
-    if(fec && m.fecha!==fec) return false;
-    return true;
-  }).sort((a,b)=>{
-    const va=a[movSortCol]??''; const vb=b[movSortCol]??'';
-    return va<vb?-movSortDir:va>vb?movSortDir:0;
-  });
-
+function renderMovimientos(){
+  const search = document.getElementById('search-mov')?.value?.toLowerCase()||'';
+  const tipo = document.getElementById('filter-tipo-mov')?.value||'';
   const tbody = document.getElementById('tbody-movimientos');
-  tbody.innerHTML = list.length ? list.map(m=>`<tr>
-    <td>${fmtFecha(m.fecha)}</td>
-    <td><strong>${m.nombreProducto||'—'}</strong></td>
-    <td><span class="badge badge-${m.tipo}">${m.tipo==='entrada'?'Entrada':'Salida'}</span></td>
-    <td>${m.tipo==='entrada'?'+':'-'}${fmt(m.cantidad)} ${m.unidad||''}</td>
-    <td style="color:var(--muted)">${m.observacion||'—'}</td>
-    <td class="td-actions">
-      <button class="btn btn-outline btn-sm btn-icon" onclick="openModalMovimiento(null,null,'${m.id}')" title="Editar">✎</button>
-      <button class="btn btn-danger btn-sm btn-icon" onclick="confirmarEliminarMovimiento('${m.id}')">🗑</button>
-    </td>
-  </tr>`).join('') : '<tr class="empty-row"><td colspan="6">Sin movimientos</td></tr>';
-};
+  if(!tbody) return;
+  let rows = DB.movimientos.filter(m =>
+    (!search || m.productoNombre?.toLowerCase().includes(search) || m.lote?.toLowerCase().includes(search)) &&
+    (!tipo || m.tipo===tipo)
+  );
+  tbody.innerHTML = rows.map(m =>
+    `<tr>
+      <td>${m.fecha||''}</td>
+      <td style="font-weight:600">${m.productoNombre||''}</td>
+      <td><span class="badge badge-${m.tipo==='entrada'?'entrada':'salida'}">${m.tipo}</span></td>
+      <td style="font-family:monospace">${fmt(m.cantidad)}</td>
+      <td>${m.unidad||''}</td>
+      <td>${m.lote||''}</td>
+      <td style="color:var(--muted);font-size:12px">${m.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editMovimiento('${m.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMovimiento('${m.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="8">Sin movimientos</td></tr>';
+}
 
-window.confirmarEliminarMovimiento = function(id){
-  openConfirm('¿Eliminar movimiento?','Esta acción no se puede deshacer.', async ()=>{
-    try{ await deleteDoc(doc(db,'stock_movimientos',id)); toast('Movimiento eliminado'); }
-    catch(e){ toast('Error: '+e.message,'error'); }
+async function deleteMovimiento(id){
+  confirm2('¿Eliminar este movimiento?', async ()=>{
+    try { await deleteDoc2(docRef('stock_movimientos',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
   });
-};
+}
 
-// ═══════════ RESUMEN ═══════════
-window.renderResumen = function(){
+function renderResumen(){
   const tbody = document.getElementById('tbody-resumen');
-  if(!tbody) return;
-  if(!productos.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="7">Sin datos</td></tr>'; return; }
-  const entPorProd = {};
-  const salPorProd = {};
-  movimientos.forEach(m=>{
-    if(m.tipo==='entrada') entPorProd[m.productoId]=(entPorProd[m.productoId]||0)+m.cantidad;
-    else                   salPorProd[m.productoId]=(salPorProd[m.productoId]||0)+m.cantidad;
-  });
-  tbody.innerHTML = productos.map(p=>`<tr>
-    <td><strong>${p.nombre}</strong></td>
-    <td>${catBadge(p.categoria||'otros')}</td>
-    <td><strong>${fmt(p.stockActual||0)}</strong></td>
-    <td>${p.unidad||'—'}</td>
-    <td>${fmtFecha(p.ultimoMovimiento)}</td>
-    <td style="color:var(--green)">${fmt(entPorProd[p.id]||0)}</td>
-    <td style="color:var(--red)">${fmt(salPorProd[p.id]||0)}</td>
-  </tr>`).join('');
-};
+  const stats = document.getElementById('stats-stock');
+  if(!tbody||!stats) return;
+  const prods = DB.productos.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const low = prods.filter(p=>p.stock<=(p.minimo||0)).length;
+  stats.innerHTML = `
+    <div class="stat-card brown"><div class="stat-num">${prods.length}</div><div class="stat-lbl">Productos</div></div>
+    <div class="stat-card ${low>0?'red':'green'}"><div class="stat-num">${low}</div><div class="stat-lbl">Stock bajo</div></div>
+    <div class="stat-card amber"><div class="stat-num">${prods.filter(p=>p.categoria==='HERBICIDA').length}</div><div class="stat-lbl">Herbicidas</div></div>
+    <div class="stat-card blue"><div class="stat-num">${prods.filter(p=>p.categoria==='COADYUVANTE').length}</div><div class="stat-lbl">Coadyuvantes</div></div>
+  `;
+  tbody.innerHTML = prods.map(p=>{
+    const low2=p.stock<=(p.minimo||0);
+    return `<tr>
+      <td style="font-weight:600">${p.nombre}</td>
+      <td style="color:var(--muted)">${p.marca||''}</td>
+      <td>${categBadge(p.categoria)}</td>
+      <td style="font-family:monospace;font-weight:700;color:${low2?'var(--red)':'var(--text)'}">${fmt(p.stock)}</td>
+      <td>${p.unidad}</td>
+      <td>${low2?'<span class="badge badge-warn">⚠️ Bajo</span>':'<span class="badge badge-entrada">OK</span>'}</td>
+    </tr>`;
+  }).join('') || '<tr class="empty-row"><td colspan="6">Sin productos</td></tr>';
+}
 
-window.exportarResumen = function(){
-  const rows = [['Producto','Categoría','Stock actual','Unidad','Último movimiento','Entradas','Salidas']];
-  const entPorProd={}, salPorProd={};
-  movimientos.forEach(m=>{ if(m.tipo==='entrada') entPorProd[m.productoId]=(entPorProd[m.productoId]||0)+m.cantidad; else salPorProd[m.productoId]=(salPorProd[m.productoId]||0)+m.cantidad; });
-  productos.forEach(p=> rows.push([p.nombre,p.categoria||'',p.stockActual||0,p.unidad||'',p.ultimoMovimiento||'',entPorProd[p.id]||0,salPorProd[p.id]||0]));
+function exportarResumen(){
+  const rows = [['Producto','Marca','Categoría','Stock','Unidad']];
+  DB.productos.forEach(p => rows.push([p.nombre,p.marca||'',p.categoria,p.stock,p.unidad]));
   const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='stock-la-angelica.csv'; a.click();
-};
-
-// ═══════════ GASOIL ═══════════
-window.setTipoGas = function(t){
-  document.getElementById('mg-tipo').value=t;
-  document.getElementById('btn-tipo-ingreso').className='btn '+(t==='ingreso'?'btn-green':'btn-outline');
-  document.getElementById('btn-tipo-egreso').className='btn '+(t==='egreso'?'btn-amber':'btn-outline');
-  document.getElementById('btn-tipo-ingreso').style.flex='1';
-  document.getElementById('btn-tipo-egreso').style.flex='1';
-};
-
-window.openModalGasoil = function(id=null){
-  editandoGasoilId = id;
-  document.getElementById('mg-title').textContent = id?'Editar registro':'Nuevo registro de combustible';
-  document.getElementById('mg-fecha').value=today();
-  document.getElementById('mg-litros').value='';
-  document.getElementById('mg-cuenta').value='';
-  document.getElementById('mg-sector').value='';
-  document.getElementById('mg-obs').value='';
-  if(id){
-    const r=gasoilReg.find(x=>x.id===id);
-    if(r){
-      setTipoGas(r.tipo||'ingreso');
-      document.getElementById('mg-litros').value=r.litros||'';
-      document.getElementById('mg-fecha').value=r.fecha||today();
-      document.getElementById('mg-cuenta').value=r.cuenta||'';
-      document.getElementById('mg-sector').value=r.sector||'';
-      document.getElementById('mg-obs').value=r.obs||'';
-    }
-  } else { setTipoGas('ingreso'); }
-  document.getElementById('modal-gasoil').classList.add('show');
-};
-
-window.guardarGasoil = async function(){
-  const litros = parseFloat(document.getElementById('mg-litros').value);
-  if(!litros||litros<=0){ toast('Ingresá los litros','error'); return; }
-  const data = {
-    tipo:   document.getElementById('mg-tipo').value,
-    fecha:  document.getElementById('mg-fecha').value||today(),
-    litros,
-    cuenta: document.getElementById('mg-cuenta').value,
-    sector: document.getElementById('mg-sector').value,
-    obs:    document.getElementById('mg-obs').value.trim(),
-    estado:'activo',
-    timestamp: new Date().toISOString()
-  };
-  try {
-    if(editandoGasoilId){ await updateDoc(doc(db,'gasoil_registros',editandoGasoilId),data); toast('Registro actualizado ✓'); }
-    else                 { await addDoc(collection(db,'gasoil_registros'),data); toast(`${data.tipo==='ingreso'?'Ingreso':'Egreso'} registrado ✓`); }
-    closeModal('modal-gasoil');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-};
-
-function renderGasoilDashboard(){
-  const ing = gasoilReg.filter(r=>r.tipo==='ingreso').reduce((s,r)=>s+(r.litros||0),0);
-  const egr = gasoilReg.filter(r=>r.tipo==='egreso').reduce((s,r)=>s+(r.litros||0),0);
-  const bal = ing - egr;
-  document.getElementById('gasoil-stock-num').textContent = fmt(bal);
-  document.getElementById('gasoil-stock-num').className   = 'balance-num'+(bal<0?' neg':'');
-  document.getElementById('gasoil-ing-num').textContent   = fmt(ing);
-  document.getElementById('gasoil-egr-num').textContent   = fmt(egr);
-  // últimos 5
-  const tbody = document.getElementById('tbody-gasoil-recent');
-  if(!tbody) return;
-  const rec = gasoilReg.slice(0,5);
-  tbody.innerHTML = rec.length ? rec.map(r=>`<tr>
-    <td>${fmtFecha(r.fecha)}</td>
-    <td><span class="badge badge-${r.tipo==='ingreso'?'ingreso':'egreso'}">${r.tipo==='ingreso'?'Ingreso':'Egreso'}</span></td>
-    <td>${r.tipo==='ingreso'?'+':'-'}${fmt(r.litros)}</td>
-    <td>${r.cuenta||'—'}</td><td>${r.sector||'—'}</td><td style="color:var(--muted)">${r.obs||'—'}</td>
-  </tr>`).join('') : '<tr class="empty-row"><td colspan="6">Sin registros</td></tr>';
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download = 'stock_la_angelica.csv';
+  a.click();
 }
 
-function renderGasoilStats(){
-  const ing = gasoilReg.filter(r=>r.tipo==='ingreso').length;
-  const egr = gasoilReg.filter(r=>r.tipo==='egreso').length;
-  document.getElementById('gst-registros').textContent = gasoilReg.length;
-  document.getElementById('gst-ingresos').textContent  = ing;
-  document.getElementById('gst-egresos').textContent   = egr;
-}
-
-function updateSelectCuentas(){
-  const cuentas = [...new Set(gasoilReg.map(r=>r.cuenta).filter(Boolean))];
-  const sel = document.getElementById('filtro-cuenta-gasoil');
+// ══════════════════════════════════════
+// GASOIL
+// ══════════════════════════════════════
+function populateCuentas(){
+  const sel = document.getElementById('filter-cuenta');
+  if(!sel) return;
+  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
   const val = sel.value;
-  sel.innerHTML='<option value="">Todas las cuentas</option>'+cuentas.map(c=>`<option value="${c}">${c}</option>`).join('');
+  sel.innerHTML = '<option value="">Todas las cuentas</option>' + cuentas.map(c=>`<option value="${c}">${c}</option>`).join('');
   if(val) sel.value=val;
 }
 
-let gasSortCol='fecha'; let gasSortDir=-1;
-window.sortGas = function(col){ if(gasSortCol===col)gasSortDir*=-1; else{gasSortCol=col;gasSortDir=-1;} renderGasoil(); };
-
-window.renderGasoil = function(){
-  const q   = document.getElementById('buscar-gasoil').value.toLowerCase();
-  const tip = document.getElementById('filtro-tipo-gasoil').value;
-  const cta = document.getElementById('filtro-cuenta-gasoil').value;
-  let list  = gasoilReg.filter(r=>{
-    if(q && !r.cuenta?.toLowerCase().includes(q)&&!r.sector?.toLowerCase().includes(q)&&!r.obs?.toLowerCase().includes(q)) return false;
-    if(tip && r.tipo!==tip) return false;
-    if(cta && r.cuenta!==cta) return false;
-    return true;
-  }).sort((a,b)=>{
-    const va=a[gasSortCol]??''; const vb=b[gasSortCol]??'';
-    return va<vb?-gasSortDir:va>vb?gasSortDir:0;
-  });
-
-  const tbody = document.getElementById('tbody-gasoil');
-  tbody.innerHTML = list.length ? list.map(r=>`<tr>
-    <td>${fmtFecha(r.fecha)}</td>
-    <td><span class="badge badge-${r.tipo==='ingreso'?'ingreso':'egreso'}">${r.tipo==='ingreso'?'Ingreso':'Egreso'}</span></td>
-    <td><strong>${r.tipo==='ingreso'?'+':'-'}${fmt(r.litros)}</strong></td>
-    <td>${r.cuenta||'—'}</td>
-    <td>${r.sector||'—'}</td>
-    <td style="color:var(--muted)">${r.obs||'—'}</td>
-    <td class="td-actions">
-      <button class="btn btn-outline btn-sm btn-icon" onclick="openModalGasoil('${r.id}')" title="Editar">✎</button>
-      <button class="btn btn-danger btn-sm btn-icon" onclick="confirmarEliminarGasoil('${r.id}')">🗑</button>
-    </td>
-  </tr>`).join('') : '<tr class="empty-row"><td colspan="7">Sin registros</td></tr>';
-};
-
-window.confirmarEliminarGasoil = function(id){
-  openConfirm('¿Eliminar registro?','Esta acción no se puede deshacer.', async ()=>{
-    try{ await deleteDoc(doc(db,'gasoil_registros',id)); toast('Registro eliminado'); }
-    catch(e){ toast('Error: '+e.message,'error'); }
-  });
-};
-
-// ═══════════ INIT ═══════════
-document.getElementById('mm-fecha').value = today();
-document.getElementById('mg-fecha').value = today();
-
-try {
-  initListeners();
-  document.getElementById('sync-dot').classList.add('live');
-  document.getElementById('sync-txt').textContent = 'Conectado';
-} catch(e) {
-  document.getElementById('sync-dot').className='sync-dot off';
-  document.getElementById('sync-txt').textContent = 'Sin conexión';
-  console.error(e);
+function openModalGasoil(){
+  document.getElementById('gas-id').value='';
+  document.getElementById('gas-fecha').value=today();
+  document.getElementById('gas-tipo').value='egreso';
+  document.getElementById('gas-litros').value='';
+  document.getElementById('gas-concepto').value='';
+  document.getElementById('gas-obs').value='';
+  document.getElementById('modal-gasoil-title').textContent='Nuevo registro de gasoil';
+  openModal('modal-gasoil');
 }
 
+function editGasoil(id){
+  const g = DB.gasoil.find(x=>x.id===id); if(!g) return;
+  document.getElementById('gas-id').value=g.id;
+  document.getElementById('gas-fecha').value=g.fecha||'';
+  document.getElementById('gas-cuenta').value=g.cuenta||'Cuenta 1';
+  document.getElementById('gas-tipo').value=g.tipo||'egreso';
+  document.getElementById('gas-litros').value=g.litros||'';
+  document.getElementById('gas-concepto').value=g.concepto||'';
+  document.getElementById('gas-obs').value=g.obs||'';
+  document.getElementById('modal-gasoil-title').textContent='Editar registro';
+  openModal('modal-gasoil');
+}
+
+async function guardarGasoil(){
+  const id = document.getElementById('gas-id').value;
+  const data = {
+    fecha: document.getElementById('gas-fecha').value,
+    cuenta: document.getElementById('gas-cuenta').value,
+    tipo: document.getElementById('gas-tipo').value,
+    litros: parseFloat(document.getElementById('gas-litros').value)||0,
+    concepto: document.getElementById('gas-concepto').value.trim(),
+    obs: document.getElementById('gas-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.litros){ toast('Ingresá los litros','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('gasoil_registros',id), data);
+    else await addDoc2(colRef('gasoil_registros'), data);
+    toast('Guardado ✓');
+    closeModal('modal-gasoil');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderGasoilBalances(){
+  const div = document.getElementById('gasoil-balances');
+  if(!div) return;
+  const cuentas = [...new Set(DB.gasoil.map(g=>g.cuenta))].filter(Boolean).sort();
+  if(!cuentas.length){ div.innerHTML='<p style="color:var(--muted);padding:20px">Sin registros de gasoil aún.</p>'; return; }
+  div.innerHTML = cuentas.map(c=>{
+    const regs = DB.gasoil.filter(g=>g.cuenta===c);
+    const ing = regs.filter(g=>g.tipo==='ingreso').reduce((a,g)=>a+(g.litros||0),0);
+    const eg = regs.filter(g=>g.tipo==='egreso').reduce((a,g)=>a+(g.litros||0),0);
+    const bal = ing-eg;
+    return `<div class="balance-card" style="margin-bottom:10px">
+      <div><div class="balance-label">${c}</div><div class="balance-num ${bal<0?'neg':''}">${fmt(bal)} L</div></div>
+      <div class="balance-sep"></div>
+      <div><div class="balance-label">Ingresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">${fmt(ing)} L</div></div>
+      <div class="balance-sep"></div>
+      <div><div class="balance-label">Egresos</div><div style="font-family:monospace;font-size:1.3rem;color:rgba(255,255,255,.8)">${fmt(eg)} L</div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderGasoil(){
+  const search = document.getElementById('search-gasoil')?.value?.toLowerCase()||'';
+  const cuenta = document.getElementById('filter-cuenta')?.value||'';
+  const tbody = document.getElementById('tbody-gasoil');
+  if(!tbody) return;
+  let rows = DB.gasoil.filter(g =>
+    (!search || g.concepto?.toLowerCase().includes(search) || g.cuenta?.toLowerCase().includes(search)) &&
+    (!cuenta || g.cuenta===cuenta)
+  );
+  tbody.innerHTML = rows.map(g =>
+    `<tr>
+      <td>${g.fecha||''}</td>
+      <td style="font-weight:600">${g.cuenta||''}</td>
+      <td><span class="badge badge-${g.tipo==='ingreso'?'entrada':'salida'}">${g.tipo}</span></td>
+      <td style="font-family:monospace;font-weight:700">${fmt(g.litros)} L</td>
+      <td>${g.concepto||''}</td>
+      <td style="color:var(--muted);font-size:12px">${g.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editGasoil('${g.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteGasoil('${g.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="7">Sin registros</td></tr>';
+}
+
+async function deleteGasoil(id){
+  confirm2('¿Eliminar este registro?', async ()=>{
+    try { await deleteDoc2(docRef('gasoil_registros',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// PULVERIZACIONES
+// ══════════════════════════════════════
+let pulvProductoCount = 0;
+
+function addPulvProducto(nombre='', dosis='', total=''){
+  pulvProductoCount++;
+  const list = document.getElementById('pulv-productos-list');
+  const div = document.createElement('div');
+  div.id = 'pulv-prod-'+pulvProductoCount;
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:7px;margin-bottom:7px;align-items:center';
+  div.innerHTML = `
+    <input type="text" placeholder="Producto" value="${nombre}" class="pulv-prod-nombre" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
+    <input type="number" placeholder="Dosis/ha" value="${dosis}" class="pulv-prod-dosis" step="0.001" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
+    <input type="number" placeholder="Total" value="${total}" class="pulv-prod-total" step="0.01" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>
+  `;
+  list.appendChild(div);
+}
+
+function openModalPulv(){
+  document.getElementById('pulv-id').value='';
+  document.getElementById('pulv-fecha').value=today();
+  document.getElementById('pulv-tipo').value='barbecho';
+  document.getElementById('pulv-cultivo').value='MAIZ';
+  document.getElementById('pulv-equipo').value='';
+  document.getElementById('pulv-operario').value='';
+  document.getElementById('pulv-costo').value='';
+  document.getElementById('pulv-obs').value='';
+  document.getElementById('pulv-productos-list').innerHTML='';
+  pulvProductoCount=0;
+  populateLoteSelect('pulv-lote');
+  addPulvProducto();
+  document.getElementById('modal-pulv-title').textContent='Nueva pulverización';
+  openModal('modal-pulv');
+}
+
+function editPulv(id){
+  const p = DB.pulverizaciones.find(x=>x.id===id); if(!p) return;
+  document.getElementById('pulv-id').value=p.id;
+  document.getElementById('pulv-fecha').value=p.fecha||today();
+  document.getElementById('pulv-tipo').value=p.tipo||'barbecho';
+  document.getElementById('pulv-cultivo').value=p.cultivo||'MAIZ';
+  document.getElementById('pulv-equipo').value=p.equipo||'';
+  document.getElementById('pulv-operario').value=p.operario||'';
+  document.getElementById('pulv-costo').value=p.costo||'';
+  document.getElementById('pulv-obs').value=p.obs||'';
+  document.getElementById('pulv-productos-list').innerHTML='';
+  pulvProductoCount=0;
+  populateLoteSelect('pulv-lote');
+  setTimeout(()=>{
+    document.getElementById('pulv-lote').value=p.lote||'';
+    (p.productos||[]).forEach(pr=>addPulvProducto(pr.nombre||'',pr.dosis||'',pr.total||''));
+    if(!(p.productos||[]).length) addPulvProducto();
+  },50);
+  document.getElementById('modal-pulv-title').textContent='Editar pulverización';
+  openModal('modal-pulv');
+}
+
+async function guardarPulv(){
+  const id = document.getElementById('pulv-id').value;
+  const productos = [];
+  document.querySelectorAll('#pulv-productos-list > div').forEach(row=>{
+    const n = row.querySelector('.pulv-prod-nombre')?.value?.trim();
+    if(n) productos.push({
+      nombre: n,
+      dosis: parseFloat(row.querySelector('.pulv-prod-dosis')?.value)||0,
+      total: parseFloat(row.querySelector('.pulv-prod-total')?.value)||0
+    });
+  });
+  const data = {
+    fecha: document.getElementById('pulv-fecha').value,
+    lote: document.getElementById('pulv-lote').value,
+    cultivo: document.getElementById('pulv-cultivo').value,
+    tipo: document.getElementById('pulv-tipo').value,
+    equipo: document.getElementById('pulv-equipo').value.trim(),
+    operario: document.getElementById('pulv-operario').value.trim(),
+    costo: parseFloat(document.getElementById('pulv-costo').value)||0,
+    obs: document.getElementById('pulv-obs').value.trim(),
+    productos, _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('pulverizaciones',id), data);
+    else await addDoc2(colRef('pulverizaciones'), data);
+    toast('Guardado ✓');
+    closeModal('modal-pulv');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderPulv(){
+  const search = document.getElementById('search-pulv')?.value?.toLowerCase()||'';
+  const lote = document.getElementById('filter-lote-pulv')?.value||'';
+  const tipo = document.getElementById('filter-tipo-pulv')?.value||'';
+  const tbody = document.getElementById('tbody-pulv');
+  const stats = document.getElementById('stats-pulv');
+  if(!tbody) return;
+  let rows = DB.pulverizaciones.filter(p=>
+    (!search || p.lote?.toLowerCase().includes(search) || (p.productos||[]).some(pr=>pr.nombre?.toLowerCase().includes(search))) &&
+    (!lote || p.lote===lote) && (!tipo || p.tipo===tipo)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const lotes = [...new Set(DB.pulverizaciones.map(p=>p.lote))].filter(Boolean);
+    stats.innerHTML = `
+      <div class="stat-card green"><div class="stat-num">${DB.pulverizaciones.length}</div><div class="stat-lbl">Aplicaciones</div></div>
+      <div class="stat-card brown"><div class="stat-num">${lotes.length}</div><div class="stat-lbl">Lotes</div></div>
+      <div class="stat-card amber"><div class="stat-num">${DB.pulverizaciones.filter(p=>p.tipo==='barbecho').length}</div><div class="stat-lbl">Barbechos</div></div>
+      <div class="stat-card blue"><div class="stat-num">${DB.pulverizaciones.filter(p=>p.tipo==='pre-emerg'||p.tipo==='post-emerg').length}</div><div class="stat-lbl">Post/Pre emerg.</div></div>
+    `;
+  }
+  tbody.innerHTML = rows.map(p=>
+    `<tr>
+      <td>${p.fecha||''}</td>
+      <td style="font-weight:700">${p.lote||''}</td>
+      <td>${cultivoBadge(p.cultivo)}</td>
+      <td>${tipoPulvBadge(p.tipo)}</td>
+      <td><div class="pulv-productos">${(p.productos||[]).map(pr=>`<div class="pulv-prod-row"><b>${pr.nombre}</b> <span>${pr.dosis} L/ha · ${fmt(pr.total)} total</span></div>`).join('')}</div></td>
+      <td style="font-size:12px">${p.equipo||''}</td>
+      <td style="font-size:12px">${p.operario||''}</td>
+      <td style="font-family:monospace">${p.costo?'$'+fmt(p.costo):'-'}</td>
+      <td style="color:var(--muted);font-size:12px">${p.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editPulv('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePulv('${p.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="10">Sin aplicaciones</td></tr>';
+}
+
+async function deletePulv(id){
+  confirm2('¿Eliminar esta aplicación?', async ()=>{
+    try { await deleteDoc2(docRef('pulverizaciones',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// FERTILIZACIONES
+// ══════════════════════════════════════
+function openModalFert(){
+  document.getElementById('fert-id').value='';
+  document.getElementById('fert-fecha').value=today();
+  document.getElementById('fert-momento').value='';
+  document.getElementById('fert-producto').value='';
+  document.getElementById('fert-dosis').value='';
+  document.getElementById('fert-ha').value='';
+  document.getElementById('fert-total').value='';
+  document.getElementById('fert-obs').value='';
+  populateLoteSelect('fert-lote');
+  document.getElementById('modal-fert-title').textContent='Nueva fertilización';
+  openModal('modal-fert');
+  document.getElementById('fert-dosis').addEventListener('input',calcFert);
+  document.getElementById('fert-ha').addEventListener('input',calcFert);
+}
+
+function calcFert(){
+  const d=parseFloat(document.getElementById('fert-dosis').value)||0;
+  const h=parseFloat(document.getElementById('fert-ha').value)||0;
+  document.getElementById('fert-total').value = d*h ? (d*h).toFixed(0) : '';
+}
+
+function editFert(id){
+  const f = DB.fertilizaciones.find(x=>x.id===id); if(!f) return;
+  document.getElementById('fert-id').value=f.id;
+  document.getElementById('fert-fecha').value=f.fecha||today();
+  document.getElementById('fert-momento').value=f.momento||'';
+  document.getElementById('fert-producto').value=f.producto||'';
+  document.getElementById('fert-dosis').value=f.dosis||'';
+  document.getElementById('fert-ha').value=f.ha||'';
+  document.getElementById('fert-total').value=f.total||'';
+  document.getElementById('fert-obs').value=f.obs||'';
+  populateLoteSelect('fert-lote');
+  setTimeout(()=>document.getElementById('fert-lote').value=f.lote||'',50);
+  document.getElementById('modal-fert-title').textContent='Editar fertilización';
+  openModal('modal-fert');
+}
+
+async function guardarFert(){
+  const id = document.getElementById('fert-id').value;
+  const dosis = parseFloat(document.getElementById('fert-dosis').value)||0;
+  const ha = parseFloat(document.getElementById('fert-ha').value)||0;
+  const data = {
+    fecha: document.getElementById('fert-fecha').value,
+    lote: document.getElementById('fert-lote').value,
+    cultivo: document.getElementById('fert-cultivo').value,
+    producto: document.getElementById('fert-producto').value.trim(),
+    dosis, ha, total: dosis*ha,
+    momento: document.getElementById('fert-momento').value.trim(),
+    obs: document.getElementById('fert-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('fertilizaciones',id), data);
+    else await addDoc2(colRef('fertilizaciones'), data);
+    toast('Guardado ✓');
+    closeModal('modal-fert');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderFert(){
+  const search = document.getElementById('search-fert')?.value?.toLowerCase()||'';
+  const lote = document.getElementById('filter-lote-fert')?.value||'';
+  const tbody = document.getElementById('tbody-fert');
+  const stats = document.getElementById('stats-fert');
+  if(!tbody) return;
+  let rows = DB.fertilizaciones.filter(f=>
+    (!search || f.lote?.toLowerCase().includes(search) || f.producto?.toLowerCase().includes(search)) &&
+    (!lote || f.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalKg = DB.fertilizaciones.reduce((a,f)=>a+(f.total||0),0);
+    const totalHa = DB.fertilizaciones.reduce((a,f)=>a+(f.ha||0),0);
+    stats.innerHTML = `
+      <div class="stat-card green"><div class="stat-num">${DB.fertilizaciones.length}</div><div class="stat-lbl">Aplicaciones</div></div>
+      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalKg))}</div><div class="stat-lbl">kg totales</div></div>
+      <div class="stat-card amber"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
+    `;
+  }
+  tbody.innerHTML = rows.map(f=>
+    `<tr>
+      <td>${f.fecha||''}</td>
+      <td style="font-weight:700">${f.lote||''}</td>
+      <td>${cultivoBadge(f.cultivo)}</td>
+      <td style="font-weight:600">${f.producto||''}</td>
+      <td style="font-family:monospace">${fmt(f.dosis)} kg/ha</td>
+      <td style="font-family:monospace">${fmt(f.total)} kg</td>
+      <td style="font-family:monospace">${fmt(f.ha)} ha</td>
+      <td style="color:var(--muted);font-size:12px">${f.momento||''}</td>
+      <td style="color:var(--muted);font-size:12px">${f.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editFert('${f.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteFert('${f.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="10">Sin registros</td></tr>';
+}
+
+async function deleteFert(id){
+  confirm2('¿Eliminar esta fertilización?', async ()=>{
+    try { await deleteDoc2(docRef('fertilizaciones',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// LABORES
+// ══════════════════════════════════════
+function openModalLabor(){
+  document.getElementById('labor-id').value='';
+  document.getElementById('labor-fecha').value=today();
+  document.getElementById('labor-tipo').value='SIEMBRA';
+  document.getElementById('labor-ha').value='';
+  document.getElementById('labor-cultivo').value='MAIZ';
+  document.getElementById('labor-contratista').value='';
+  document.getElementById('labor-psha').value='';
+  document.getElementById('labor-total').value='';
+  document.getElementById('labor-total-iva').value='';
+  document.getElementById('labor-obs').value='';
+  populateLoteSelect('labor-lote');
+  document.getElementById('modal-labor-title').textContent='Nueva labor';
+  openModal('modal-labor');
+}
+
+function calcLabor(){
+  const ha = parseFloat(document.getElementById('labor-ha')?.value)||0;
+  const psha = parseFloat(document.getElementById('labor-psha')?.value)||0;
+  const total = ha*psha;
+  document.getElementById('labor-total').value = total ? total.toFixed(0) : '';
+  document.getElementById('labor-total-iva').value = total ? (total*1.21).toFixed(0) : '';
+}
+
+function editLabor(id){
+  const l = DB.labores.find(x=>x.id===id); if(!l) return;
+  document.getElementById('labor-id').value=l.id;
+  document.getElementById('labor-fecha').value=l.fecha||today();
+  document.getElementById('labor-tipo').value=l.tipo||'SIEMBRA';
+  document.getElementById('labor-ha').value=l.ha||'';
+  document.getElementById('labor-cultivo').value=l.cultivo||'MAIZ';
+  document.getElementById('labor-contratista').value=l.contratista||'';
+  document.getElementById('labor-psha').value=l.psha||'';
+  document.getElementById('labor-total').value=l.total||'';
+  document.getElementById('labor-total-iva').value=l.totalIva||'';
+  document.getElementById('labor-obs').value=l.obs||'';
+  populateLoteSelect('labor-lote');
+  setTimeout(()=>document.getElementById('labor-lote').value=l.lote||'',50);
+  document.getElementById('modal-labor-title').textContent='Editar labor';
+  openModal('modal-labor');
+  document.getElementById('labor-ha').addEventListener('input',calcLabor);
+  document.getElementById('labor-psha').addEventListener('input',calcLabor);
+}
+
+async function guardarLabor(){
+  const id = document.getElementById('labor-id').value;
+  const ha = parseFloat(document.getElementById('labor-ha').value)||0;
+  const psha = parseFloat(document.getElementById('labor-psha').value)||0;
+  const data = {
+    fecha: document.getElementById('labor-fecha').value,
+    lote: document.getElementById('labor-lote').value,
+    ha, cultivo: document.getElementById('labor-cultivo').value,
+    tipo: document.getElementById('labor-tipo').value,
+    contratista: document.getElementById('labor-contratista').value.trim(),
+    psha, total: ha*psha, totalIva: ha*psha*1.21,
+    obs: document.getElementById('labor-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('labores',id), data);
+    else await addDoc2(colRef('labores'), data);
+    toast('Guardado ✓');
+    closeModal('modal-labor');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderLabores(){
+  const search = document.getElementById('search-labores')?.value?.toLowerCase()||'';
+  const tipo = document.getElementById('filter-tipo-labor')?.value||'';
+  const lote = document.getElementById('filter-lote-labor')?.value||'';
+  const tbody = document.getElementById('tbody-labores');
+  const stats = document.getElementById('stats-labores');
+  if(!tbody) return;
+  let rows = DB.labores.filter(l=>
+    (!search || l.contratista?.toLowerCase().includes(search) || l.lote?.toLowerCase().includes(search)) &&
+    (!tipo || l.tipo===tipo) && (!lote || l.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalHa = DB.labores.reduce((a,l)=>a+(l.ha||0),0);
+    const totalPesos = DB.labores.reduce((a,l)=>a+(l.total||0),0);
+    const contratistas = [...new Set(DB.labores.map(l=>l.contratista))].filter(Boolean);
+    stats.innerHTML = `
+      <div class="stat-card blue"><div class="stat-num">${DB.labores.length}</div><div class="stat-lbl">Labores</div></div>
+      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
+      <div class="stat-card green"><div class="stat-num">${contratistas.length}</div><div class="stat-lbl">Contratistas</div></div>
+      <div class="stat-card amber"><div class="stat-num">${totalPesos?'$'+fmt(Math.round(totalPesos)):'-'}</div><div class="stat-lbl">Total pesos</div></div>
+    `;
+  }
+  tbody.innerHTML = rows.map(l=>
+    `<tr>
+      <td>${l.fecha||''}</td>
+      <td style="font-weight:700">${l.lote||''}</td>
+      <td style="font-family:monospace">${fmt(l.ha)} ha</td>
+      <td>${cultivoBadge(l.cultivo)}</td>
+      <td style="font-weight:600">${l.tipo||''}</td>
+      <td>${l.contratista||''}</td>
+      <td style="font-family:monospace">${l.psha?'$'+fmt(l.psha):'-'}</td>
+      <td style="font-family:monospace">${l.total?'$'+fmt(Math.round(l.total)):'-'}</td>
+      <td style="font-family:monospace">${l.totalIva?'$'+fmt(Math.round(l.totalIva)):'-'}</td>
+      <td style="color:var(--muted);font-size:12px">${l.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editLabor('${l.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteLabor('${l.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="11">Sin labores</td></tr>';
+}
+
+async function deleteLabor(id){
+  confirm2('¿Eliminar esta labor?', async ()=>{
+    try { await deleteDoc2(docRef('labores',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// SIEMBRA
+// ══════════════════════════════════════
+function openModalSiembra(){
+  document.getElementById('siem-id').value='';
+  ['siem-fecha'].forEach(id=>document.getElementById(id).value=today());
+  ['siem-antecesor','siem-variedad','siem-dosis','siem-total-sem','siem-fert-ha','siem-contratista','siem-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('siem-ha').value='';
+  document.getElementById('siem-rend').value='';
+  document.getElementById('siem-cultivo').value='MAIZ';
+  populateLoteSelect('siem-lote');
+  document.getElementById('modal-siembra-title').textContent='Nueva siembra';
+  openModal('modal-siembra');
+}
+
+function editSiembra(id){
+  const s = DB.siembra.find(x=>x.id===id); if(!s) return;
+  document.getElementById('siem-id').value=s.id;
+  document.getElementById('siem-fecha').value=s.fecha||today();
+  document.getElementById('siem-ha').value=s.ha||'';
+  document.getElementById('siem-cultivo').value=s.cultivo||'MAIZ';
+  document.getElementById('siem-antecesor').value=s.antecesor||'';
+  document.getElementById('siem-variedad').value=s.variedad||'';
+  document.getElementById('siem-dosis').value=s.dosis||'';
+  document.getElementById('siem-total-sem').value=s.totalSem||'';
+  document.getElementById('siem-fert-ha').value=s.fertHA||'';
+  document.getElementById('siem-contratista').value=s.contratista||'';
+  document.getElementById('siem-rend').value=s.rendEsp||'';
+  document.getElementById('siem-obs').value=s.obs||'';
+  populateLoteSelect('siem-lote');
+  setTimeout(()=>document.getElementById('siem-lote').value=s.lote||'',50);
+  document.getElementById('modal-siembra-title').textContent='Editar siembra';
+  openModal('modal-siembra');
+}
+
+async function guardarSiembra(){
+  const id = document.getElementById('siem-id').value;
+  const data = {
+    fecha: document.getElementById('siem-fecha').value,
+    lote: document.getElementById('siem-lote').value,
+    ha: parseFloat(document.getElementById('siem-ha').value)||0,
+    cultivo: document.getElementById('siem-cultivo').value,
+    antecesor: document.getElementById('siem-antecesor').value.trim(),
+    variedad: document.getElementById('siem-variedad').value.trim(),
+    dosis: document.getElementById('siem-dosis').value.trim(),
+    totalSem: document.getElementById('siem-total-sem').value.trim(),
+    fertHA: document.getElementById('siem-fert-ha').value.trim(),
+    contratista: document.getElementById('siem-contratista').value.trim(),
+    rendEsp: parseFloat(document.getElementById('siem-rend').value)||0,
+    obs: document.getElementById('siem-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('siembra',id), data);
+    else await addDoc2(colRef('siembra'), data);
+    toast('Guardado ✓');
+    closeModal('modal-siembra');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderSiembra(){
+  const search = document.getElementById('search-siembra')?.value?.toLowerCase()||'';
+  const cultivo = document.getElementById('filter-cultivo-siembra')?.value||'';
+  const tbody = document.getElementById('tbody-siembra');
+  const stats = document.getElementById('stats-siembra');
+  if(!tbody) return;
+  let rows = DB.siembra.filter(s=>
+    (!search || s.lote?.toLowerCase().includes(search) || s.cultivo?.toLowerCase().includes(search) || s.variedad?.toLowerCase().includes(search)) &&
+    (!cultivo || s.cultivo===cultivo)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  if(stats){
+    const totalHa = DB.siembra.reduce((a,s)=>a+(s.ha||0),0);
+    const cultivos = [...new Set(DB.siembra.map(s=>s.cultivo))].filter(Boolean);
+    stats.innerHTML = `
+      <div class="stat-card purple"><div class="stat-num">${DB.siembra.length}</div><div class="stat-lbl">Lotes sembrados</div></div>
+      <div class="stat-card brown"><div class="stat-num">${fmt(Math.round(totalHa))}</div><div class="stat-lbl">Hectáreas</div></div>
+      <div class="stat-card green"><div class="stat-num">${cultivos.length}</div><div class="stat-lbl">Cultivos</div></div>
+    `;
+  }
+  tbody.innerHTML = rows.map(s=>
+    `<tr>
+      <td>${s.fecha||''}</td>
+      <td style="font-weight:700">${s.lote||''}</td>
+      <td style="font-family:monospace">${fmt(s.ha)} ha</td>
+      <td style="color:var(--muted)">${s.antecesor||''}</td>
+      <td>${cultivoBadge(s.cultivo)}</td>
+      <td style="font-weight:600">${s.variedad||''}</td>
+      <td style="font-size:12px">${s.dosis||''}</td>
+      <td style="font-size:12px">${s.totalSem||''}</td>
+      <td style="font-size:12px">${s.fertHA||''}</td>
+      <td style="font-size:12px">${s.contratista||''}</td>
+      <td style="font-family:monospace">${s.rendEsp?fmt(s.rendEsp)+' kg/ha':'-'}</td>
+      <td style="color:var(--muted);font-size:12px">${s.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editSiembra('${s.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteSiembra('${s.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="13">Sin registros de siembra</td></tr>';
+}
+
+async function deleteSiembra(id){
+  confirm2('¿Eliminar este registro de siembra?', async ()=>{
+    try { await deleteDoc2(docRef('siembra',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// COSECHA
+// ══════════════════════════════════════
+function calcCosecha(){
+  const kgC = parseFloat(document.getElementById('cos-kg-campo').value)||0;
+  const h = parseFloat(document.getElementById('cos-humedad').value)||0;
+  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
+  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
+  // Humedad estándar maíz: 14.5%, soja: 13.5%. Usamos 14.5 como default
+  const humRef = 14.5;
+  const mermaH = h > humRef ? Math.round(kgC * ((h - humRef) / (100 - humRef))) : 0;
+  document.getElementById('cos-merma-h').value = mermaH || '';
+  const netos = Math.max(0, kgC - mermaH - zaranda);
+  document.getElementById('cos-kg-netos').value = netos ? Math.round(netos) : '';
+  document.getElementById('cos-rend').value = (ha && netos) ? Math.round(netos/ha) : '';
+}
+
+function openModalCosecha(){
+  document.getElementById('cos-id').value='';
+  document.getElementById('cos-fecha').value=today();
+  document.getElementById('cos-tipo').value='COSECHA';
+  document.getElementById('cos-cultivo').value='MAIZ';
+  document.getElementById('cos-destino').value='';
+  document.getElementById('cos-chofer').value='';
+  document.getElementById('cos-chasis').value='';
+  document.getElementById('cos-kg-campo').value='';
+  document.getElementById('cos-kg-destino').value='';
+  document.getElementById('cos-humedad').value='';
+  document.getElementById('cos-merma-h').value='';
+  document.getElementById('cos-zaranda').value='';
+  document.getElementById('cos-kg-netos').value='';
+  document.getElementById('cos-ha').value='';
+  document.getElementById('cos-rend').value='';
+  document.getElementById('cos-obs').value='';
+  populateLoteSelect('cos-lote');
+  document.getElementById('modal-cosecha-title').textContent='Nuevo registro de cosecha';
+  openModal('modal-cosecha');
+}
+
+function editCosecha(id){
+  const c = DB.cosecha.find(x=>x.id===id); if(!c) return;
+  document.getElementById('cos-id').value=c.id;
+  document.getElementById('cos-fecha').value=c.fecha||today();
+  document.getElementById('cos-tipo').value=c.tipo||'COSECHA';
+  document.getElementById('cos-cultivo').value=c.cultivo||'MAIZ';
+  document.getElementById('cos-destino').value=c.destino||'';
+  document.getElementById('cos-chofer').value=c.chofer||'';
+  document.getElementById('cos-chasis').value=c.chasis||'';
+  document.getElementById('cos-kg-campo').value=c.kgCampo||'';
+  document.getElementById('cos-kg-destino').value=c.kgDestino||'';
+  document.getElementById('cos-humedad').value=c.humedad||'';
+  document.getElementById('cos-merma-h').value=c.mermaH||'';
+  document.getElementById('cos-zaranda').value=c.zaranda||'';
+  document.getElementById('cos-kg-netos').value=c.kgNetos||'';
+  document.getElementById('cos-ha').value=c.ha||'';
+  document.getElementById('cos-rend').value=c.rend||'';
+  document.getElementById('cos-obs').value=c.obs||'';
+  populateLoteSelect('cos-lote');
+  setTimeout(()=>document.getElementById('cos-lote').value=c.lote||'',50);
+  document.getElementById('modal-cosecha-title').textContent='Editar cosecha';
+  openModal('modal-cosecha');
+}
+
+async function guardarCosecha(){
+  const id = document.getElementById('cos-id').value;
+  const kgCampo = parseFloat(document.getElementById('cos-kg-campo').value)||0;
+  const humedad = parseFloat(document.getElementById('cos-humedad').value)||0;
+  const zaranda = parseFloat(document.getElementById('cos-zaranda').value)||0;
+  const ha = parseFloat(document.getElementById('cos-ha').value)||0;
+  const mermaH = parseFloat(document.getElementById('cos-merma-h').value)||0;
+  const kgNetos = parseFloat(document.getElementById('cos-kg-netos').value)||0;
+  const data = {
+    fecha: document.getElementById('cos-fecha').value,
+    lote: document.getElementById('cos-lote').value,
+    cultivo: document.getElementById('cos-cultivo').value,
+    tipo: document.getElementById('cos-tipo').value,
+    destino: document.getElementById('cos-destino').value.trim(),
+    chofer: document.getElementById('cos-chofer').value.trim(),
+    chasis: document.getElementById('cos-chasis').value.trim(),
+    kgCampo, kgDestino: parseFloat(document.getElementById('cos-kg-destino').value)||0,
+    humedad, mermaH, zaranda, kgNetos,
+    ha, rend: ha ? Math.round(kgNetos/ha) : 0,
+    obs: document.getElementById('cos-obs').value.trim(),
+    _ts: new Date()
+  };
+  if(!data.lote){ toast('Seleccioná un lote','error'); return; }
+  try {
+    if(id) await updateDoc2(docRef('cosecha',id), data);
+    else await addDoc2(colRef('cosecha'), data);
+    toast('Guardado ✓');
+    closeModal('modal-cosecha');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+}
+
+function renderCosechaResumen(){
+  const div = document.getElementById('cosecha-summary');
+  if(!div) return;
+  const cultivos = [...new Set(DB.cosecha.map(c=>c.cultivo))].filter(Boolean);
+  div.innerHTML = cultivos.map(cult=>{
+    const regs = DB.cosecha.filter(c=>c.cultivo===cult);
+    const totalKg = regs.reduce((a,c)=>a+(c.kgCampo||0),0);
+    const totalNetos = regs.reduce((a,c)=>a+(c.kgNetos||0),0);
+    const totalHa = regs.filter(c=>c.tipo==='COSECHA/STOCK').reduce((a,c)=>a+(c.ha||0),0) || regs[0]?.ha || 0;
+    return `<div class="cosecha-card">
+      <div class="cosecha-card-title">${cultivoBadge(cult)}</div>
+      <div class="cosecha-num">${fmt(Math.round(totalKg/1000))} tn</div>
+      <div class="cosecha-sub">campo total</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">Netos: <b>${fmt(Math.round(totalNetos/1000))} tn</b></div>
+      <div style="font-size:12px;color:var(--muted)">${regs.length} registros</div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);padding:16px">Sin cosecha registrada</p>';
+}
+
+function renderCosecha(){
+  const search = document.getElementById('search-cosecha')?.value?.toLowerCase()||'';
+  const cultivo = document.getElementById('filter-cultivo-cosecha')?.value||'';
+  const lote = document.getElementById('filter-lote-cosecha')?.value||'';
+  const tbody = document.getElementById('tbody-cosecha');
+  if(!tbody) return;
+  let rows = DB.cosecha.filter(c=>
+    (!search || c.lote?.toLowerCase().includes(search) || c.cultivo?.toLowerCase().includes(search) || c.chofer?.toLowerCase().includes(search)) &&
+    (!cultivo || c.cultivo===cultivo) && (!lote || c.lote===lote)
+  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  tbody.innerHTML = rows.map(c=>
+    `<tr>
+      <td>${c.fecha||''}</td>
+      <td style="font-weight:700">${c.lote||''}</td>
+      <td>${cultivoBadge(c.cultivo)}</td>
+      <td style="font-size:11px;color:var(--muted)">${c.tipo||''}</td>
+      <td style="font-size:12px">${c.destino||''}</td>
+      <td style="font-size:12px">${c.chofer||''} ${c.chasis?'('+c.chasis+')':''}</td>
+      <td style="font-family:monospace">${fmt(c.kgCampo)}</td>
+      <td style="font-family:monospace">${fmt(c.kgDestino)||'-'}</td>
+      <td style="font-family:monospace">${c.humedad?c.humedad+'%':'-'}</td>
+      <td style="font-family:monospace">${fmt(c.mermaH)||'-'}</td>
+      <td style="font-family:monospace;font-weight:700;color:var(--teal)">${fmt(c.kgNetos)||'-'}</td>
+      <td style="font-family:monospace;color:var(--brown)">${c.rend?fmt(c.rend)+' kg/ha':'-'}</td>
+      <td style="color:var(--muted);font-size:11px">${c.obs||''}</td>
+      <td class="td-actions">
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editCosecha('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCosecha('${c.id}')">🗑</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr class="empty-row"><td colspan="14">Sin registros de cosecha</td></tr>';
+}
+
+async function deleteCosecha(id){
+  confirm2('¿Eliminar este registro de cosecha?', async ()=>{
+    try { await deleteDoc2(docRef('cosecha',id)); toast('Eliminado'); }
+    catch(e){ toast('Error','error'); }
+  });
+}
+
+// ══════════════════════════════════════
+// SORT TABLE (genérico)
+// ══════════════════════════════════════
+function sortTable(col, field, th){
+  const key = col+'_'+field;
+  sortState[key] = sortState[key]==='asc' ? 'desc' : 'asc';
+  const dir = sortState[key];
+  const arr = DB[col];
+  if(!arr) return;
+  arr.sort((a,b)=>{
+    const va=a[field]||'', vb=b[field]||'';
+    return dir==='asc' ? (va>vb?1:-1) : (va<vb?1:-1);
+  });
+  document.querySelectorAll('thead th.sorted').forEach(t=>t.classList.remove('sorted'));
+  th.classList.add('sorted');
+  th.querySelector('.sort-ico').textContent = dir==='asc'?'↑':'↓';
+  const fns = {movimientos:renderMovimientos, pulverizaciones:renderPulv, fertilizaciones:renderFert, labores:renderLabores, siembra:renderSiembra, cosecha:renderCosecha};
+  if(fns[col]) fns[col]();
+}
+
+// Cerrar modales con Escape
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-backdrop.show').forEach(m=>m.classList.remove('show'));
+    document.getElementById('confirm-modal').classList.remove('show');
+  }
+});
 </script>
 </body>
 </html>
