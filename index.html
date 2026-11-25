@@ -1349,7 +1349,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDSyoOgMBH_pLWjOFADaJdPztIEcM2D5bA",
+  apiKey: "AIzaSyDSyoOgMBH_pLWjOFADaJdPztIEcC2D5bA",
   authDomain: "la-angelica.firebaseapp.com",
   projectId: "la-angelica",
   storageBucket: "la-angelica.firebasestorage.app",
@@ -1578,6 +1578,14 @@ onSnapshot(collection(db, 'cosecha'), snap => {
 </script>
 
 <script>
+// DB siempre disponible aunque Firebase no cargue
+if(!window.DB) window.DB = {productos:[],movimientos:[],gasoil:[],pulverizaciones:[],fertilizaciones:[],labores:[],siembra:[],cosecha:[],lotes:[]};
+if(!window.colRef) window.colRef = ()=>null;
+if(!window.docRef) window.docRef = ()=>null;
+if(!window.addDoc2) window.addDoc2 = ()=>Promise.reject('Firebase no conectado');
+if(!window.updateDoc2) window.updateDoc2 = ()=>Promise.reject('Firebase no conectado');
+if(!window.deleteDoc2) window.deleteDoc2 = ()=>Promise.reject('Firebase no conectado');
+
 // ══════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════
