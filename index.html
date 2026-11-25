@@ -1392,16 +1392,18 @@ function setupListener(colName, stateKey, renderFn) {
   });
 }
 
-// Setup all listeners
-setupListener('stock_productos', 'productos', () => { renderProductos(); renderResumen(); populateMovProductos(); });
-setupListener('stock_movimientos', 'movimientos', renderMovimientos);
-setupListener('gasoil_registros', 'gasoil', () => { renderGasoil(); renderGasoilBalances(); populateCuentas(); });
-setupListener('pulverizaciones', 'pulverizaciones', renderPulv);
-setupListener('fertilizaciones', 'fertilizaciones', renderFert);
-setupListener('labores', 'labores', renderLabores);
-setupListener('siembra', 'siembra', renderSiembra);
-setupListener('cosecha', 'cosecha', () => { renderCosecha(); renderCosechaResumen(); });
-setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); });
+// Exponer setupListener para que el segundo script lo llame cuando las render functions estén definidas
+window.setupAllListeners = function() {
+  setupListener('stock_productos', 'productos', () => { renderProductos(); renderResumen(); populateMovProductos(); });
+  setupListener('stock_movimientos', 'movimientos', renderMovimientos);
+  setupListener('gasoil_registros', 'gasoil', () => { renderGasoil(); renderGasoilBalances(); populateCuentas(); });
+  setupListener('pulverizaciones', 'pulverizaciones', renderPulv);
+  setupListener('fertilizaciones', 'fertilizaciones', renderFert);
+  setupListener('labores', 'labores', renderLabores);
+  setupListener('siembra', 'siembra', renderSiembra);
+  setupListener('cosecha', 'cosecha', () => { renderCosecha(); renderCosechaResumen(); });
+  setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); });
+};
 
 // ── DATOS INICIALES ──
 // Cargar lotes predeterminados si no hay ninguno
@@ -2739,6 +2741,19 @@ document.addEventListener('keydown', e => {
     document.getElementById('confirm-modal').classList.remove('show');
   }
 });
+
+// Iniciar listeners de Firebase (todas las render functions ya están definidas aquí)
+if(window.setupAllListeners) {
+  window.setupAllListeners();
+} else {
+  // Firebase módulo aún no cargó — esperar
+  let attempts = 0;
+  const waitFB = setInterval(() => {
+    attempts++;
+    if(window.setupAllListeners) { window.setupAllListeners(); clearInterval(waitFB); }
+    else if(attempts > 50) clearInterval(waitFB); // 5 segundos máximo
+  }, 100);
+}
 </script>
 </body>
 </html>
