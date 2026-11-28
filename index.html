@@ -247,7 +247,30 @@ tbody td{padding:9px 12px;vertical-align:middle}
 .ac-item-sub{font-size:11px;color:var(--muted);white-space:nowrap}
 .ac-match{color:var(--brown);font-weight:800}
 
-/* ── PULVERIZACIONES ── */
+/* ── PULVERIZACIONES CARDS ── */
+.pulv-view{display:flex;flex-direction:column;gap:14px;padding:4px 0}
+.pulv-lote-group{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.pulv-lote-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(90deg,var(--brown-pale) 0%,var(--surface) 100%);border-bottom:1px solid var(--border)}
+.pulv-lote-name{font-size:16px;font-weight:800;color:var(--brown-dark);letter-spacing:.5px}
+.pulv-lote-cultivo{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface2);padding:2px 9px;border-radius:20px;border:1px solid var(--border)}
+.pulv-lote-count{margin-left:auto;font-size:11px;color:var(--muted);font-weight:600}
+.pulv-apps-list{display:flex;flex-direction:column;gap:0}
+.pulv-app-row{display:grid;grid-template-columns:auto 1fr auto;gap:0;align-items:stretch;border-bottom:1px solid var(--border)}
+.pulv-app-row:last-child{border-bottom:none}
+.pulv-app-num{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 14px;background:var(--surface2);border-right:1px solid var(--border);min-width:52px;gap:3px}
+.pulv-app-num-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.pulv-app-num-n{font-size:22px;font-weight:900;color:var(--brown);line-height:1}
+.pulv-app-body{padding:11px 14px;display:flex;flex-direction:column;gap:7px}
+.pulv-app-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pulv-app-fecha{font-size:12px;font-weight:700;color:var(--text)}
+.pulv-app-tipo{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.pulv-app-prods{display:flex;flex-direction:column;gap:3px}
+.pulv-app-prod{display:flex;align-items:center;gap:7px;font-size:12.5px}
+.pulv-app-prod-nombre{font-weight:700;color:var(--text)}
+.pulv-app-prod-dosis{color:var(--muted);font-size:11.5px}
+.pulv-app-footer{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:5px;border-top:1px solid var(--border)}
+.pulv-app-footer-item{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px}
+.pulv-app-actions{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:10px 10px;border-left:1px solid var(--border);background:var(--surface2)}
 .pulv-productos{display:flex;flex-direction:column;gap:4px}
 .pulv-prod-row{font-size:12px;color:var(--text)}
 .pulv-prod-row span{color:var(--muted);font-size:11px}
@@ -504,24 +527,34 @@ tbody td{padding:9px 12px;vertical-align:middle}
         <option value="otro">Otro</option>
       </select>
     </div>
+    <div class="btn-group" style="margin-left:auto;display:flex;gap:4px">
+      <button class="btn btn-outline btn-sm" id="pulv-view-cards" onclick="setPulvView('cards')" style="padding:6px 10px;font-size:12px">🃏 Cards</button>
+      <button class="btn btn-outline btn-sm" id="pulv-view-tabla" onclick="setPulvView('tabla')" style="padding:6px 10px;font-size:12px">📋 Tabla</button>
+    </div>
   </div>
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table>
-        <thead><tr>
-          <th onclick="sortTable('pulverizaciones','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
-          <th>Lote</th>
-          <th>Cultivo</th>
-          <th>Tipo</th>
-          <th>Productos</th>
-          <th>Equipo</th>
-          <th>Operario</th>
-          <th>Costo $/ha</th>
-          <th>Obs.</th>
-          <th></th>
-        </tr></thead>
-        <tbody id="tbody-pulv"></tbody>
-      </table>
+  <!-- Vista cards (default) -->
+  <div id="pulv-cards-view" class="pulv-view"></div>
+  <!-- Vista tabla (alternativa) -->
+  <div id="pulv-tabla-view" style="display:none">
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Aplic.</th>
+            <th onclick="sortTable('pulverizaciones','fecha',this)">Fecha<span class="sort-ico">↕</span></th>
+            <th>Lote</th>
+            <th>Cultivo</th>
+            <th>Tipo</th>
+            <th>Productos</th>
+            <th>Equipo</th>
+            <th>Operario</th>
+            <th>$/ha</th>
+            <th>Obs.</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-pulv"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -781,6 +814,24 @@ tbody td{padding:9px 12px;vertical-align:middle}
           <input type="number" id="prod-minimo" min="0" step="0.1" placeholder="0">
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Dosis habitual / ha</label>
+          <input type="number" id="prod-dosis" min="0" step="0.001" placeholder="Ej: 1.5">
+        </div>
+        <div class="form-group">
+          <label>Unidad dosis</label>
+          <div class="sel-group">
+            <select id="prod-dosis-unidad">
+              <option value="L/ha">L/ha</option>
+              <option value="kg/ha">kg/ha</option>
+              <option value="cc/ha">cc/ha</option>
+              <option value="g/ha">g/ha</option>
+              <option value="u/ha">u/ha</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label>Observaciones</label>
         <textarea id="prod-obs" placeholder="Notas opcionales..."></textarea>
@@ -950,12 +1001,22 @@ tbody td{padding:9px 12px;vertical-align:middle}
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>Hectáreas</label>
+          <input type="number" id="pulv-ha" min="0" step="0.1" placeholder="Ej: 54">
+        </div>
+        <div class="form-group">
           <label>Equipo / Maquinaria</label>
           <input type="text" id="pulv-equipo" placeholder="Ej: Metalfor 2800">
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>Operario</label>
           <input type="text" id="pulv-operario" placeholder="Nombre del operario">
+        </div>
+        <div class="form-group">
+          <label>Costo $/ha</label>
+          <input type="number" id="pulv-costo" min="0" step="1" placeholder="0">
         </div>
       </div>
       <hr class="form-divider">
@@ -968,15 +1029,9 @@ tbody td{padding:9px 12px;vertical-align:middle}
       </div>
       <div id="pulv-productos-list"></div>
       <hr class="form-divider">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Costo $/ha</label>
-          <input type="number" id="pulv-costo" min="0" step="1" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label>Observaciones</label>
-          <input type="text" id="pulv-obs" placeholder="Notas...">
-        </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <input type="text" id="pulv-obs" placeholder="Notas...">
       </div>
     </div>
     <div class="modal-footer">
@@ -1468,11 +1523,48 @@ function categBadge(c){
 // ── AUTOCOMPLETE ENGINE ──
 let acActiveIdx = -1;
 
+// Fuzzy scoring: retorna score > 0 si hay match, 0 si no. Mayor score = mejor match.
+function fuzzyScore(q, text){
+  if(!q) return 1;
+  const tl = text.toLowerCase(), ql = q.toLowerCase();
+  // Match exacto al inicio: máximo score
+  if(tl.startsWith(ql)) return 100 + (100 - tl.length);
+  // Match exacto en algún lugar
+  const idx = tl.indexOf(ql);
+  if(idx >= 0) return 80 - idx;
+  // Match por palabras: todas las palabras del query deben estar
+  const words = ql.split(/\s+/).filter(Boolean);
+  if(words.length > 1 && words.every(w => tl.includes(w))) return 60;
+  // Match fuzzy: todos los chars del query en orden en el texto
+  let ti = 0, matched = 0;
+  for(let i=0; i<ql.length; i++){
+    while(ti < tl.length && tl[ti] !== ql[i]) ti++;
+    if(ti >= tl.length) break;
+    matched++; ti++;
+  }
+  if(matched === ql.length) return Math.max(1, 40 - ti);
+  return 0;
+}
+
+// Fuzzy highlight: resalta todos los chars del query en el texto
 function acHighlight(q, text){
   if(!q) return text;
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if(i < 0) return text;
-  return text.slice(0,i) + '<span class="ac-match">'+text.slice(i,i+q.length)+'</span>' + text.slice(i+q.length);
+  const ql = q.toLowerCase(), tl = text.toLowerCase();
+  // Si es match directo, resalta el bloque
+  const i = tl.indexOf(ql);
+  if(i >= 0) return text.slice(0,i)+'<span class="ac-match">'+text.slice(i,i+q.length)+'</span>'+text.slice(i+q.length);
+  // Si es match fuzzy, resaltar chars individuales
+  const result = [];
+  let qi = 0;
+  for(let ti=0; ti<text.length; ti++){
+    if(qi < ql.length && tl[ti] === ql[qi]){
+      result.push('<span class="ac-match">'+text[ti]+'</span>');
+      qi++;
+    } else {
+      result.push(text[ti]);
+    }
+  }
+  return result.join('');
 }
 
 function acShow(inputEl, items, onSelect){
@@ -1488,8 +1580,16 @@ function acShow(inputEl, items, onSelect){
   }
   acActiveIdx = -1;
   const q = inputEl.value.trim();
-  const filtered = q.length === 0 ? items.slice(0,12)
-    : items.filter(it => it.label.toLowerCase().includes(q.toLowerCase()) || (it.sub||'').toLowerCase().includes(q.toLowerCase())).slice(0,10);
+  let filtered;
+  if(q.length === 0){
+    filtered = items.slice(0,12);
+  } else {
+    filtered = items.map(it => {
+      const s1 = fuzzyScore(q, it.label);
+      const s2 = it.sub ? fuzzyScore(q, it.sub)*0.6 : 0;
+      return { it, score: Math.max(s1, s2) };
+    }).filter(x => x.score > 0).sort((a,b) => b.score - a.score).slice(0,10).map(x => x.it);
+  }
 
   if(!filtered.length){ dd.classList.remove('open'); return; }
 
@@ -1796,13 +1896,17 @@ function prodBgColor(categoria){
 }
 
 function renderProductos(){
-  const search = document.getElementById('search-prod')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-prod')?.value?.trim()||'';
   const cat = document.getElementById('filter-categoria')?.value||'';
-  let prods = DB.productos.filter(p => {
-    const ok = (!search || p.nombre?.toLowerCase().includes(search) || p.marca?.toLowerCase().includes(search));
-    const okCat = (!cat || p.categoria===cat);
-    return ok && okCat;
-  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  let prods = DB.productos.map(p => {
+    const s1 = fuzzyScore(search, p.nombre||'');
+    const s2 = fuzzyScore(search, p.marca||'') * 0.7;
+    const score = Math.max(s1, s2);
+    return { p, score };
+  }).filter(x => {
+    if(cat && x.p.categoria !== cat) return false;
+    return !search || x.score > 0;
+  }).sort((a,b) => search ? b.score-a.score : (a.p.nombre||'').localeCompare(b.p.nombre||'')).map(x=>x.p);
   const grid = document.getElementById('productos-grid');
   if(!grid) return;
   grid.innerHTML = prods.map(p => {
@@ -1824,6 +1928,7 @@ function renderProductos(){
           '<span class="prod-stock '+(low?'low':'')+'">'+fmt(p.stock)+'</span>' +
           '<span class="prod-unidad">'+p.unidad+'</span>' +
         '</div>' +
+        (p.dosis ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">📐 Dosis: <b>'+p.dosis+' '+(p.dosisUnidad||'L/ha')+'</b></div>' : '') +
         '<div class="prod-actions">' +
           '<button class="btn btn-green btn-sm" style="flex:1" onclick="event.stopPropagation();openMovProd(\''+p.id+'\')">↕ Mov.</button>' +
           '<button class="btn btn-outline btn-sm btn-icon" onclick="event.stopPropagation();editProducto(\''+p.id+'\')">✏️</button>' +
@@ -1837,9 +1942,10 @@ function renderProductos(){
 window.openModalProducto = function(){
   document.getElementById('prod-id').value='';
   ['prod-nombre','prod-marca','prod-obs'].forEach(id=>document.getElementById(id).value='');
-  ['prod-stock','prod-minimo'].forEach(id=>document.getElementById(id).value='');
+  ['prod-stock','prod-minimo','prod-dosis'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('prod-categoria').value='HERBICIDA';
   document.getElementById('prod-unidad').value='lts';
+  document.getElementById('prod-dosis-unidad').value='L/ha';
   document.getElementById('modal-producto-title').textContent='Nuevo producto';
   openModal('modal-producto');
 };
@@ -1853,6 +1959,8 @@ window.editProducto = function(id){
   document.getElementById('prod-unidad').value=p.unidad||'lts';
   document.getElementById('prod-stock').value=p.stock||'';
   document.getElementById('prod-minimo').value=p.minimo||'';
+  document.getElementById('prod-dosis').value=p.dosis||'';
+  document.getElementById('prod-dosis-unidad').value=p.dosisUnidad||'L/ha';
   document.getElementById('prod-obs').value=p.obs||'';
   document.getElementById('modal-producto-title').textContent='Editar producto';
   openModal('modal-producto');
@@ -1867,6 +1975,8 @@ window.guardarProducto = async function(){
     unidad: document.getElementById('prod-unidad').value,
     stock: parseFloat(document.getElementById('prod-stock').value)||0,
     minimo: parseFloat(document.getElementById('prod-minimo').value)||0,
+    dosis: parseFloat(document.getElementById('prod-dosis').value)||0,
+    dosisUnidad: document.getElementById('prod-dosis-unidad').value,
     obs: document.getElementById('prod-obs').value.trim(),
     _ts: new Date()
   };
@@ -1956,14 +2066,15 @@ window.guardarMovimiento = async function(){
 };
 
 function renderMovimientos(){
-  const search = document.getElementById('search-mov')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-mov')?.value?.trim()||'';
   const tipo = document.getElementById('filter-tipo-mov')?.value||'';
   const tbody = document.getElementById('tbody-movimientos');
   if(!tbody) return;
-  let rows = DB.movimientos.filter(m =>
-    (!search || m.productoNombre?.toLowerCase().includes(search) || m.lote?.toLowerCase().includes(search)) &&
-    (!tipo || m.tipo===tipo)
-  );
+  let rows = DB.movimientos.filter(m => {
+    if(tipo && m.tipo!==tipo) return false;
+    if(!search) return true;
+    return fuzzyScore(search, m.productoNombre||'') > 0 || fuzzyScore(search, m.lote||'') > 0;
+  });
   tbody.innerHTML = rows.map(m =>
     '<tr>' +
     '<td>'+(m.fecha||'')+'</td>' +
@@ -2096,14 +2207,15 @@ function renderGasoilBalances(){
 }
 
 function renderGasoil(){
-  const search = document.getElementById('search-gasoil')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-gasoil')?.value?.trim()||'';
   const cuenta = document.getElementById('filter-cuenta')?.value||'';
   const tbody = document.getElementById('tbody-gasoil');
   if(!tbody) return;
-  let rows = DB.gasoil.filter(g =>
-    (!search || g.concepto?.toLowerCase().includes(search) || g.cuenta?.toLowerCase().includes(search)) &&
-    (!cuenta || g.cuenta===cuenta)
-  );
+  let rows = DB.gasoil.filter(g => {
+    if(cuenta && g.cuenta!==cuenta) return false;
+    if(!search) return true;
+    return fuzzyScore(search, g.concepto||'') > 0 || fuzzyScore(search, g.cuenta||'') > 0;
+  });
   tbody.innerHTML = rows.map(g =>
     '<tr>' +
     '<td>'+(g.fecha||'')+'</td>' +
@@ -2152,6 +2264,7 @@ window.openModalPulv = function(){
   document.getElementById('pulv-fecha').value=today();
   document.getElementById('pulv-tipo').value='barbecho';
   document.getElementById('pulv-cultivo').value='MAIZ';
+  document.getElementById('pulv-ha').value='';
   document.getElementById('pulv-equipo').value='';
   document.getElementById('pulv-operario').value='';
   document.getElementById('pulv-costo').value='';
@@ -2170,6 +2283,7 @@ window.editPulv = function(id){
   document.getElementById('pulv-fecha').value=p.fecha||today();
   document.getElementById('pulv-tipo').value=p.tipo||'barbecho';
   document.getElementById('pulv-cultivo').value=p.cultivo||'MAIZ';
+  document.getElementById('pulv-ha').value=p.ha||'';
   document.getElementById('pulv-equipo').value=p.equipo||'';
   document.getElementById('pulv-operario').value=p.operario||'';
   document.getElementById('pulv-costo').value=p.costo||'';
@@ -2202,6 +2316,7 @@ window.guardarPulv = async function(){
     lote: document.getElementById('pulv-lote').value,
     cultivo: document.getElementById('pulv-cultivo').value,
     tipo: document.getElementById('pulv-tipo').value,
+    ha: parseFloat(document.getElementById('pulv-ha').value)||0,
     equipo: document.getElementById('pulv-equipo').value.trim(),
     operario: document.getElementById('pulv-operario').value.trim(),
     costo: parseFloat(document.getElementById('pulv-costo').value)||0,
@@ -2217,17 +2332,62 @@ window.guardarPulv = async function(){
   } catch(e){ toast('Error: '+e.message,'error'); }
 };
 
+// Estado de la vista de pulverizaciones
+let pulvCurrentView = 'cards';
+window.setPulvView = function(view){
+  pulvCurrentView = view;
+  document.getElementById('pulv-cards-view').style.display = view==='cards' ? '' : 'none';
+  document.getElementById('pulv-tabla-view').style.display = view==='tabla' ? '' : 'none';
+  document.getElementById('pulv-view-cards').classList.toggle('btn-primary', view==='cards');
+  document.getElementById('pulv-view-cards').classList.toggle('btn-outline', view!=='cards');
+  document.getElementById('pulv-view-tabla').classList.toggle('btn-primary', view==='tabla');
+  document.getElementById('pulv-view-tabla').classList.toggle('btn-outline', view!=='tabla');
+};
+
+// Colores/ordinal para tipo pulv
+function tipoPulvColor(tipo){
+  if(tipo==='barbecho') return '#b45309';
+  if(tipo==='pre-emerg') return '#1d4ed8';
+  if(tipo==='post-emerg') return '#15803d';
+  return '#6b7280';
+}
+function tipoPulvBg(tipo){
+  if(tipo==='barbecho') return '#fef3c7';
+  if(tipo==='pre-emerg') return '#dbeafe';
+  if(tipo==='post-emerg') return '#dcfce7';
+  return '#f3f4f6';
+}
+function tipoPulvLabel(tipo){
+  if(tipo==='barbecho') return 'Barbecho';
+  if(tipo==='pre-emerg') return 'Pre-emergencia';
+  if(tipo==='post-emerg') return 'Post-emergencia';
+  return tipo||'Otro';
+}
+// Número ordinal para Aplicación
+function numOrdinal(n){
+  if(n===1) return '1ª';
+  if(n===2) return '2ª';
+  if(n===3) return '3ª';
+  if(n===4) return '4ª';
+  return n+'ª';
+}
+
 function renderPulv(){
-  const search = document.getElementById('search-pulv')?.value?.toLowerCase()||'';
-  const lote = document.getElementById('filter-lote-pulv')?.value||'';
+  const search = document.getElementById('search-pulv')?.value?.trim()||'';
+  const filterLote = document.getElementById('filter-lote-pulv')?.value||'';
   const tipo = document.getElementById('filter-tipo-pulv')?.value||'';
-  const tbody = document.getElementById('tbody-pulv');
   const stats = document.getElementById('stats-pulv');
-  if(!tbody) return;
-  let rows = DB.pulverizaciones.filter(p=>
-    (!search || p.lote?.toLowerCase().includes(search) || (p.productos||[]).some(pr=>pr.nombre?.toLowerCase().includes(search))) &&
-    (!lote || p.lote===lote) && (!tipo || p.tipo===tipo)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+
+  // Filtrar todo el dataset
+  let allFiltered = DB.pulverizaciones.filter(p => {
+    if(filterLote && p.lote!==filterLote) return false;
+    if(tipo && p.tipo!==tipo) return false;
+    if(!search) return true;
+    return fuzzyScore(search, p.lote||'') > 0 || fuzzyScore(search, p.cultivo||'') > 0 ||
+           (p.productos||[]).some(pr => fuzzyScore(search, pr.nombre||'') > 0);
+  });
+
+  // Stats basadas en todo el DB (no filtrado)
   if(stats){
     const lotes = [...new Set(DB.pulverizaciones.map(p=>p.lote))].filter(Boolean);
     stats.innerHTML =
@@ -2236,22 +2396,110 @@ function renderPulv(){
       '<div class="stat-card amber"><div class="stat-num">'+DB.pulverizaciones.filter(p=>p.tipo==='barbecho').length+'</div><div class="stat-lbl">Barbechos</div></div>' +
       '<div class="stat-card blue"><div class="stat-num">'+DB.pulverizaciones.filter(p=>p.tipo==='pre-emerg'||p.tipo==='post-emerg').length+'</div><div class="stat-lbl">Post/Pre emerg.</div></div>';
   }
-  tbody.innerHTML = rows.map(p=>
-    '<tr>' +
-    '<td>'+(p.fecha||'')+'</td>' +
-    '<td style="font-weight:700">'+(p.lote||'')+'</td>' +
-    '<td>'+cultivoBadge(p.cultivo)+'</td>' +
-    '<td>'+tipoPulvBadge(p.tipo)+'</td>' +
-    '<td><div class="pulv-productos">'+(p.productos||[]).map(pr=>'<div class="pulv-prod-row"><b>'+pr.nombre+'</b> <span>'+pr.dosis+' L/ha · '+fmt(pr.total)+' total</span></div>').join('')+'</div></td>' +
-    '<td style="font-size:12px">'+(p.equipo||'')+'</td>' +
-    '<td style="font-size:12px">'+(p.operario||'')+'</td>' +
-    '<td style="font-family:monospace">'+(p.costo?'$'+fmt(p.costo):'-')+'</td>' +
-    '<td style="color:var(--muted);font-size:12px">'+(p.obs||'')+'</td>' +
-    '<td class="td-actions">' +
-      '<button class="btn btn-outline btn-sm btn-icon" onclick="editPulv(\''+p.id+'\')">✏️</button>' +
-      '<button class="btn btn-danger btn-sm btn-icon" onclick="deletePulv(\''+p.id+'\')">🗑</button>' +
-    '</td></tr>'
-  ).join('') || '<tr class="empty-row"><td colspan="10">Sin aplicaciones</td></tr>';
+
+  // Numerar aplicaciones globalmente por lote (usando TODO el dataset, ordenado cronológicamente)
+  const appNumByLote = {}; // loteNombre -> { fecha_sorted -> numAplicacion }
+  const loteApps = {}; // loteNombre -> [apps ordenadas]
+  DB.pulverizaciones.forEach(p => {
+    if(!p.lote) return;
+    if(!loteApps[p.lote]) loteApps[p.lote] = [];
+    loteApps[p.lote].push(p);
+  });
+  Object.keys(loteApps).forEach(lote => {
+    loteApps[lote].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+    appNumByLote[lote] = {};
+    loteApps[lote].forEach((p,i) => { appNumByLote[lote][p.id] = i+1; });
+  });
+
+  // ── VISTA CARDS (agrupada por lote) ──
+  const cardsEl = document.getElementById('pulv-cards-view');
+  if(cardsEl){
+    // Agrupar FILTRADOS por lote
+    const grupos = {};
+    allFiltered.sort((a,b)=>(a.lote||'').localeCompare(b.lote||'')).forEach(p => {
+      if(!grupos[p.lote]) grupos[p.lote] = { cultivo: p.cultivo, apps: [] };
+      grupos[p.lote].apps.push(p);
+    });
+    const loteKeys = Object.keys(grupos).sort();
+    if(!loteKeys.length){
+      cardsEl.innerHTML = '<p style="color:var(--muted);padding:20px;font-style:italic">Sin aplicaciones</p>';
+    } else {
+      cardsEl.innerHTML = loteKeys.map(lote => {
+        const gr = grupos[lote];
+        const apps = gr.apps.sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+        return '<div class="pulv-lote-group">' +
+          '<div class="pulv-lote-header">' +
+            '<span style="font-size:20px">🌾</span>' +
+            '<span class="pulv-lote-name">Lote '+lote+'</span>' +
+            (gr.cultivo ? '<span class="pulv-lote-cultivo">'+cultivoBadge(gr.cultivo)+'</span>' : '') +
+            '<span class="pulv-lote-count">'+apps.length+' aplicación'+(apps.length!==1?'es':'')+'</span>' +
+          '</div>' +
+          '<div class="pulv-apps-list">' +
+          apps.map(p => {
+            const appN = (appNumByLote[p.lote]||{})[p.id] || '?';
+            const prods = p.productos||[];
+            return '<div class="pulv-app-row">' +
+              '<div class="pulv-app-num">' +
+                '<span class="pulv-app-num-label">Aplic.</span>' +
+                '<span class="pulv-app-num-n">'+numOrdinal(appN)+'</span>' +
+              '</div>' +
+              '<div class="pulv-app-body">' +
+                '<div class="pulv-app-meta">' +
+                  '<span class="pulv-app-fecha">📅 '+(p.fecha||'')+'</span>' +
+                  '<span class="pulv-app-tipo" style="background:'+tipoPulvBg(p.tipo)+';color:'+tipoPulvColor(p.tipo)+'">'+tipoPulvLabel(p.tipo)+'</span>' +
+                  (p.ha ? '<span style="font-size:11px;color:var(--muted)">📐 '+p.ha+' ha</span>' : '') +
+                '</div>' +
+                '<div class="pulv-app-prods">' +
+                prods.map(pr =>
+                  '<div class="pulv-app-prod">' +
+                    '<span style="font-size:14px">🧪</span>' +
+                    '<span class="pulv-app-prod-nombre">'+pr.nombre+'</span>' +
+                    '<span class="pulv-app-prod-dosis">'+pr.dosis+' L/ha' + (pr.total ? ' · '+fmt(pr.total)+' total' : '') + '</span>' +
+                  '</div>'
+                ).join('') +
+                '</div>' +
+                '<div class="pulv-app-footer">' +
+                  (p.operario ? '<span class="pulv-app-footer-item">👤 '+p.operario+'</span>' : '') +
+                  (p.equipo ? '<span class="pulv-app-footer-item">🚜 '+p.equipo+'</span>' : '') +
+                  (p.costo ? '<span class="pulv-app-footer-item">💰 $'+fmt(p.costo)+'/ha</span>' : '') +
+                  (p.obs ? '<span class="pulv-app-footer-item" style="color:var(--brown)">📝 '+p.obs+'</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div class="pulv-app-actions">' +
+                '<button class="btn btn-outline btn-sm btn-icon" title="Editar" onclick="editPulv(\''+p.id+'\')">✏️</button>' +
+                '<button class="btn btn-danger btn-sm btn-icon" title="Eliminar" onclick="deletePulv(\''+p.id+'\')">🗑</button>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // ── VISTA TABLA ──
+  const tbody = document.getElementById('tbody-pulv');
+  if(tbody){
+    const rows = allFiltered.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+    tbody.innerHTML = rows.map(p => {
+      const appN = (appNumByLote[p.lote]||{})[p.id] || '?';
+      return '<tr>' +
+        '<td style="font-weight:700;color:var(--brown)">'+numOrdinal(appN)+'</td>' +
+        '<td>'+(p.fecha||'')+'</td>' +
+        '<td style="font-weight:700">'+(p.lote||'')+'</td>' +
+        '<td>'+cultivoBadge(p.cultivo)+'</td>' +
+        '<td>'+tipoPulvBadge(p.tipo)+'</td>' +
+        '<td><div class="pulv-productos">'+(p.productos||[]).map(pr=>'<div class="pulv-prod-row"><b>'+pr.nombre+'</b> <span>'+pr.dosis+' L/ha · '+fmt(pr.total)+' total</span></div>').join('')+'</div></td>' +
+        '<td style="font-size:12px">'+(p.equipo||'')+'</td>' +
+        '<td style="font-size:12px">'+(p.operario||'')+'</td>' +
+        '<td style="font-family:monospace">'+(p.costo?'$'+fmt(p.costo):'-')+'</td>' +
+        '<td style="color:var(--muted);font-size:12px">'+(p.obs||'')+'</td>' +
+        '<td class="td-actions">' +
+          '<button class="btn btn-outline btn-sm btn-icon" onclick="editPulv(\''+p.id+'\')">✏️</button>' +
+          '<button class="btn btn-danger btn-sm btn-icon" onclick="deletePulv(\''+p.id+'\')">🗑</button>' +
+        '</td></tr>';
+    }).join('') || '<tr class="empty-row"><td colspan="11">Sin aplicaciones</td></tr>';
+  }
 }
 
 window.deletePulv = function(id){
@@ -2322,15 +2570,16 @@ window.guardarFert = async function(){
 };
 
 function renderFert(){
-  const search = document.getElementById('search-fert')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-fert')?.value?.trim()||'';
   const lote = document.getElementById('filter-lote-fert')?.value||'';
   const tbody = document.getElementById('tbody-fert');
   const stats = document.getElementById('stats-fert');
   if(!tbody) return;
-  let rows = DB.fertilizaciones.filter(f=>
-    (!search || f.lote?.toLowerCase().includes(search) || f.producto?.toLowerCase().includes(search)) &&
-    (!lote || f.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  let rows = DB.fertilizaciones.filter(f => {
+    if(lote && f.lote!==lote) return false;
+    if(!search) return true;
+    return fuzzyScore(search, f.lote||'') > 0 || fuzzyScore(search, f.producto||'') > 0;
+  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   if(stats){
     const totalKg = DB.fertilizaciones.reduce((a,f)=>a+(f.total||0),0);
     const totalHa = DB.fertilizaciones.reduce((a,f)=>a+(f.ha||0),0);
@@ -2431,16 +2680,18 @@ window.guardarLabor = async function(){
 };
 
 function renderLabores(){
-  const search = document.getElementById('search-labores')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-labores')?.value?.trim()||'';
   const tipo = document.getElementById('filter-tipo-labor')?.value||'';
   const lote = document.getElementById('filter-lote-labor')?.value||'';
   const tbody = document.getElementById('tbody-labores');
   const stats = document.getElementById('stats-labores');
   if(!tbody) return;
-  let rows = DB.labores.filter(l=>
-    (!search || l.contratista?.toLowerCase().includes(search) || l.lote?.toLowerCase().includes(search)) &&
-    (!tipo || l.tipo===tipo) && (!lote || l.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  let rows = DB.labores.filter(l => {
+    if(tipo && l.tipo!==tipo) return false;
+    if(lote && l.lote!==lote) return false;
+    if(!search) return true;
+    return fuzzyScore(search, l.contratista||'') > 0 || fuzzyScore(search, l.lote||'') > 0 || fuzzyScore(search, l.tipo||'') > 0;
+  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   if(stats){
     const totalHa = DB.labores.reduce((a,l)=>a+(l.ha||0),0);
     const totalPesos = DB.labores.reduce((a,l)=>a+(l.total||0),0);
@@ -2537,15 +2788,16 @@ window.guardarSiembra = async function(){
 };
 
 function renderSiembra(){
-  const search = document.getElementById('search-siembra')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-siembra')?.value?.trim()||'';
   const cultivo = document.getElementById('filter-cultivo-siembra')?.value||'';
   const tbody = document.getElementById('tbody-siembra');
   const stats = document.getElementById('stats-siembra');
   if(!tbody) return;
-  let rows = DB.siembra.filter(s=>
-    (!search || s.lote?.toLowerCase().includes(search) || s.cultivo?.toLowerCase().includes(search) || s.variedad?.toLowerCase().includes(search)) &&
-    (!cultivo || s.cultivo===cultivo)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  let rows = DB.siembra.filter(s => {
+    if(cultivo && s.cultivo!==cultivo) return false;
+    if(!search) return true;
+    return fuzzyScore(search, s.lote||'') > 0 || fuzzyScore(search, s.cultivo||'') > 0 || fuzzyScore(search, s.variedad||'') > 0;
+  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   if(stats){
     const totalHa = DB.siembra.reduce((a,s)=>a+(s.ha||0),0);
     const cultivos = [...new Set(DB.siembra.map(s=>s.cultivo))].filter(Boolean);
@@ -2692,15 +2944,17 @@ function renderCosechaResumen(){
 }
 
 function renderCosecha(){
-  const search = document.getElementById('search-cosecha')?.value?.toLowerCase()||'';
+  const search = document.getElementById('search-cosecha')?.value?.trim()||'';
   const cultivo = document.getElementById('filter-cultivo-cosecha')?.value||'';
   const lote = document.getElementById('filter-lote-cosecha')?.value||'';
   const tbody = document.getElementById('tbody-cosecha');
   if(!tbody) return;
-  let rows = DB.cosecha.filter(c=>
-    (!search || c.lote?.toLowerCase().includes(search) || c.cultivo?.toLowerCase().includes(search) || c.chofer?.toLowerCase().includes(search)) &&
-    (!cultivo || c.cultivo===cultivo) && (!lote || c.lote===lote)
-  ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  let rows = DB.cosecha.filter(c => {
+    if(cultivo && c.cultivo!==cultivo) return false;
+    if(lote && c.lote!==lote) return false;
+    if(!search) return true;
+    return fuzzyScore(search, c.lote||'') > 0 || fuzzyScore(search, c.cultivo||'') > 0 || fuzzyScore(search, c.chofer||'') > 0;
+  }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   tbody.innerHTML = rows.map(c=>
     '<tr>' +
     '<td>'+(c.fecha||'')+'</td>' +
@@ -2956,6 +3210,8 @@ setupListener('lotes', 'lotes', () => { renderLotes(); populateLoteSelects(); })
 
 // Inicializar autocomplete en todos los modales
 setupAllAC();
+// Inicializar vista de pulverizaciones
+window.setPulvView('cards');
 
 </script>
 </body>
